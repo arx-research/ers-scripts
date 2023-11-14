@@ -1,0 +1,14 @@
+{
+    "manufacturerId": "",
+    "chipKeys": [
+        {
+            "publicKeys": {
+              "1": "",
+              "2": ""
+            }
+        }
+    ],
+    "authModel": "",
+    "bootloaderApp": "https://eth.vrfy.ch",
+    "chipModel": "HaLo c5"
+}

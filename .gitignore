@@ -1,0 +1,22 @@
+node_modules
+.env
+coverage
+coverage.json
+typechain
+typechain-types
+
+# Hardhat files
+cache
+artifacts
+
+contracts
+yarn-error.log
+
+/deployments/localhost
+/dist
+
+# Don't commit task param files other than defaults
+/task_params/addManufacturerEnrollment.json
+/task_params/projectCreation.json
+/task_params/claimChip.json
+/task_outputs/
