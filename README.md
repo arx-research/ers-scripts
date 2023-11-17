@@ -50,6 +50,16 @@ yarn createService:localhost --service-name [name] --content [url/uri] --append-
 
 Note that the service creation function is narrowly scoped to only creating a service with a contentApp record. Also the resulting `serviceId` will be printed in the console as part of a successful transaction.
 
+### generateTokenUriData
+This script creates formatted tokenUriData for chips in the project and adds it to IPFS. An NFT.storage API token is required for this script. It takes two arguments:
+
+1. `network`: The network you want to interact with (defaults to `hardhat`)
+2. `scan`: The number of chips that you wish to scan and generate tokenUriData for.
+
+The script will prompt you to add `name`, `description` and `media` information. This information can be reused for all chips scanned, or you can individually add information on a per chip basis. It will then be formatted and added to IPFS via NFT.storage.
+
+The script will also prompt for the creation of a `chipData.json` file that can be used in project creation. It returns a CID that can be used for the `tokenUriRoot` in `projectCreation.json`.
+
 ### createProject
 This script creates a project and enrolls chips in the project. Similarly to `addManufacturerEnrollment` it takes in two arguments:
 1. `network`: The network you want to interact with (defaults to `hardhat`)

@@ -66,7 +66,7 @@ export async function getChipPublicKeys(gate: any): Promise<[Address, Address, K
     "name": "get_pkeys",
   };
 
-  const rawKeys: KeysFromChipScan = (await gate.execHaloCmd(cmd));
+  const rawKeys: KeysFromChipScan = await gate.execHaloCmd(cmd);
 
   return [rawKeys.etherAddresses['1'], rawKeys.etherAddresses['2'], rawKeys];
 }
@@ -83,7 +83,8 @@ export async function getChipSigWithGateway(gate: any, message: string): Promise
     "format": "hex"
   };
 
-  return await gate.execHaloCmd(cmd);
+  const gatewayResponse = await gate.execHaloCmd(cmd);
+  return gatewayResponse;
 }
 
 export async function createERSInstance(hre: any): Promise<ERS> {

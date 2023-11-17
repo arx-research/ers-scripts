@@ -22,6 +22,7 @@
     "createProject:localhost": "npx hardhat createProject --network localhost",
     "createService": "npx hardhat createService",
     "createService:localhost": "npx hardhat createService --network localhost",
+    "generateTokenUriData": "npx hardhat generateTokenUriData",    
     "postinstall": "yarn build",
     "scanChips": "npx hardhat scanChips",
     "test": "npx hardhat test",
