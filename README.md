@@ -117,3 +117,7 @@ Additionally there is a specific `localhost` version of this script that can be 
 yarn claimChip:localhost
 ```
 
+## Arx Manufacturer Enrollments
+Arx maintains a public repo with all Arx HaLo chip enrollments at https://github.com/arx-research/arx-chip-enrollments. You can use this to resolve the enrollment for a given chip. 
+
+Add the enrollments that are appropriate for the chain you wish to deploy to within the `task_outputs/enrollmentData/` directory (create this directory if it doesn't exist). The `manufacturerValidationLocation` in your `projectCreation` JSON file should reference this directory.
