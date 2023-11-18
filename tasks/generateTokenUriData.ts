@@ -7,7 +7,6 @@ import * as path from 'path';
 import * as readline from 'readline';
 import { instantiateGateway, uploadFilesToIPFS, getChipPublicKeys } from "../utils/scriptHelpers";
 import { ChipKeys } from "../types/scripts";
-import common from "mocha/lib/interfaces/common";
 
 // Chips that we will create metadata for
 let chips: ChipKeys = {};

@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { ethers, BigNumber, providers, Overrides } from "ethers";
 import * as fs from 'fs';
-import path from 'path';
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment as HRE } from "hardhat/types";
 

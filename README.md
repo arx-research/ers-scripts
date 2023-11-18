@@ -1,16 +1,16 @@
 # ers-scripts
-Scripts for deploying and interacting with the ERS protocol from the command line.
+Scripts for deploying and interacting with the ERS protocol from the command line. See [the ERS docs](https://docs.ers.to/) for more information on ERS.
 
-## General
-Before running any scripts, make sure you install all dependencies by running `yarn install` in the root directory.
-
-Then make sure that you have set up your `.env` file by calling:
+## Setup
+1. Install all dependencies by running `yarn install` in the root directory.
+2. Set up a blank `.env` file:
 ```bash
 cp .env.default .env
 ```
-Fill out the resulting fields in the `.env` file with the appropriate values. If you want to post to IPFS you will need to fill out the `NFT_STORAGE_API_KEY` field. You can get an nft.storage API key by navigating to [this website](https://nft.storage/docs/quickstart/#get-an-api-token), creating an account, and requesting an API key. The rest of the fields should only be necessary if you are deploying / running scripts against a non-local blockchain network.
-
-In order to deploy or run scripts there needs to be a valid node to interact with. If you are testing and planning on running locally you can start the `localhost` network by running `yarn chain`, this opens up a local node at the default port `8545`.
+3. Fill out the resulting fields in the `.env` file with the appropriate values. 
+4. Get an nft.storage API key by navigating to [this website](https://nft.storage/docs/quickstart/#get-an-api-token), creating an account, and requesting an API key. Add this to `NFT_STORAGE_API_KEY` in `.env`. This allows you to pin IPFS enrollment data.
+5. If you are deploying against a non-local blockchain network, add the private keys for the accounts that you wish to use (e.g. `GOERLI_SERVICE_CREATOR_PRIVATE_KEY`).
+6. In order to deploy or run scripts there needs to be a valid node to interact with. If you are testing and planning on running locally you can start the `localhost` network by running `yarn chain`, this opens up a local node at the default port `8545`.
 
 ## Deployment
 ### Local
@@ -26,16 +26,32 @@ yarn deploy:localhost:clean
 Otherwise the deployment script will try to reuse the existing deployment and run any deployments that were not run before. To see
 if there is an existing deployment for your environment you can check the `deployments` folder. If there is a sub-directory with the name of your environment then there is an existing deployment.
 ### Goerli
-[x]
+The Goerli contracts are deployed at:
+
+```
+CHIP_REGISTRY=0x7C3b3756e01fF450e56bfCcde521A58522666323
+SERVICE_REGISTRY=0x94419B1E44e9D279E15D08be272bF7c76f918192
+ENROLLMENT_MANAGER_ADDRESS=0xD9eF91DCeeA24f98eE0C8fd06319da6A6ECd7e15
+ERS_REGISTRY=0x4e1Ce5AbB20892405020b29de0c13AA20190C205
+SM_REGISTRAR=0xc098a32aa1425e86809a8e2D95A42d387C005Fd9
+```
+
+You can find the deployment artifacts in `deployments/$CHAIN_NAME`.
 
 ## Using Scripts
-In order to use scripts you need to be sure that there are valid deploments in the environment you are deploying to (see previous section for information on this). Once you have a valid deployment in your chosen environment you can start running scripts. It is worth noting that these scripts build on each other, so if you're starting from a clean deployment you need first run the scripts in the `MnaufacturerUsage` file then continue with the scripts below.
+
+1. Create a service: `createService` with the options indicated below. A service is the `contentApp` that you want to redirect a chip to (e.g. a decentralized app hosted on IPFS, a centralized app hosted at a URL).
+2. Generate tokenUriData: `generateTokenUriData` with the options indicated below. This will generate media associated with a chip, similar to the tokenUriData that would be typically associated with an NFT. If you are simple using the chip for a redirect you may not need this data.
+3. Create a project: `createProject` maps chips to a `serviceId` and adds associated `tokenUriData`.  Once enrolled, the chip should redirect when tapped to the `contentApp` provided.
+4. Claim a chip: `claimChip` allows the end user of a chip to claim ownership, which may or may not be necessary depending on the end use case.
+
+In order to use scripts you need to be sure that there are valid deploments in the environment you are deploying to (see previous section for information on this). Once you have a valid deployment in your chosen environment you can start running scripts. It is worth noting that these scripts build on each other, so if you're starting from a clean deployment you need first run the scripts in the `ManufacturerUsage` file then continue with the scripts below.
 
 ### createService
 This script creates a service that can be assigned to chips in the project enrollment process. It takes in four arguments:
 1. `service-name`: The name of the service
 2. `content`: URL/URI of the content app
-3. `append-id`: Indicate whether chipId should be appended to the content app URL/URI
+3. `append-id`: Indicate whether chipId should be appended to the content app URL/URI (useful for NFT applications and required for the `generateTokenUriData` task)
 4. `network`: The network you want to interact with (defaults to `hardhat`)
 
 Example:
@@ -55,6 +71,8 @@ This script creates formatted tokenUriData for chips in the project and adds it 
 
 1. `network`: The network you want to interact with (defaults to `hardhat`)
 2. `scan`: The number of chips that you wish to scan and generate tokenUriData for.
+
+*Note:* `generateTokenUrilData` anticipates that the `append-id` option for the chip's service was set to `true`.
 
 The script will prompt you to add `name`, `description` and `media` information. This information can be reused for all chips scanned, or you can individually add information on a per chip basis. It will then be formatted and added to IPFS via NFT.storage.
 
