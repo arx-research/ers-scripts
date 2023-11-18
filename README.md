@@ -38,6 +38,11 @@ SM_REGISTRAR=0xc098a32aa1425e86809a8e2D95A42d387C005Fd9
 
 You can find the deployment artifacts in `deployments/$CHAIN_NAME`.
 
+## Arx Manufacturer Enrollments
+Arx maintains a public repo with all Arx HaLo chip certificates (`manufacturerEnrollments`) at https://github.com/arx-research/arx-chip-enrollments. You can use this to locate the enrollment for a given chip. 
+
+Add the enrollments that are appropriate for the chain you wish to deploy to within the `task_outputs/enrollmentData/` directory (create this directory if it doesn't exist). The `manufacturerValidationLocation` in your `projectCreation` JSON file should reference this directory.
+
 ## Using Scripts
 
 1. Create a service: `createService` with the options indicated below. A service is the `contentApp` that you want to redirect a chip to (e.g. a decentralized app hosted on IPFS, a centralized app hosted at a URL).
@@ -144,8 +149,3 @@ Additionally there is a specific `localhost` version of this script that can be 
 ```bash
 yarn claimChip:localhost
 ```
-
-## Arx Manufacturer Enrollments
-Arx maintains a public repo with all Arx HaLo chip enrollments at https://github.com/arx-research/arx-chip-enrollments. You can use this to resolve the enrollment for a given chip. 
-
-Add the enrollments that are appropriate for the chain you wish to deploy to within the `task_outputs/enrollmentData/` directory (create this directory if it doesn't exist). The `manufacturerValidationLocation` in your `projectCreation` JSON file should reference this directory.
