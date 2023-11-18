@@ -69,6 +69,11 @@ async function generateJSONFiles(address: string, data: any): Promise<File> {
 
 // Synchronously scan the enrollmentData directory and return an array of chip data
 function readEnrollmentFiles(directoryPath: string): any[] {
+  if (!fs.existsSync(directoryPath)) {
+    console.warn(`Warning: The directory '${directoryPath}' does not exist. Please add enrollment data to this directory.`);
+    process.exit(1);
+  }
+
   const files = fs.readdirSync(directoryPath);
   const enrollmentData = [""];
 
@@ -90,6 +95,12 @@ function combineChipData(newChips: ChipKeys, rewriteOption: boolean): void {
     return;
   }
 
+  // Check if the chipData directory exists, create if not
+  const chipDataDir = 'task_outputs/chipData';
+  if (!fs.existsSync(chipDataDir)){
+    fs.mkdirSync(chipDataDir, { recursive: true });
+  }
+
   const enrollmentData = readEnrollmentFiles('task_outputs/enrollmentData');
 
   // Map enrollment data by chipId for easy lookup
@@ -107,13 +118,18 @@ function combineChipData(newChips: ChipKeys, rewriteOption: boolean): void {
   });
 
   // Write the combined data back to chipData.json
-  fs.writeFileSync('task_outputs/chipData/chipData.json', JSON.stringify(combinedData, null, 2), 'utf8');
+  fs.writeFileSync(`${chipDataDir}/chipData.json`, JSON.stringify(combinedData, null, 2), 'utf8');
 }
 
 // Define the Hardhat task
 task("generateTokenUriData", "Generates JSON files for chips and uploads to NFT.Storage")
   .addParam("scan", "Number of chips to scan", "0", undefined, true)
   .setAction(async (taskArgs, hre: HRE) => {
+    if (!process.env.NFT_STORAGE_API_KEY) {
+      console.warn("Warning: NFT_STORAGE key is missing. Please set it in your environment variables.");
+      process.exit(1);
+    }    
+    
     if(Number(taskArgs.scan) == 0){
       console.log(`Please add at least one chip to scan via --scan parameter`);
       process.exit(1);
