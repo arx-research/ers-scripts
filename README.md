@@ -45,12 +45,21 @@ Add the enrollments that are appropriate for the chain you wish to deploy to wit
 
 ## Using Scripts
 
+0. If using `ers-scripts` against a deployed version of ERS, download the Arx `manufacturerEnrollments` for the appropriate chain using `getArxManufacturerEnrollments`.
 1. Create a service: `createService` with the options indicated below. A service is the `contentApp` that you want to redirect a chip to (e.g. a decentralized app hosted on IPFS, a centralized app hosted at a URL).
 2. Generate tokenUriData: `generateTokenUriData` with the options indicated below. This will generate media associated with a chip, similar to the tokenUriData that would be typically associated with an NFT. If you are simple using the chip for a redirect you may not need this data.
 3. Create a project: `createProject` maps chips to a `serviceId` and adds associated `tokenUriData`.  Once enrolled, the chip should redirect when tapped to the `contentApp` provided.
 4. Claim a chip: `claimChip` allows the end user of a chip to claim ownership, which may or may not be necessary depending on the end use case.
 
 In order to use scripts you need to be sure that there are valid deploments in the environment you are deploying to (see previous section for information on this). Once you have a valid deployment in your chosen environment you can start running scripts. It is worth noting that these scripts build on each other, so if you're starting from a clean deployment you need first run the scripts in the `ManufacturerUsage` file then continue with the scripts below.
+
+### getArxManufacturerEnrollments
+This script pulls all Arx `manufacturerEnrollments` in ERS. It takes one argument in the form of the `--network` name. These enrollments are required when adding chips to chains, e.g. Goerli.
+
+Example:
+```bash
+yarn getArxManufacturerEnrollments --network goerli
+```
 
 ### createService
 This script creates a service that can be assigned to chips in the project enrollment process. It takes in four arguments:
