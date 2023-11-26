@@ -4,7 +4,8 @@ import QRCode from 'qrcode';
 import websocket from 'websocket';
 import * as dotenv from 'dotenv';
 import fs from "fs";
-import { NFTStorage, File, CIDString } from "nft.storage";
+import { NFTStorage, Blob, File, CIDString } from "nft.storage";
+import * as readline from 'readline';
 
 import { ERSConfig } from '@arx-research/lib-ers/dist/types/src/types';
 import { libErs as ERS } from '@arx-research/lib-ers';
@@ -67,7 +68,6 @@ export async function getChipPublicKeys(gate: any): Promise<[Address, Address, K
   };
 
   const rawKeys: KeysFromChipScan = await gate.execHaloCmd(cmd);
-
   return [rawKeys.etherAddresses['1'], rawKeys.etherAddresses['2'], rawKeys];
 }
 
@@ -79,12 +79,10 @@ export async function getChipSigWithGateway(gate: any, message: string): Promise
   let cmd = {
     "name": "sign",
     "message": message,
-    "keyNo": 1,
-    "format": "hex"
+    "keyNo": 1
   };
 
-  const gatewayResponse = await gate.execHaloCmd(cmd);
-  return gatewayResponse;
+  return await gate.execHaloCmd(cmd);
 }
 
 export async function createERSInstance(hre: any): Promise<ERS> {
@@ -100,4 +98,19 @@ export async function createERSInstance(hre: any): Promise<ERS> {
 
 export const stringToBytes = (content: string): string => {
   return ethers.utils.hexlify(Buffer.from(content));
+}
+
+// Create a readline interface for user input
+export const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
+// A utility function to prompt the user for input
+export function queryUser(rl: readline.ReadLine, question: string): Promise<string> {
+  return new Promise(resolve => {
+    rl.question(question, (answer) => {
+      resolve(answer);
+    });
+  });
 }

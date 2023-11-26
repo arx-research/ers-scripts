@@ -21,7 +21,7 @@ export interface CreateProject {
   chipDataLocation: string,
   manufacturerValidationLocation: string,
   tokenUriRoot: string,
-  lockinPeriod: number,
+  lockinPeriod: BigNumber,
   serviceId: string,
 }
 
