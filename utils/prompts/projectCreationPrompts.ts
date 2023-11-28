@@ -56,7 +56,7 @@ export async function getServiceTimelock(prompter: readline.ReadLine): Promise<B
 export async function getServiceId(prompter: readline.ReadLine): Promise<string> {
   const serviceId = await queryUser(
     prompter,
-    `Which service ID whould you like to set as primary service for your project enrollment? `
+    `Which service ID would you like to set as primary service for your project enrollment? `
   );
 
   if(serviceId.slice(0, 2) != '0x' || serviceId.length != 66) {
@@ -86,7 +86,7 @@ export async function getChipDataLocation(prompter: readline.ReadLine): Promise<
   }
 
   if (!["yes", "y", "no", "n"].includes(providePath.toLowerCase())) {
-    console.log("I'm sorry we could not understand that response response. Reply with a yes/y or no/n. ");
+    console.log("I'm sorry we could not understand that response. Reply with a yes/y or no/n. ");
     return getChipDataLocation(prompter);
   }
 
