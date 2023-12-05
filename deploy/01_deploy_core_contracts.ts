@@ -8,9 +8,9 @@ import {
   CHIP_REGISTRY_DEPLOY,
   MAX_BLOCK_WINDOW,
   MULTI_SIG_ADDRESSES,
-  NULL_NODE
-} from "../utils/constants"
-import { setNewOwner } from "../utils/helpers"
+} from "../deployments/parameters"
+import { setNewOwner } from "../utils/helpers";
+import { NULL_NODE } from "../utils/constants";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = await hre.deployments
@@ -29,22 +29,22 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     from: deployer,
     args: [
       manufacturerRegistryDeploy.address,
-      CHIP_REGISTRY_DEPLOY.gatewayUrls,
+      CHIP_REGISTRY_DEPLOY[network].gatewayUrls,
       MAX_BLOCK_WINDOW[network],
-      CHIP_REGISTRY_DEPLOY.maxLockinPeriod
+      CHIP_REGISTRY_DEPLOY[network].maxLockinPeriod
     ],
   });
   console.log("ChipRegistry deployed to:", chipRegistryDeploy.address);
 
-  const tsmRegistryDeploy = await deploy("TSMRegistry", {
+  const developerRegistryDeploy = await deploy("DeveloperRegistry", {
     from: deployer,
     args: [deployer],
   });
-  console.log("TSMRegistry deployed to:", tsmRegistryDeploy.address);
+  console.log("DeveloperRegistry deployed to:", developerRegistryDeploy.address);
 
   const ersRegistryDeploy = await deploy("ERSRegistry", {
     from: deployer,
-    args: [chipRegistryDeploy.address, tsmRegistryDeploy.address],
+    args: [chipRegistryDeploy.address, developerRegistryDeploy.address],
   });
   console.log("ERSRegistry deployed to:", ersRegistryDeploy.address);
 
@@ -54,11 +54,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   });
   console.log("ServicesRegistry deployed to:", servicesRegistryDeploy.address);
 
-  const tsmRegistrarFactoryDeploy = await deploy("TSMRegistrarFactory", {
+  const developerRegistrarFactoryDeploy = await deploy("DeveloperRegistrarFactory", {
     from: deployer,
-    args: [chipRegistryDeploy.address, ersRegistryDeploy.address, tsmRegistryDeploy.address],
+    args: [chipRegistryDeploy.address, ersRegistryDeploy.address, developerRegistryDeploy.address],
   });
-  console.log("TSMRegistrarFactory deployed to:", tsmRegistrarFactoryDeploy.address);
+  console.log("DeveloperRegistrarFactory deployed to:", developerRegistrarFactoryDeploy.address);
 
   const secp256AuthModelDeploy = await deploy("SECP256k1Model", {
     from: deployer,
@@ -67,31 +67,31 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   console.log("SECP256k1Model deployed to:", secp256AuthModelDeploy.address);
 
   const chipRegistry = await ethers.getContractAt("ChipRegistry", chipRegistryDeploy.address);
-  const tsmRegistry = await ethers.getContractAt("TSMRegistry", tsmRegistryDeploy.address);
+  const developerRegistry = await ethers.getContractAt("DeveloperRegistry", developerRegistryDeploy.address);
   const ersRegistry = await ethers.getContractAt("ERSRegistry", ersRegistryDeploy.address);
 
-  // initialize TSMRegistry
-  if(!await tsmRegistry.initialized()) {
-    await tsmRegistry.initialize(ersRegistryDeploy.address, [tsmRegistrarFactoryDeploy.address]);
+  // initialize DeveloperRegistry
+  if(!await developerRegistry.initialized()) {
+    await developerRegistry.initialize(ersRegistryDeploy.address, [developerRegistrarFactoryDeploy.address]);
   }
   // initialize ChipRegistry
   if(!await chipRegistry.initialized()) {
     await chipRegistry.initialize(
       ersRegistryDeploy.address,
       servicesRegistryDeploy.address,
-      tsmRegistryDeploy.address
+      developerRegistryDeploy.address
     );
   }
   console.log("Registries initialized");
 
-  // Make TSMRegistry the owner of .ers domain
+  // Make DeveloperRegistry the owner of .ers domain
   const ersNodeOwner = await ersRegistry.getOwner(calculateSubnodeHash("ers"));
-  if (ersNodeOwner != tsmRegistryDeploy.address) {
+  if (ersNodeOwner != developerRegistryDeploy.address) {
     await ersRegistry.createSubnodeRecord(
       NULL_NODE,
       calculateLabelHash("ers"),
-      tsmRegistryDeploy.address,
-      tsmRegistryDeploy.address
+      developerRegistryDeploy.address,
+      developerRegistryDeploy.address
     );
   }
 

@@ -3,7 +3,6 @@ import * as fs from 'fs';
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment as HRE } from "hardhat/types";
 import {
-  Address,
   calculateEnrollmentId,
   ManufacturerRegistry,
   ManufacturerRegistry__factory,
@@ -79,7 +78,7 @@ task("addManufacturerEnrollment", "Add a new enrollment to the ManufacturerRegis
         "addChipEnrollment",
         [
           params.manufacturerId,
-          merkleTree.getHexRoot(),
+          merkleTree.getRoot(),
           defaultManufacturerSigner,
           params.authModel,
           chipValidationDataUri,
@@ -191,7 +190,7 @@ function _generateManufacturerEnrollmentFiles(
     const chipId = Object.keys(chips)[i];
     let chipValidationInfo: ManufacturerValidationInfo = {
       mIndex: BigNumber.from(i),
-      manufacturerProof: merkleTree.getProof(i, chipId),
+      manufacturerProof: merkleTree.getProof(i),
       enrollmentId,
     };
 

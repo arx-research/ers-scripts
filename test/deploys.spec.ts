@@ -14,12 +14,12 @@ import {
   ManufacturerRegistry__factory,
   ServicesRegistry,
   ServicesRegistry__factory,
-  TSMRegistrar,
-  TSMRegistrar__factory,
-  TSMRegistrarFactory,
-  TSMRegistrarFactory__factory,
-  TSMRegistry,
-  TSMRegistry__factory,
+  DeveloperRegistrar,
+  DeveloperRegistrar__factory,
+  DeveloperRegistrarFactory,
+  DeveloperRegistrarFactory__factory,
+  DeveloperRegistry,
+  DeveloperRegistry__factory,
 } from "@arx-research/ers-contracts"
 
 import {
@@ -50,10 +50,10 @@ describe("Base System Deploy", () => {
   let chipRegistry: ChipRegistry;
   let ersRegistry: ERSRegistry;
   let manufacturerRegistry: ManufacturerRegistry;
-  let playgroundRegistrar: TSMRegistrar;
+  let playgroundRegistrar: DeveloperRegistrar;
   let servicesRegistry: ServicesRegistry;
-  let tsmRegistrarFactory: TSMRegistrarFactory;
-  let tsmRegistry: TSMRegistry;
+  let developerRegistrarFactory: DeveloperRegistrarFactory;
+  let developerRegistry: DeveloperRegistry;
 
   const network = deployments.getNetworkName();
 
@@ -79,14 +79,14 @@ describe("Base System Deploy", () => {
     const servicesRegistryAddress  = await getDeployedContractAddress(network, "ServicesRegistry");
     servicesRegistry = new ServicesRegistry__factory(deployer.wallet).attach(servicesRegistryAddress);
 
-    const tsmRegistryAddress  = await getDeployedContractAddress(network, "TSMRegistry");
-    tsmRegistry = new TSMRegistry__factory(deployer.wallet).attach(tsmRegistryAddress);
+    const developerRegistryAddress  = await getDeployedContractAddress(network, "DeveloperRegistry");
+    developerRegistry = new DeveloperRegistry__factory(deployer.wallet).attach(developerRegistryAddress);
 
-    const tsmRegistrarFactoryAddress  = await getDeployedContractAddress(network, "TSMRegistrarFactory");
-    tsmRegistrarFactory = new TSMRegistrarFactory__factory(deployer.wallet).attach(tsmRegistrarFactoryAddress);
+    const developerRegistrarFactoryAddress  = await getDeployedContractAddress(network, "DeveloperRegistrarFactory");
+    developerRegistrarFactory = new DeveloperRegistrarFactory__factory(deployer.wallet).attach(developerRegistrarFactoryAddress);
 
     const playgroundRegistrarAddress = await getDeployedContractAddress(network, "ArxPlaygroundRegistrar");
-    playgroundRegistrar = new TSMRegistrar__factory(deployer.wallet).attach(playgroundRegistrarAddress);
+    playgroundRegistrar = new DeveloperRegistrar__factory(deployer.wallet).attach(playgroundRegistrarAddress);
   });
 
   describe("ChipRegistry", async () => {
@@ -105,9 +105,9 @@ describe("Base System Deploy", () => {
       expect(actualServicesRegistry).to.eq(servicesRegistry.address);
     });
 
-    it("should have the correct tsm registry", async () => {
-      const actualTsmRegistry = await chipRegistry.tsmRegistry();
-      expect(actualTsmRegistry).to.eq(tsmRegistry.address);
+    it("should have the correct developer registry", async () => {
+      const actualTsmRegistry = await chipRegistry.developerRegistry();
+      expect(actualTsmRegistry).to.eq(developerRegistry.address);
     });
 
     it("should have the correct gateway Urls", async () => {
@@ -127,9 +127,9 @@ describe("Base System Deploy", () => {
   });
 
   describe("ERSRegistry", async () => {
-    it("should have the correct tsm registry", async () => {
-      const actualTsmRegistry = await ersRegistry.tsmRegistry();
-      expect(actualTsmRegistry).to.eq(tsmRegistry.address);
+    it("should have the correct developer registry", async () => {
+      const actualTsmRegistry = await ersRegistry.developerRegistry();
+      expect(actualTsmRegistry).to.eq(developerRegistry.address);
     });
 
     it("should have the correct chip registry", async () => {
@@ -142,9 +142,9 @@ describe("Base System Deploy", () => {
       expect(actualNullNodeOwner).to.eq(multiSig);
     });
 
-    it("should have the ers node owned by the tsmRegistry", async () => {
+    it("should have the ers node owned by the developerRegistry", async () => {
       const actualErsNodeOwner = await ersRegistry.getOwner(calculateSubnodeHash("ers"));
-      expect(actualErsNodeOwner).to.eq(tsmRegistry.address);
+      expect(actualErsNodeOwner).to.eq(developerRegistry.address);
     });
   });
 
@@ -167,37 +167,37 @@ describe("Base System Deploy", () => {
     });
   });
 
-  describe("TSMRegistry", async () => {
+  describe("DeveloperRegistry", async () => {
     it("should have the correct owner", async () => {
-      const actualOwner = await tsmRegistry.owner();
+      const actualOwner = await developerRegistry.owner();
       expect(actualOwner).to.eq(multiSig);
     });
 
     it("should have the correct ers registry", async () => {
-      const actualErsRegistry = await tsmRegistry.ersRegistry();
+      const actualErsRegistry = await developerRegistry.ersRegistry();
       expect(actualErsRegistry).to.eq(ersRegistry.address);
     });
 
-    it("should have the TSMRegistrarFactory as enabled factory", async () => {
-      const isFactory = await tsmRegistry.registrarFactories(tsmRegistrarFactory.address);
+    it("should have the DeveloperRegistrarFactory as enabled factory", async () => {
+      const isFactory = await developerRegistry.registrarFactories(developerRegistrarFactory.address);
       expect(isFactory).to.be.true;
     });
   });
 
-  describe("TSMRegistrarFactory", async () => {
+  describe("DeveloperRegistrarFactory", async () => {
     it("should have the correct ers registry", async () => {
-      const actualErsRegistry = await tsmRegistrarFactory.ers();
+      const actualErsRegistry = await developerRegistrarFactory.ers();
       expect(actualErsRegistry).to.eq(ersRegistry.address);
     });
 
     it("should have the correct chipRegistry", async () => {
-      const actualChipRegistry = await tsmRegistrarFactory.chipRegistry();
+      const actualChipRegistry = await developerRegistrarFactory.chipRegistry();
       expect(actualChipRegistry).to.eq(chipRegistry.address);
     });
 
-    it("should have the correct tsm registry", async () => {
-      const actualTsmRegistry = await tsmRegistrarFactory.tsmRegistry();
-      expect(actualTsmRegistry).to.eq(tsmRegistry.address);
+    it("should have the correct developer registry", async () => {
+      const actualTsmRegistry = await developerRegistrarFactory.developerRegistry();
+      expect(actualTsmRegistry).to.eq(developerRegistry.address);
     });
   });
 
@@ -229,9 +229,9 @@ describe("Base System Deploy", () => {
       expect(actualChipRegistry).to.eq(chipRegistry.address);
     });
 
-    it("should have the correct tsmRegistrar", async () => {
-      const actualTSMRegistrar = await arxProjectEnrollmentManager.tsmRegistrar();
-      expect(actualTSMRegistrar).to.eq(playgroundRegistrar.address);
+    it("should have the correct developerRegistrar", async () => {
+      const actualDeveloperRegistrar = await arxProjectEnrollmentManager.developerRegistrar();
+      expect(actualDeveloperRegistrar).to.eq(playgroundRegistrar.address);
     });
 
     it("should have the correct transferPolicy", async () => {

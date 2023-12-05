@@ -54,14 +54,14 @@ where `array[i]` is the i-th index of the array. An example of this decoded data
 {
   enrollmentId: "0xF35Fd92E6E27bbf5c2bDd6aE51a2e5dCCACF9cE3D38CE0daA06BFfA6243F4A56",   // Note same as in Manufacturer Enrollment
   projectRegistrar: "0x8BDfb17c37996B805deAEB1425F7b6FBe561AccF"
-  TSMMerkleInfo: {
-    tsmIndex: 0,
+  DeveloperMerkleInfo: {
+    developerIndex: 0,
     serviceId: "0x4775636369000000000000000000000000000000000000000000000000000000",
     lockinPeriod: 100
     tokenUri: "ipfs://bafybe..."
-    tsmProof: ["0xbBdAeFD0cD64d2D1aAA1dE3cce43239CBB481B7AaaEBBD43C0Fd4d77B8c497ad"]
+    developerProof: ["0xbBdAeFD0cD64d2D1aAA1dE3cce43239CBB481B7AaaEBBD43C0Fd4d77B8c497ad"]
   },
-  tsmCertificate: "0x2AF60afEBa95EeceCBb8Bdf1e6a759a24527CB0F45c9ecE629f11647e1Dc0ed2"
+  developerCertificate: "0x2AF60afEBa95EeceCBb8Bdf1e6a759a24527CB0F45c9ecE629f11647e1Dc0ed2"
   custodyProof: "0x9Be1B7dEcc768D9290f7C61914cb7b5Efe2e4458f9AED235bcF4CDd4B5EC370b"
 }
 ```
@@ -121,11 +121,11 @@ Now we have all the pieces to submit the transaction, below you will find an ann
         [
           chipId,                                           // Grabbed from chip when scanned
           nameHash,                                         // 0xA68b1d52a29dAE3AeFCb469bcdB3b5a5b7cAEF15359c8afB14B95305c94Ff7Db
-          projectEnrollment.TSMMerkleInfo,                  // TSMMerkleInfo found in Project enrollment information decoded in step 3
+          projectEnrollment.DeveloperMerkleInfo,                  // DeveloperMerkleInfo found in Project enrollment information decoded in step 3
           manufacturerEnrollmentInformation,                // Manufacturer enrollment information decoded in step 3
           commitBlock,                                      // 18472060, must match block in ownership proof
           chipOwnershipProof,                               // Calculated chip ownership proof
-          projectEnrollment.tsmCertificate,                 // 0x2AF60afEBa95EeceCBb8Bdf1e6a759a24527CB0F45c9ecE629f11647e1Dc0ed2
+          projectEnrollment.developerCertificate,                 // 0x2AF60afEBa95EeceCBb8Bdf1e6a759a24527CB0F45c9ecE629f11647e1Dc0ed2
           projectEnrollment.custodyProof                    // 0x9Be1B7dEcc768D9290f7C61914cb7b5Efe2e4458f9AED235bcF4CDd4B5EC370b
         ]
       )

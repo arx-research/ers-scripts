@@ -1,4 +1,5 @@
 import { task } from "hardhat/config";
+import { HardhatRuntimeEnvironment as HRE } from "hardhat/types";
 import { ServiceRecord, ServicesRegistry, ServicesRegistry__factory } from "@arx-research/ers-contracts";
 
 import { stringToBytes, rl } from "../utils/scriptHelpers";

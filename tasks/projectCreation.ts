@@ -11,11 +11,11 @@ import {
   Address,
   ArxProjectEnrollmentManager__factory,
   calculateLabelHash,
-  calculateProjectRegistrarAddress,
+  calculateAuthenticityProjectRegistrarAddress,
   ERSRegistry,
   ERSRegistry__factory,
   ManufacturerValidationInfo,
-  TSMMerkleProofInfo,
+  DeveloperMerkleProofInfo,
 } from "@arx-research/ers-contracts/";
 
 import { CreateProject, ProjectEnrollmentIPFS } from "../types/scripts";
@@ -39,7 +39,7 @@ import {
   getServiceId,
   getTokenURIData,
  } from '../utils/prompts/projectCreationPrompts';
-import { MAX_BLOCK_WINDOW } from "../utils/constants";
+import { MAX_BLOCK_WINDOW } from "../deployments/parameters";
 
 task("createProject", "Create a new project using the ArxProjectEnrollmentManager")
   .addParam("post", "Post resulting data to IPFS", undefined, undefined, true)
@@ -57,25 +57,25 @@ task("createProject", "Create a new project using the ArxProjectEnrollmentManage
     // If chip data location is provided then read from file, otherwise pull from gateway
     let chipInfo: ChipInfo[];
     let ownershipProofs: string[];
-    let tsmCertificates: string[];
+    let developerCertificates: string[];
     if (params.chipDataLocation != "") {
       chipInfo = JSON.parse(fs.readFileSync(params.chipDataLocation, 'utf-8'));
       console.log(`Adding ${chipInfo.length} chips...`);
 
       // Sign ownership proofs for each chip
       ownershipProofs = await createOwnershipProofsFromChipInfo(chipInfo);
-      // Sign TSM certificates for each chip
-      tsmCertificates = await createTSMCertificates(chipInfo);
+      // Sign Developer certificates for each chip
+      developerCertificates = await createDeveloperCertificates(chipInfo);
     } else {
       // Get the amount of chips being enrolled
       const numChips = parseInt(await queryUser(rl, "How many chips are you enrolling? "));
       // Cycle through signing ownership proofs for each chip, getting the chipIDs, and building the chipInfo array
       [ ownershipProofs, chipInfo ] = await createOwnershipProofsFromScan(numChips)
-      // Sign TSM certificates for each chip
-      tsmCertificates = await createTSMCertificates(chipInfo);
+      // Sign Developer certificates for each chip
+      developerCertificates = await createDeveloperCertificates(chipInfo);
     }
 
-    await ersInstance.projectCreation.createTSMMerkleTree(
+    await ersInstance.projectCreation.createDeveloperMerkleTree(
       chipInfo,
       params.tokenUriRoot,
       BigNumber.from(params.lockinPeriod),
@@ -83,9 +83,9 @@ task("createProject", "Create a new project using the ArxProjectEnrollmentManage
     );
 
     // Get deterministic project registrar address
-    const projectRegistrarAddress = calculateProjectRegistrarAddress(
+    const projectRegistrarAddress = calculateAuthenticityProjectRegistrarAddress(
       getDeployedContractAddress(hre.network.name, "ArxProjectEnrollmentManager"),
-      ersInstance.projectCreation.tsmTree.getHexRoot(),
+      ersInstance.projectCreation.developerTree.getHexRoot(),
       [
         projectOwner,
         getDeployedContractAddress(hre.network.name, "ChipRegistry"),
@@ -140,15 +140,15 @@ task("createProject", "Create a new project using the ArxProjectEnrollmentManage
       return params;
     }
 
-    async function createTSMCertificates(chipInfo: ChipInfo[]): Promise<string[]> {
-      const tsmCertificates: string[] = new Array<string>(chipInfo.length);
+    async function createDeveloperCertificates(chipInfo: ChipInfo[]): Promise<string[]> {
+      const developerCertificates: string[] = new Array<string>(chipInfo.length);
       for (let i = 0; i < chipInfo.length; i++) {
         const signer = await hre.ethers.getSigner(projectPublicKey);
         const packedCert = ethers.utils.solidityPack(["address"], [chipInfo[i].chipId]);
-        tsmCertificates[i] = await signer.signMessage(ethers.utils.arrayify(packedCert));
+        developerCertificates[i] = await signer.signMessage(ethers.utils.arrayify(packedCert));
       }
 
-      return tsmCertificates;
+      return developerCertificates;
     }
 
     async function getChipManufacturerInfoFromGateway(chipId: Address): Promise<ManufacturerValidationInfo> {
@@ -219,12 +219,12 @@ task("createProject", "Create a new project using the ArxProjectEnrollmentManage
 
     async function generateAndSaveProjectEnrollmentFiles(): Promise<CIDString> {
       let chipValidationDataUri: CIDString;
-      const tsmValidationFiles = _generateProjectEnrollmentFiles(ersInstance, tsmCertificates, ownershipProofs);
+      const developerValidationFiles = _generateProjectEnrollmentFiles(ersInstance, developerCertificates, ownershipProofs);
       if (await getPostToIpfs(rl)) {
-        chipValidationDataUri = await uploadFilesToIPFS(tsmValidationFiles);
-        saveFilesLocally("projectEnrollment", tsmValidationFiles);
+        chipValidationDataUri = await uploadFilesToIPFS(developerValidationFiles);
+        saveFilesLocally("projectEnrollment", developerValidationFiles);
       } else {
-        saveFilesLocally("projectEnrollment", tsmValidationFiles);
+        saveFilesLocally("projectEnrollment", developerValidationFiles);
         chipValidationDataUri = "ipfs://blank"; 
       }
 
@@ -239,19 +239,19 @@ task("createProject", "Create a new project using the ArxProjectEnrollmentManage
       let projectEnrollmentFiles: File[] = [];
       for (let i = 0; i < ers.projectCreation.treeData.length; i++) {
         const chipData = ers.projectCreation.treeData[i];
-        let chipValidationInfo: TSMMerkleProofInfo = {
-          tsmIndex: BigNumber.from(i),
+        let chipValidationInfo: DeveloperMerkleProofInfo = {
+          developerIndex: BigNumber.from(i),
           serviceId: chipData.primaryServiceId,
           lockinPeriod: chipData.lockinPeriod,
           tokenUri: chipData.tokenUri,
-          tsmProof: ers.projectCreation.tsmTree.getProof(i, chipData),
+          developerProof: ers.projectCreation.developerTree.getProof(i, chipData),
         };
   
         let projectEnrollment: ProjectEnrollmentIPFS = {
           enrollmentId: chipData.enrollmentId,
           projectRegistrar: projectRegistrarAddress,
-          TSMMerkleInfo: chipValidationInfo,
-          tsmCertificate: certificates[i],
+          developerMerkleInfo: chipValidationInfo,
+          developerCertificate: certificates[i],
           custodyProof: ownershipProof[i]
         };
         projectEnrollmentFiles.push(new File([JSON.stringify(projectEnrollment)], `${chipData.chipId}.json`, { type: 'application/json' }));
@@ -292,10 +292,10 @@ task("createProject", "Create a new project using the ArxProjectEnrollmentManage
             projectOwner,
             chipValidationDataUri,
             calculateLabelHash(params.name),
-            ersInstance.projectCreation.tsmTree.getHexRoot(),
+            ersInstance.projectCreation.developerTree.getHexRoot(),
             projectPublicKey,
             provingChip,
-            chipClaimInfo.TSMMerkleInfo,
+            chipClaimInfo.DeveloperMerkleInfo,
             provingChipManufacturerInfo,
             chipOwnershipProof,
             projectOwnershipProof

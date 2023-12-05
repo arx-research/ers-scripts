@@ -1,4 +1,4 @@
-import { Address, ManufacturerValidationInfo, TSMMerkleProofInfo } from "@arx-research/ers-contracts";
+import { Address, ManufacturerValidationInfo, DeveloperMerkleProofInfo } from "@arx-research/ers-contracts";
 import { BigNumber } from "ethers";
 import mongoose from "mongoose";
 
@@ -28,8 +28,8 @@ export interface CreateProject {
 export interface ProjectEnrollmentIPFS {
   projectRegistrar: Address,
   enrollmentId: string,
-  TSMMerkleInfo: TSMMerkleProofInfo,
-  tsmCertificate: string,
+  developerMerkleInfo: DeveloperMerkleProofInfo,
+  developerCertificate: string,
   custodyProof: string
 }
 

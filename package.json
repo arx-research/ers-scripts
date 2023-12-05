@@ -56,7 +56,7 @@
     "typescript": ">=4.5.0"
   },
   "dependencies": {
-    "@arx-research/ers-contracts": "^1.2.3",
+    "@arx-research/ers-contracts": "^1.2.5",
     "@arx-research/lib-ers": "^0.0.5",
     "@arx-research/libhalo": "^1.2.15",
     "@nomiclabs/hardhat-etherscan": "^3.1.7",

@@ -92,7 +92,7 @@ The script will prompt you to add `name`, `description` and `media` information.
 The script will also prompt for the creation of a `chipData.json` file that can be used in project creation. It returns a CID that can be used for the `tokenUriRoot` in `projectCreation.json`.
 
 ### createProject
-This script creates a [project](https://docs.ers.to/overview/concepts/tsms#adding-projects) and enrolls chips in the project. Similarly to `addManufacturerEnrollment` it takes in two arguments:
+This script creates a [project](https://docs.ers.to/overview/concepts/developers#adding-projects) and enrolls chips in the project. Similarly to `addManufacturerEnrollment` it takes in two arguments:
 1. `network`: The network you want to interact with (defaults to `hardhat`)
 2. `post`: Whether or not to post the project to IPFS (defaults to `false`)
 Additionally this script uses a param file that can be found under `task_params/projectCreation.json`. This file contains the information that will be used to create the project. If the file doesn't exist you can create it by running:

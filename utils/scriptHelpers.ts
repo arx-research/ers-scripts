@@ -91,7 +91,7 @@ export async function createERSInstance(hre: any): Promise<ERS> {
     servicesRegistry: getDeployedContractAddress(hre.network.name, "ServicesRegistry"),
     enrollmentManagerAddress: getDeployedContractAddress(hre.network.name, "ArxProjectEnrollmentManager"),
     ersRegistry: getDeployedContractAddress(hre.network.name, "ERSRegistry"),
-    tsmRegistrar: getDeployedContractAddress(hre.network.name, "ArxPlaygroundRegistrar"),
+    developerRegistrar: getDeployedContractAddress(hre.network.name, "ArxPlaygroundRegistrar"),
   };
   return new ERS(new ethers.providers.JsonRpcProvider(hre.network.config.url), ersConfig);
 }

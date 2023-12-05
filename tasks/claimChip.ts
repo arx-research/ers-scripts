@@ -6,8 +6,8 @@ import { HardhatRuntimeEnvironment as HRE } from "hardhat/types";
 import {
   Address,
   calculateLabelHash,
-  ProjectRegistrar,
-  ProjectRegistrar__factory
+  AuthenticityProjectRegistrar,
+  AuthenticityProjectRegistrar__factory
 } from "@arx-research/ers-contracts";
 
 import { getDeployedContractAddress } from "../utils/helpers";
@@ -46,19 +46,19 @@ task("claimChip", "Claim a chip enrolled in a ERS project")
         [
           chipId,
           nameHash,
-          chipIdClaimInfo.TSMMerkleInfo,
+          chipIdClaimInfo.developerMerkleInfo,
           chipIdManufacturerInfo.validationInfo,
           commitBlock,
           chipOwnershipProof,
-          chipIdClaimInfo.tsmCertificate,
+          chipIdClaimInfo.developerCertificate,
           chipIdClaimInfo.custodyProof
         ]
       )
     });
 
-    async function getProjectRegistrar(projectRegistrarAddress: Address): Promise<ProjectRegistrar> {
+    async function getProjectRegistrar(projectRegistrarAddress: Address): Promise<AuthenticityProjectRegistrar> {
       const signer = await hre.ethers.getSigner(chipOwner);
-      const projectRegistrar = new ProjectRegistrar__factory(signer).attach(projectRegistrarAddress);
+      const projectRegistrar = new AuthenticityProjectRegistrar__factory(signer).attach(projectRegistrarAddress);
       return projectRegistrar;
     }
 
