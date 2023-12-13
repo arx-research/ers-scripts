@@ -3,6 +3,7 @@ import { HardhatUserConfig } from "hardhat/config";
 import '@nomiclabs/hardhat-ethers';
 import 'hardhat-deploy';
 import '@nomiclabs/hardhat-etherscan';
+import '@nomicfoundation/hardhat-viem';
 import './tasks';
 
 const config: HardhatUserConfig = {

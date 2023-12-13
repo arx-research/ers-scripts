@@ -14,6 +14,8 @@ import {
   ManufacturerRegistry__factory,
   ServicesRegistry,
   ServicesRegistry__factory,
+  DeveloperNameGovernor,
+  DeveloperNameGovernor__factory,
   DeveloperRegistrar,
   DeveloperRegistrar__factory,
   DeveloperRegistrarFactory,
@@ -26,8 +28,9 @@ import {
   CHIP_REGISTRY_DEPLOY,
   MAX_BLOCK_WINDOW,
   MULTI_SIG_ADDRESSES,
-  NULL_NODE,
-} from "../utils/constants";
+  NAME_COORDINATOR,
+} from "../deployments/parameters";
+import { NULL_NODE } from "../utils/constants";
 
 import {
   getAccounts,
@@ -54,6 +57,7 @@ describe("Base System Deploy", () => {
   let servicesRegistry: ServicesRegistry;
   let developerRegistrarFactory: DeveloperRegistrarFactory;
   let developerRegistry: DeveloperRegistry;
+  let developerNameGovernor: DeveloperNameGovernor;
 
   const network = deployments.getNetworkName();
 
@@ -81,6 +85,9 @@ describe("Base System Deploy", () => {
 
     const developerRegistryAddress  = await getDeployedContractAddress(network, "DeveloperRegistry");
     developerRegistry = new DeveloperRegistry__factory(deployer.wallet).attach(developerRegistryAddress);
+
+    const developerNameGovernorAddress  = await getDeployedContractAddress(network, "DeveloperNameGovernor");
+    developerNameGovernor = new DeveloperNameGovernor__factory(deployer.wallet).attach(developerNameGovernorAddress);
 
     const developerRegistrarFactoryAddress  = await getDeployedContractAddress(network, "DeveloperRegistrarFactory");
     developerRegistrarFactory = new DeveloperRegistrarFactory__factory(deployer.wallet).attach(developerRegistrarFactoryAddress);
@@ -112,7 +119,12 @@ describe("Base System Deploy", () => {
 
     it("should have the correct gateway Urls", async () => {
       const actualGatewayUrls = await chipRegistry.getGatewayUrls();
-      expect(actualGatewayUrls).to.deep.eq(CHIP_REGISTRY_DEPLOY.gatewayUrls);
+      expect(actualGatewayUrls).to.deep.eq(CHIP_REGISTRY_DEPLOY[network].gatewayUrls);
+    });
+
+    it("should have the correct gateway Urls", async () => {
+      const actualGatewayUrls = await chipRegistry.maxLockinPeriod();
+      expect(actualGatewayUrls).to.deep.eq(CHIP_REGISTRY_DEPLOY[network].maxLockinPeriod);
     });
 
     it("should have the correct max block window", async () => {
@@ -181,6 +193,28 @@ describe("Base System Deploy", () => {
     it("should have the DeveloperRegistrarFactory as enabled factory", async () => {
       const isFactory = await developerRegistry.registrarFactories(developerRegistrarFactory.address);
       expect(isFactory).to.be.true;
+    });
+
+    it("should have the DeveloperNameGovernor set in the nameGovernor role", async () => {
+      const nameGovernor = await developerRegistry.nameGovernor();
+      expect(nameGovernor).to.eq(developerNameGovernor.address);
+    });
+  });
+
+  describe("DeveloperNameGovernor", async () => {
+    it("should have the correct owner", async () => {
+      const actualOwner = await developerNameGovernor.owner();
+      expect(actualOwner).to.eq(multiSig);
+    });
+
+    it("should have the correct developer registry", async () => {
+      const actualDevRegistry = await developerNameGovernor.developerRegistry();
+      expect(actualDevRegistry).to.eq(developerRegistry.address);
+    });
+
+    it("should have the correct name coordinator set", async () => {
+      const nameGovernor = await developerNameGovernor.nameCoordinator();
+      expect(nameGovernor).to.eq(NAME_COORDINATOR[network]);
     });
   });
 

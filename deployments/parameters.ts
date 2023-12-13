@@ -6,6 +6,13 @@ export const MULTI_SIG_ADDRESSES: any = {
   "mainnet": "0x0"
 }
 
+export const NAME_COORDINATOR: any = {
+  "localhost": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  "goerli": "0xa969B2687c5486491893a78dAfDE1A1617C2691a",
+  "base": "0x0",
+  "mainnet": "0x0"
+}
+
 export const CHIP_REGISTRY_DEPLOY: any = {
   "localhost": {
     "gatewayUrls": [],

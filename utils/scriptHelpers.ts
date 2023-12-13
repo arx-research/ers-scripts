@@ -1,10 +1,12 @@
 import { ethers } from "ethers";
 import { HaloGateway } from "@arx-research/libhalo/api/desktop.js";
+import { createWalletClient, http } from "viem";
+
 import QRCode from 'qrcode';
 import websocket from 'websocket';
 import * as dotenv from 'dotenv';
 import fs from "fs";
-import { NFTStorage, Blob, File, CIDString } from "nft.storage";
+import { NFTStorage, File, CIDString } from "nft.storage";
 import * as readline from 'readline';
 
 import { ERSConfig } from '@arx-research/lib-ers/dist/types/src/types';
@@ -87,13 +89,14 @@ export async function getChipSigWithGateway(gate: any, message: string): Promise
 
 export async function createERSInstance(hre: any): Promise<ERS> {
   const ersConfig: ERSConfig = {
-    chipRegistry: getDeployedContractAddress(hre.network.name, "ChipRegistry"),
-    servicesRegistry: getDeployedContractAddress(hre.network.name, "ServicesRegistry"),
-    enrollmentManagerAddress: getDeployedContractAddress(hre.network.name, "ArxProjectEnrollmentManager"),
-    ersRegistry: getDeployedContractAddress(hre.network.name, "ERSRegistry"),
-    developerRegistrar: getDeployedContractAddress(hre.network.name, "ArxPlaygroundRegistrar"),
+    chipRegistry: getDeployedContractAddress(hre.network.name, "ChipRegistry") as `0x${string}`,
+    servicesRegistry: getDeployedContractAddress(hre.network.name, "ServicesRegistry") as `0x${string}`,
+    enrollmentManagerAddress: getDeployedContractAddress(hre.network.name, "ArxProjectEnrollmentManager") as `0x${string}`,
+    ersRegistry: getDeployedContractAddress(hre.network.name, "ERSRegistry") as `0x${string}`,
+    developerRegistrar: getDeployedContractAddress(hre.network.name, "ArxPlaygroundRegistrar") as `0x${string}`,
   };
-  return new ERS(new ethers.providers.JsonRpcProvider(hre.network.config.url), ersConfig);
+  console.log(hre.viem.getWalletClients());
+  return new ERS(createWalletClient({transport: http()}), ersConfig);
 }
 
 export const stringToBytes = (content: string): string => {

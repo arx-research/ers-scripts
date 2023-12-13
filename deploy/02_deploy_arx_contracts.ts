@@ -5,7 +5,12 @@ import { ethers } from "hardhat";
 import { Address, ADDRESS_ZERO, calculateLabelHash, DeveloperRegistrar__factory } from "@arx-research/ers-contracts";
 
 import { getDeployedContractAddress, saveFactoryDeploy, setNewOwner } from "../utils/helpers";
-import { ARX_REGISTRAR_LABEL, MAX_BLOCK_WINDOW, MULTI_SIG_ADDRESSES } from "../deployments/parameters";
+import {
+  ARX_REGISTRAR_LABEL,
+  MAX_BLOCK_WINDOW,
+  MULTI_SIG_ADDRESSES,
+  NAME_COORDINATOR
+} from "../deployments/parameters";
 import { NULL_NODE } from "../utils/constants";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
@@ -16,20 +21,29 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const multiSig = MULTI_SIG_ADDRESSES[network] ? MULTI_SIG_ADDRESSES[network] : deployer;
 
   // Add allowed Developer to deploy ArxPlaygroundRegistrar
+  const developerNameGovernor = await ethers.getContractAt(
+    "DeveloperNameGovernor",
+    getDeployedContractAddress(network, "DeveloperNameGovernor")
+  );
+  
   const developerRegistry = await ethers.getContractAt(
     "DeveloperRegistry",
     getDeployedContractAddress(network, "DeveloperRegistry")
   );
-  
-  const isNotAdded = (await developerRegistry.pendingDevelopers(deployer)) == NULL_NODE;
-  if (isNotAdded) {
+
+  const deployerSigner = await hre.ethers.getSigner(deployer);
+  const nameLabelHash = calculateLabelHash(ARX_REGISTRAR_LABEL[network]);
+  const nameClaimMsg = ethers.utils.solidityPack(["address", "bytes32"], [deployer, nameLabelHash]);
+  const nameClaim = await deployerSigner.signMessage(ethers.utils.arrayify(nameClaimMsg));
+
+  if ((await developerRegistry.pendingDevelopers(deployer)) == NULL_NODE) {
     await rawTx(
       {
         from: deployer,
-        to: developerRegistry.address,
-        data: developerRegistry.interface.encodeFunctionData(
-          "addAllowedDeveloper", 
-          [deployer, calculateLabelHash(ARX_REGISTRAR_LABEL[network])]
+        to: developerNameGovernor.address,
+        data: developerNameGovernor.interface.encodeFunctionData(
+          "claimName", 
+          [nameLabelHash, nameClaim]
         ),
       }
     );
@@ -81,10 +95,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     arxProjectEnrollmentManagerDeploy.address
   );
 
-  // Set new owner for ArxProjectEnrollmentManager, DeveloperRegistrar, and DeveloperRegistry. DeveloperRegistrar owner is set to ArxProjectEnrollmentManager
+  // Set new owner for ArxProjectEnrollmentManager, DeveloperRegistrar, DeveloperRegistry, and DeveloperNameGovernor
+  // DeveloperRegistrar owner is set to ArxProjectEnrollmentManager
   await setNewOwner(hre, arxProjectEnrollmentManager, multiSig);
   await setNewOwner(hre, developerRegistrar, arxProjectEnrollmentManager.address);
   await setNewOwner(hre, developerRegistry, multiSig);
+  await setNewOwner(hre, developerNameGovernor, multiSig);
   console.log("Ownership set for remaining contracts");
 };
 

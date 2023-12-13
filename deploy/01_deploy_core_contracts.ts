@@ -42,6 +42,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   });
   console.log("DeveloperRegistry deployed to:", developerRegistryDeploy.address);
 
+  const developerNameGovernor = await deploy("DeveloperNameGovernor", {
+    from: deployer,
+    args: [developerRegistryDeploy.address, deployer],
+  });
+  console.log("DeveloperNameGovernor deployed to:", developerRegistryDeploy.address);
+
   const ersRegistryDeploy = await deploy("ERSRegistry", {
     from: deployer,
     args: [chipRegistryDeploy.address, developerRegistryDeploy.address],
@@ -72,7 +78,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // initialize DeveloperRegistry
   if(!await developerRegistry.initialized()) {
-    await developerRegistry.initialize(ersRegistryDeploy.address, [developerRegistrarFactoryDeploy.address]);
+    await developerRegistry.initialize(
+      ersRegistryDeploy.address,
+      [developerRegistrarFactoryDeploy.address],
+      developerNameGovernor.address
+    );
   }
   // initialize ChipRegistry
   if(!await chipRegistry.initialized()) {

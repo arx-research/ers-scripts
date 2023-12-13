@@ -85,7 +85,7 @@ task("createProject", "Create a new project using the ArxProjectEnrollmentManage
     // Get deterministic project registrar address
     const projectRegistrarAddress = calculateAuthenticityProjectRegistrarAddress(
       getDeployedContractAddress(hre.network.name, "ArxProjectEnrollmentManager"),
-      ersInstance.projectCreation.developerTree.getHexRoot(),
+      ersInstance.projectCreation.developerTree.getRoot(),
       [
         projectOwner,
         getDeployedContractAddress(hre.network.name, "ChipRegistry"),
@@ -244,7 +244,7 @@ task("createProject", "Create a new project using the ArxProjectEnrollmentManage
           serviceId: chipData.primaryServiceId,
           lockinPeriod: chipData.lockinPeriod,
           tokenUri: chipData.tokenUri,
-          developerProof: ers.projectCreation.developerTree.getProof(i, chipData),
+          developerProof: ers.projectCreation.developerTree.getProof(i),
         };
   
         let projectEnrollment: ProjectEnrollmentIPFS = {
@@ -292,7 +292,7 @@ task("createProject", "Create a new project using the ArxProjectEnrollmentManage
             projectOwner,
             chipValidationDataUri,
             calculateLabelHash(params.name),
-            ersInstance.projectCreation.developerTree.getHexRoot(),
+            ersInstance.projectCreation.developerTree.getRoot(),
             projectPublicKey,
             provingChip,
             chipClaimInfo.DeveloperMerkleInfo,
