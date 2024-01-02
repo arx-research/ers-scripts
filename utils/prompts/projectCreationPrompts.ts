@@ -69,53 +69,23 @@ export async function getServiceId(prompter: readline.ReadLine): Promise<string>
 }
 
 export async function getChipDataLocation(prompter: readline.ReadLine): Promise<string> {
-  const providePath = await queryUser(
+  return await queryUser(
     prompter,
     `
-    Do you want to provide a chipDataLocation path (y/n)? 
-    If you do not provide a path we will attempt to pull data from the 3668 Gateway.
-    If you are using localhost you must provide a path.
+    Since you are using localhost you must provide a path to the chip data file.
+    What is the path to your chipData file? 
     `
   );
-
-  if (["yes", "y"].includes(providePath.toLowerCase())) {
-    return queryUser(
-      prompter,
-      "Please provide the path to the chip data file. "
-    );
-  }
-
-  if (!["yes", "y", "no", "n"].includes(providePath.toLowerCase())) {
-    console.log("I'm sorry we could not understand that response. Reply with a yes/y or no/n. ");
-    return getChipDataLocation(prompter);
-  }
-
-  return "";
 }
 
 export async function getManufacturerValidationLocation(prompter: readline.ReadLine): Promise<string> {
-  const providePath = await queryUser(
+  return await queryUser(
     prompter,
     `
-    Do you want to provide a manufacturer validation information path (y/n)? 
-    If you do not provide a path we will attempt to pull data from the 3668 Gateway.
-    If you are using localhost you must provide a path.
+    Since you are using localhost you must provide a path to your manufacturer validation files.
+    What is the path to your manufacturer validation file? 
     `
   );
-
-  if (["yes", "y"].includes(providePath.toLowerCase())) {
-    return queryUser(
-      prompter,
-      "Please provide the path to the manufacturer validation file. "
-    );
-  }
-
-  if (!["yes", "y", "no", "n"].includes(providePath.toLowerCase())) {
-    console.log("I'm sorry we could not understand that response. Reply with a yes/y or no/n. ");
-    return getChipDataLocation(prompter);
-  }
-
-  return "";
 }
 
 export async function getTokenURIData(prompter: readline.ReadLine): Promise<string> {

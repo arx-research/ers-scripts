@@ -4,34 +4,36 @@ import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment as HRE } from "hardhat/types";
 import {
   calculateEnrollmentId,
-  ManufacturerRegistry,
-  ManufacturerRegistry__factory,
   ManufacturerTree,
   ManufacturerValidationInfo
 } from "@arx-research/ers-contracts";
 import { CIDString, File } from "nft.storage";
 
 import { getDeployedContractAddress } from "../utils/helpers";
-import { getChipPublicKeys, instantiateGateway, saveFilesLocally, uploadFilesToIPFS } from "../utils/scriptHelpers";
-import { AddManufacturerEnrollment, ManufacturerEnrollmentIPFS, UploadChipData, KeysFromChipScan, ChipKeys } from "../types/scripts";
+import {
+  getChipPublicKeys,
+  getManufacturerRegistry,
+  instantiateGateway,
+  rl,
+  saveFilesLocally,
+  uploadFilesToIPFS
+} from "../utils/scriptHelpers";
+import { getNumberOfChips, getPostToIpfs, getSaveToDB } from "../utils/prompts/addManufacturerEnrollmentPrompts";
+import { AddManufacturerEnrollment, ManufacturerEnrollmentIPFS, UploadChipData, ChipKeys } from "../types/scripts";
 import {connectToDatabase, uploadChipToDB} from "../utils/database"
 
 task("addManufacturerEnrollment", "Add a new enrollment to the ManufacturerRegistry")
-  .addParam("scan", "Number of chips to scan", "0", undefined, true)
-  .addParam("postIpfs", "Post resulting data to IPFS", undefined, undefined, true)
-  .addParam("postDb", "Post chip data to MongoDB",undefined, undefined, true)
   .setAction(async (taskArgs, hre: HRE) => {
     const { rawTx } = hre.deployments;
-    const { postIpfs, postDb } = taskArgs;
 
-    let params: AddManufacturerEnrollment = getAndValidateParams();
+    let params: AddManufacturerEnrollment = await getAndValidateParams();
     const { deployer, defaultManufacturer, defaultManufacturerSigner } = await hre.getNamedAccounts();
     let chips: ChipKeys = {};
 
-    if (Number(taskArgs.scan) != 0) {
-      console.log(`Scanning chips set to ${taskArgs.scan}`);
+    if (Number(params.numberOfChips) != 0) {
+      console.log(`Scanning chips set to ${params.numberOfChips}`);
       const gateway = await instantiateGateway();
-      for (let i = 0; i < taskArgs.scan; i++) {
+      for (let i = 0; i < params.numberOfChips.toNumber(); i++) {
         const [ chipId, pk2, _rawKeys ] = await getChipPublicKeys(gateway);
         // Make rawKeys available outside of the loop
         if (Object.keys(chips).includes(chipId)) {
@@ -41,7 +43,7 @@ task("addManufacturerEnrollment", "Add a new enrollment to the ManufacturerRegis
         }
 
         chips[chipId] = {secondaryKeyAddress: pk2};
-        console.log(`Scanned chip ${i + 1} of ${taskArgs.scan}`);
+        console.log(`Scanned chip ${i + 1} of ${params.numberOfChips}`);
       }
     } else {
       const keysFromJson = params.chipKeys;
@@ -63,7 +65,11 @@ task("addManufacturerEnrollment", "Add a new enrollment to the ManufacturerRegis
     console.log(`Creating certificates...`);
     const certificates: string[] = await createCertificates();
 
-    const manufacturerRegistry = await getManufacturerRegistry();
+    const manufacturerRegistry = await getManufacturerRegistry(
+      hre,
+      deployer,
+      await getDeployedContractAddress(hre.network.name, "ManufacturerRegistry")
+    );
 
     const manufacturerInfo = await manufacturerRegistry.getManufacturerInfo(params.manufacturerId);
     const expectedEnrollmentId = calculateEnrollmentId(params.manufacturerId, manufacturerInfo.nonce);
@@ -102,26 +108,19 @@ task("addManufacturerEnrollment", "Add a new enrollment to the ManufacturerRegis
       return certificates;
     }
 
-    async function getManufacturerRegistry(): Promise<ManufacturerRegistry> {
-      const signer = await hre.ethers.getSigner(deployer);
-      const manufacturerRegistryAddress = getDeployedContractAddress(hre.network.name, "ManufacturerRegistry");
-      const manufacturerRegistry = new ManufacturerRegistry__factory(signer).attach(manufacturerRegistryAddress);
-      return manufacturerRegistry;
-    }
-
     async function generateAndSaveManufacturerEnrollmentFiles(): Promise<CIDString> {
       let chipValidationDataUri: CIDString;
       const manufacturerValidationFiles = _generateManufacturerEnrollmentFiles(merkleTree, expectedEnrollmentId, chips, certificates);
       // Post to IPFS if requested
-      if (postIpfs) {
+      if (await getPostToIpfs(rl)) {
         console.log(`Posting manufacturer enrollment to IPFS...`);
         chipValidationDataUri = await uploadFilesToIPFS(manufacturerValidationFiles);
       } else {
-        chipValidationDataUri = "Not posted to IPFS!"; 
+        chipValidationDataUri = "N/A"; 
       }
 
       // Post to DB if requested
-      if(postDb){
+      if(await getSaveToDB(rl)){
         const chipAddresses = Object.keys(chips)
         for(let i = 0; i < chipAddresses.length; i++){
           console.log("Uploading chip to DB: " + chipAddresses[i])
@@ -138,7 +137,7 @@ task("addManufacturerEnrollment", "Add a new enrollment to the ManufacturerRegis
         }
       }
 
-      saveFilesLocally("addManufacturerEnrollment", manufacturerValidationFiles);
+      saveFilesLocally(`manufacturerEnrollments/${hre.network.name}`, manufacturerValidationFiles);
 
       return chipValidationDataUri;
     }
@@ -157,8 +156,10 @@ task("addManufacturerEnrollment", "Add a new enrollment to the ManufacturerRegis
     }
   });
 
-function getAndValidateParams(): AddManufacturerEnrollment {
+async function getAndValidateParams(): Promise<AddManufacturerEnrollment> {
   let params: AddManufacturerEnrollment = JSON.parse(fs.readFileSync('./task_params/addManufacturerEnrollment.json', 'utf-8'));
+
+  params.numberOfChips = await getNumberOfChips(rl);
 
   if(params.manufacturerId.slice(0, 2) != '0x' || params.manufacturerId.length != 66) {
     throw Error(`Passed manufacturer Id: ${params.manufacturerId} is not a bytes32 hash`);

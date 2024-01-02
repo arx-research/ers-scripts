@@ -7,7 +7,8 @@ export interface AddManufacturerEnrollment {
   chipKeys: KeysFromChipScan[],
   authModel: Address,
   bootloaderApp: string,
-  chipModel: string
+  chipModel: string,
+  numberOfChips: BigNumber,
 }
 
 export interface ManufacturerEnrollmentIPFS {
@@ -19,7 +20,6 @@ export interface ManufacturerEnrollmentIPFS {
 export interface CreateProject {
   name: string,
   chipDataLocation: string,
-  manufacturerValidationLocation: string,
   tokenUriRoot: string,
   lockinPeriod: BigNumber,
   serviceId: string,
@@ -34,10 +34,10 @@ export interface ProjectEnrollmentIPFS {
 }
 
 export interface ClaimChip {
+  chipId: Address,
   name: string,
-  projectRegistrarAddress: Address,
-  chipClaimDataLocation: string,
-  manufacturerValidationLocation: string,
+  projectEnrollment: ProjectEnrollmentIPFS,
+  manufacturerEnrollment: ManufacturerEnrollmentIPFS,
 }
 
 export interface UploadChipData {
