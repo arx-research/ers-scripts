@@ -1,6 +1,5 @@
 import { ethers } from "ethers";
 import { HaloGateway } from "@arx-research/libhalo/api/desktop.js";
-import { createWalletClient, http } from "viem";
 import axios from "axios";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
@@ -18,6 +17,10 @@ import {
   AuthenticityProjectRegistrar,
   AuthenticityProjectRegistrar__factory,
   DeveloperMerkleProofInfo,
+  DeveloperNameGovernor,
+  DeveloperNameGovernor__factory,
+  DeveloperRegistry,
+  DeveloperRegistry__factory,
   ERSRegistry,
   ERSRegistry__factory,
   ManufacturerRegistry,
@@ -155,6 +158,26 @@ export async function getERSRegistry(hre: HardhatRuntimeEnvironment, signerAddre
   const ersRegistryAddress = getDeployedContractAddress(hre.network.name, "ERSRegistry");
   const ersRegistry = new ERSRegistry__factory(signer).attach(ersRegistryAddress);
   return ersRegistry;
+}
+
+export  async function getDeveloperNameGovernor(
+  hre: HardhatRuntimeEnvironment,
+  signerAddress: Address,
+): Promise<DeveloperNameGovernor> {
+  const developerNameGovernorAddress = getDeployedContractAddress(hre.network.name, "DeveloperNameGovernor");
+  const signer = await hre.ethers.getSigner(signerAddress);
+  const developerNameGovernor = new DeveloperNameGovernor__factory(signer).attach(developerNameGovernorAddress);
+  return developerNameGovernor;
+}
+
+export  async function getDeveloperRegistry(
+  hre: HardhatRuntimeEnvironment,
+  signerAddress: Address,
+): Promise<DeveloperRegistry> {
+  const developerRegistryAddress = getDeployedContractAddress(hre.network.name, "DeveloperRegistry");
+  const signer = await hre.ethers.getSigner(signerAddress);
+  const developerRegistry = new DeveloperRegistry__factory(signer).attach(developerRegistryAddress);
+  return developerRegistry;
 }
 
 export async function getProjectRegistrar(

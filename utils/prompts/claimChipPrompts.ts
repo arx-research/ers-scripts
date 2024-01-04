@@ -4,29 +4,6 @@ import { ADDRESS_ZERO, AuthenticityProjectRegistrar, calculateLabelHash, ERSRegi
 
 import { queryUser } from "../scriptHelpers";
 
-// export async function getProjectEnrollmentDataLocation(prompter: readline.ReadLine): Promise<string> {
-//   const providePath = await queryUser(
-//     prompter,
-//     `
-//     Since you are using localhost we cannot get chip info from the 3668 gateway. Can you provide
-//     `
-//   );
-
-//   if (["yes", "y"].includes(providePath.toLowerCase())) {
-//     return queryUser(
-//       prompter,
-//       "Please provide the path to the chip data file. "
-//     );
-//   }
-
-//   if (!["yes", "y", "no", "n"].includes(providePath.toLowerCase())) {
-//     console.log("I'm sorry we could not understand that response. Reply with a yes/y or no/n. ");
-//     return getChipClaimDataLocation(prompter);
-//   }
-
-//   return "";
-// }
-
 export async function getChipName(
   prompter: readline.ReadLine,
   ersRegistry: ERSRegistry,

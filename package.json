@@ -18,6 +18,8 @@
     "etherscan:goerli": "yarn hardhat --network goerli etherscan-verify --license MIT --solc-input",
     "claimChip": "npx hardhat claimChip",
     "claimChip:localhost": "npx hardhat claimChip --network localhost",
+    "createDeveloperRegistrar": "npx hardhat createDeveloperRegistrar",
+    "createDeveloperRegistrar:localhost": "npx hardhat createDeveloperRegistrar --network localhost",
     "createProject": "npx hardhat createProject",
     "createProject:localhost": "npx hardhat createProject --network localhost",
     "createService": "npx hardhat createService",
