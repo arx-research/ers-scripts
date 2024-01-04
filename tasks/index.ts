@@ -6,3 +6,4 @@ export * from './claimChip';
 export * from './scanChips';
 export * from './generateTokenUriData';
 export * from './getArxManufacturerEnrollments';
+export * from './createDeveloperRegistrar';

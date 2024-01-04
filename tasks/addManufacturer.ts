@@ -4,7 +4,7 @@ import { HardhatRuntimeEnvironment as HRE } from "hardhat/types";
 import { ManufacturerRegistry__factory } from "@arx-research/ers-contracts";
 
 import { getDeployedContractAddress } from "../utils/helpers";
-import { MULTI_SIG_ADDRESSES } from "../utils/constants";
+import { MULTI_SIG_ADDRESSES } from "../deployments/parameters";
 
 task("addManufacturer", "Add a manufacturer to the ManufacturerRegistry")
   .addParam("manufacturerName", "Name of the manufacturer to add", undefined, undefined, false)
