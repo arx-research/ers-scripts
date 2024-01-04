@@ -5,6 +5,7 @@ import { HardhatRuntimeEnvironment as HRE, HardhatRuntimeEnvironment } from "har
 import {
   Address,
   calculateLabelHash,
+  ManufacturerValidationInfo
 } from "@arx-research/ers-contracts";
 
 import {
@@ -16,10 +17,10 @@ import {
   instantiateGateway,
   rl
 } from "../utils/scriptHelpers";
-import { ClaimChip, ManufacturerEnrollmentIPFS, ProjectEnrollmentIPFS } from "../types/scripts";
+import { ClaimChip, ProjectEnrollmentIPFS } from "../types/scripts";
 import { getChipName } from "../utils/prompts/claimChipPrompts";
 
-task("claimChip", "Claim a chip enrolled in a ERS project")
+task("claimChip", "Claim a chip enrolled in an ERS project")
   .setAction(async (taskArgs, hre: HRE) => {
     const { rawTx } = hre.deployments;
     
@@ -47,7 +48,7 @@ task("claimChip", "Claim a chip enrolled in a ERS project")
           params.chipId,
           nameHash,
           params.projectEnrollment.developerMerkleInfo,
-          params.manufacturerEnrollment.validationInfo,
+          params.manufacturerEnrollment,
           commitBlock,
           chipOwnershipProof,
           params.projectEnrollment.developerCertificate,
@@ -68,11 +69,11 @@ task("claimChip", "Claim a chip enrolled in a ERS project")
     const [chipId,, ] = await getChipPublicKeys(gate);
 
     let projectEnrollmentInfo: ProjectEnrollmentIPFS = {} as ProjectEnrollmentIPFS;
-    let manufacturerEnrollmentInfo: ManufacturerEnrollmentIPFS = {} as ManufacturerEnrollmentIPFS;
+    let manufacturerEnrollmentInfo: ManufacturerValidationInfo = {} as ManufacturerValidationInfo;
     if (hre.network.name == "localhost") {
       console.log("Fetching Project and Manufacturer data from local files...");
 
-      manufacturerEnrollmentInfo = JSON.parse(fs.readFileSync(`task_outputs/manufacturerEnrollments/localhost/${chipId}.json`, 'utf-8'));
+      manufacturerEnrollmentInfo = (JSON.parse(fs.readFileSync(`task_outputs/manufacturerEnrollments/localhost/${chipId}.json`, 'utf-8'))).validationInfo;
       projectEnrollmentInfo = JSON.parse(fs.readFileSync(`task_outputs/projectEnrollments/localhost/${chipId}.json`, 'utf-8'));
     } else {
       console.log("Fetching Project and Manufacturer data for your chip from 3668 gateway...");
@@ -80,7 +81,7 @@ task("claimChip", "Claim a chip enrolled in a ERS project")
       [ projectEnrollmentInfo, manufacturerEnrollmentInfo ] = await getChipInfoFromGateway(chipId);
     }
 
-    if (projectEnrollmentInfo == {} as ProjectEnrollmentIPFS && manufacturerEnrollmentInfo == {} as ManufacturerEnrollmentIPFS) {
+    if (projectEnrollmentInfo == {} as ProjectEnrollmentIPFS && manufacturerEnrollmentInfo == {} as ManufacturerValidationInfo) {
       throw Error(`Chip ${chipId} has not been enrolled in ERS`);
     }
 

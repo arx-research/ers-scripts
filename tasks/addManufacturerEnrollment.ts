@@ -18,7 +18,7 @@ import {
   saveFilesLocally,
   uploadFilesToIPFS
 } from "../utils/scriptHelpers";
-import { getNumberOfChips, getPostToIpfs, getSaveToDB } from "../utils/prompts/addManufacturerEnrollmentPrompts";
+import { getChipData, getPostToIpfs, getSaveToDB } from "../utils/prompts/addManufacturerEnrollmentPrompts";
 import { AddManufacturerEnrollment, ManufacturerEnrollmentIPFS, UploadChipData, ChipKeys } from "../types/scripts";
 import {connectToDatabase, uploadChipToDB} from "../utils/database"
 
@@ -151,15 +151,15 @@ task("addManufacturerEnrollment", "Add a new enrollment to the ManufacturerRegis
       // We are saving both the enrollment info as well as a chipData.json file which can immediately be used for projectCreation.
       const enrollmentInfoFile = new File([JSON.stringify(chipInfo)], `${expectedEnrollmentId}.json`, { type: 'application/json' });
       const chipInfoFile = new File([JSON.stringify(chipInfo)], `chipData.json`, { type: 'application/json' });
-      await saveFilesLocally("enrollmentData", [enrollmentInfoFile]);
-      await saveFilesLocally("chipData", [chipInfoFile]);
+      await saveFilesLocally(`enrollmentData/${hre.network.name}`, [enrollmentInfoFile]);
+      await saveFilesLocally(`chipData/${hre.network.name}`, [chipInfoFile]);
     }
   });
 
 async function getAndValidateParams(): Promise<AddManufacturerEnrollment> {
   let params: AddManufacturerEnrollment = JSON.parse(fs.readFileSync('./task_params/addManufacturerEnrollment.json', 'utf-8'));
 
-  params.numberOfChips = await getNumberOfChips(rl);
+  params.numberOfChips = await getChipData(rl);
 
   if(params.manufacturerId.slice(0, 2) != '0x' || params.manufacturerId.length != 66) {
     throw Error(`Passed manufacturer Id: ${params.manufacturerId} is not a bytes32 hash`);

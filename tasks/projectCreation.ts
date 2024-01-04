@@ -30,8 +30,6 @@ import {
 } from "../utils/scriptHelpers";
 import { getDeployedContractAddress } from '../utils/helpers';
 import { 
-  getChipDataLocation,
-  getManufacturerValidationLocation,
   getPostToIpfs,
   getProjectName,
   getServiceTimelock,
@@ -43,22 +41,21 @@ import { MAX_BLOCK_WINDOW } from "../deployments/parameters";
 task("createProject", "Create a new project using the ArxProjectEnrollmentManager")
   .setAction(async (taskArgs, hre: HRE) => {
     const { rawTx } = hre.deployments;
-    const { post } = taskArgs;
 
     const { projectPublicKey, projectOwner } = await hre.getNamedAccounts();
     const network = hre.network.name;
-    let params: CreateProject = await getAndValidateParams(network);
+    let params: CreateProject = await getAndValidateParams();
 
     const ersInstance: ERS = await createERSInstance(hre);
     
-    const gate = await instantiateGateway();
+    let gate = await instantiateGateway();
 
     let chipInfo: ChipInfo[];
     let ownershipProofs: string[];
     let developerCertificates: string[];
     if (network == "localhost") {
       // If using localhost you will have had to run the addManufacturerEnrollment task which creates the chipData.json file
-      chipInfo = JSON.parse(fs.readFileSync("task_outputs/chipData/chipData.json", 'utf-8'));
+      chipInfo = JSON.parse(fs.readFileSync(`task_outputs/chipData/${hre.network.name}/chipData.json`, 'utf-8'));
       console.log(`Adding ${chipInfo.length} chips...`);
 
       // Sign ownership proofs for each chip
@@ -118,7 +115,7 @@ task("createProject", "Create a new project using the ArxProjectEnrollmentManage
 
     console.log(`New ProjectRegistrar deployed at ${projectRegistrarAddress}`);
 
-    async function getAndValidateParams(network: string): Promise<CreateProject> {
+    async function getAndValidateParams(): Promise<CreateProject> {
       let params: CreateProject = {} as CreateProject;
   
       params.name = await getProjectName(rl, await getERSRegistry(hre, projectOwner));
@@ -150,7 +147,7 @@ task("createProject", "Create a new project using the ArxProjectEnrollmentManage
         console.log(`Ownership proof created for chipId: ${signResponse.etherAddress} with proof: ${signResponse.signature.ether}`)
         ownershipProofs[i] = signResponse.signature.ether;
 
-        const [ , chipManufacturerInfo ] =await getChipInfoFromGateway(provingChip);
+        const [ , chipManufacturerInfo ] = await getChipInfoFromGateway(signResponse.etherAddress);
 
         chipInfo[i] = {
           chipId: signResponse.etherAddress,
@@ -192,13 +189,12 @@ task("createProject", "Create a new project using the ArxProjectEnrollmentManage
       const developerValidationFiles = _generateProjectEnrollmentFiles(ersInstance, developerCertificates, ownershipProofs);
       if (await getPostToIpfs(rl)) {
         chipValidationDataUri = await uploadFilesToIPFS(developerValidationFiles);
-        saveFilesLocally(`projectEnrollments/${network}`, developerValidationFiles);
-
         console.log(`Project enrollment files created and saved at ${chipValidationDataUri}`);
       } else {
-        saveFilesLocally(`projectEnrollments/${network}`, developerValidationFiles);
         chipValidationDataUri = "ipfs://blank"; 
       }
+
+      saveFilesLocally(`projectEnrollments/${network}`, developerValidationFiles);
 
       return chipValidationDataUri;
     }

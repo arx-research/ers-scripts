@@ -53,9 +53,9 @@ async function generateJSONFiles(address: string, data: any): Promise<File> {
 }
 
 // Synchronously read and parse the chipData.json file if it exists
-function readChipDataFile(): any[] {
+function readChipDataFile(network: string): any[] {
   try {
-    const data = fs.readFileSync('task_outputs/chipData.json', 'utf8');
+    const data = fs.readFileSync(`task_outputs/chipData/${network}/chipData.json`, 'utf8');
     return JSON.parse(data);
   } catch (error) {
     if (error === 'ENOENT') {
@@ -84,14 +84,14 @@ function readEnrollmentFiles(directoryPath: string): any[] {
 }
 
 // Synchronously combine new chip data with existing enrollment data
-function combineChipData(newChips: ChipKeys, rewriteOption: boolean): void {
+function combineChipData(network: string, newChips: ChipKeys, rewriteOption: boolean): void {
   if (!rewriteOption) {
     console.log('Skipping rewrite of chipData.json.');
     return;
   }
 
-  const existingChipData = readChipDataFile();
-  const enrollmentData = readEnrollmentFiles('task_outputs/enrollmentData');
+  const existingChipData = readChipDataFile(network);
+  const enrollmentData = readEnrollmentFiles(`task_outputs/enrollmentData/${network}`);
 
   // Map enrollment data by chipId for easy lookup
   const enrollmentDataMap = new Map(enrollmentData.map((item) => [item.chipId, item]));
@@ -108,7 +108,7 @@ function combineChipData(newChips: ChipKeys, rewriteOption: boolean): void {
   });
 
   // Write the combined data back to chipData.json
-  fs.writeFileSync('task_outputs/chipData/chipData.json', JSON.stringify(combinedData, null, 2), 'utf8');
+  fs.writeFileSync(`task_outputs/chipData/${network}/chipData.json`, JSON.stringify(combinedData, null, 2), 'utf8');
 }
 
 // Define the Hardhat task
@@ -161,7 +161,7 @@ task("generateTokenUriData", "Generates JSON files for chips and uploads to NFT.
 
       if (rewriteOption) {
         // After collecting new chip data
-        combineChipData(chips, rewriteOption);
+        combineChipData(hre.network.name, chips, rewriteOption);
       }
 
     } catch (error) {

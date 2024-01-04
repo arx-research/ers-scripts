@@ -9,7 +9,7 @@ import { getServiceId, getRedirectContent, getAppendId } from "../utils/prompts/
 
 task("createService", "Create a new service on the ServiceRegistry")
   .setAction(async (taskArgs, hre: HRE) => {
-    const { rawTx, read } = hre.deployments;
+    const { rawTx } = hre.deployments;
 
     const { serviceCreator } = await hre.getNamedAccounts();
     const [serviceId, serviceName] = await getServiceId(rl, await getServicesRegistry());

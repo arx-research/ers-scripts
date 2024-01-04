@@ -37,7 +37,7 @@ export interface ClaimChip {
   chipId: Address,
   name: string,
   projectEnrollment: ProjectEnrollmentIPFS,
-  manufacturerEnrollment: ManufacturerEnrollmentIPFS,
+  manufacturerEnrollment: ManufacturerValidationInfo,
 }
 
 export interface UploadChipData {

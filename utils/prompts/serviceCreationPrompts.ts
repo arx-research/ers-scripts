@@ -27,7 +27,7 @@ export async function getRedirectContent(prompter:readline.ReadLine): Promise<st
 }
 
 export async function getAppendId(prompter: readline.ReadLine): Promise<boolean> {
-  const ans = await queryUser(prompter, "Do you want to append chip IDs to the end of your root URI/URL? Doing so allows you to create personalized content for each chip (true/false). ");
+  const ans = await queryUser(prompter, "Do you want to append chip IDs to the end of your root URI/URL? Doing so allows you to create personalized content for each chip (yes/no). ");
 
   if (["true", "t"].includes(ans.toLowerCase())) {
     return true;

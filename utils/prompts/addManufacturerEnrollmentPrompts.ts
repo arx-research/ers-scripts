@@ -31,7 +31,18 @@ export async function getSaveToDB(prompter: readline.ReadLine): Promise<boolean>
   return ["yes", "y"].includes(saveToDB.toLowerCase());
 }
 
-export async function getNumberOfChips(prompter: readline.ReadLine): Promise<BigNumber> {
+export async function getChipData(prompter: readline.ReadLine): Promise<BigNumber> {
+  const preScanned = await checkPrescanChips(prompter);
+
+  if (preScanned) {
+    return BigNumber.from(0);
+  }
+
+  // If chips have not been prescanned, ask how many chips to scan
+  return getNumberOfChips(prompter);
+}
+
+async function getNumberOfChips(prompter: readline.ReadLine): Promise<BigNumber> {
   const rawNoChips = await queryUser(
     prompter,
     `How many chips do you want to include in your enrollment?
@@ -50,4 +61,19 @@ export async function getNumberOfChips(prompter: readline.ReadLine): Promise<Big
   }
 
   return noChips;
+}
+
+async function checkPrescanChips(prompter: readline.ReadLine): Promise<boolean> {
+  const preScanned = await queryUser(
+    prompter,
+    `Have you prescanned your chips and included them in the params file? (y/n) `
+  );
+  
+  // Ask if chips have been prescanned, if so then return 0
+  if (!["yes", "y", "no", "n"].includes(preScanned.toLowerCase())) {
+    console.log("I'm sorry we could not understand that response. Reply with a yes/y or no/n. ");
+    return checkPrescanChips(prompter);
+  }
+  
+  return ["yes", "y"].includes(preScanned.toLowerCase());
 }
