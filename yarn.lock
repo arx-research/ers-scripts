@@ -49,10 +49,10 @@
     jsonschema "^1.4.1"
     viem "^1.6.0"
 
-"@arx-research/libhalo@^1.2.15":
-  version "1.2.22"
-  resolved "https://registry.yarnpkg.com/@arx-research/libhalo/-/libhalo-1.2.22.tgz#0d7bdfdb79083ff933e75b92a4d9fe4a66c0650d"
-  integrity sha512-A+KCkOFwnZFo00Y9eZsafuVU84Sp96W+Mb3cUXrk7wXHk6XOdD7QBeI+MrjVbjAkSz80Z86YYSLESHGU7/U05A==
+"@arx-research/libhalo@^1.2.26":
+  version "1.2.26"
+  resolved "https://registry.yarnpkg.com/@arx-research/libhalo/-/libhalo-1.2.26.tgz#6d17e4430f1fa685ffa09a9947237b2bf80d3f65"
+  integrity sha512-a+riaw7+Dld6U4BgcVT5oY8h3e9DYxEc3HkKJyfAoeGJ2IfT107lCeIcyb3eU3v7KST4d3d+YXK1g3s8np0Vpg==
   dependencies:
     argparse "^2.0.1"
     buffer "^6.0.3"

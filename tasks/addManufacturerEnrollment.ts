@@ -114,7 +114,7 @@ task("addManufacturerEnrollment", "Add a new enrollment to the ManufacturerRegis
       // Post to IPFS if requested
       if (await getPostToIpfs(rl)) {
         console.log(`Posting manufacturer enrollment to IPFS...`);
-        chipValidationDataUri = await uploadFilesToIPFS(manufacturerValidationFiles);
+        chipValidationDataUri = "ipfs://" + await uploadFilesToIPFS(manufacturerValidationFiles);
       } else {
         chipValidationDataUri = "N/A"; 
       }

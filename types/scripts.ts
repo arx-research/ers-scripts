@@ -18,6 +18,7 @@ export interface ManufacturerEnrollmentIPFS {
 }
 
 export interface CreateProject {
+  developerRegistrar: Address,
   name: string,
   chipDataLocation: string,
   tokenUriRoot: string,

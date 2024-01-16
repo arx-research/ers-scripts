@@ -4,6 +4,27 @@ import { calculateSubnodeHash, ADDRESS_ZERO, ERSRegistry } from "@arx-research/e
 
 import { queryUser } from "../scriptHelpers";
 
+export async function getUserDeveloperRegistrar(prompter: readline.ReadLine): Promise<string> {
+  const hasDeveloperRegistrar = await queryUser(
+    prompter,
+    "Are you registered as a developer in ERS and have deployed your own DeveloperRegistrar? (y/n) "
+  );
+
+  if (!["yes", "y", "no", "n"].includes(hasDeveloperRegistrar.toLowerCase())) {
+    console.log("I'm sorry we could not understand that response. Reply with a yes/y or no/n. ");
+    return getUserDeveloperRegistrar(prompter);
+  }
+
+  if (["no", "n"].includes(hasDeveloperRegistrar.toLowerCase())) {
+    return ADDRESS_ZERO;
+  }
+
+  return queryUser(
+    prompter,
+    "What is the address of your DeveloperRegistrar? "
+  );
+}
+
 export async function getProjectName(prompter: readline.ReadLine, ersRegistry: ERSRegistry): Promise<string> {
   const name = await queryUser(
     prompter,

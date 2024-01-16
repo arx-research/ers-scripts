@@ -17,7 +17,7 @@ export async function getDeveloperNameApproval(prompter: readline.ReadLine, deve
   let res;
   try {
     res = await axios.post(
-      `${process.env.NAME_APPROVER_ENDPOINT}sign-message`,
+      `${process.env.NAME_APPROVER_ENDPOINT}/sign-message`,
       {developerOwner, name},
       {headers: {'Content-Type': 'application/json',}}
     );
