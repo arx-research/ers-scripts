@@ -23,8 +23,10 @@ import { CreateProject, ProjectEnrollmentIPFS } from "../types/scripts";
 
 import { 
   createERSInstance,
+  createIpfsAddress,
   getChipInfoFromGateway,
   getChipSigWithGateway,
+  getDeveloperRegistrar,
   getERSRegistry,
   instantiateGateway,
   saveFilesLocally,
@@ -172,7 +174,7 @@ task("createProject", "Create a new project using the ArxProjectEnrollmentManage
             projectRegistrarDeploy.address,
             ersInstance.projectCreation.developerTree.getRoot(),
             projectPublicKey,
-            ADDRESS_ZERO,
+            getDeployedContractAddress(hre.network.name, "OpenTransferPolicy"),
             projectOwnershipProof,
             chipValidationDataUri,
           ]
@@ -184,7 +186,11 @@ task("createProject", "Create a new project using the ArxProjectEnrollmentManage
       let params: CreateProject = {} as CreateProject;
       
       params.developerRegistrar = await getUserDeveloperRegistrar(rl);
-      params.name = await getProjectName(rl, await getERSRegistry(hre, projectOwner));
+      params.name = await getProjectName(
+        rl,
+        await getERSRegistry(hre, projectOwner),
+        await getDeveloperRegistrar(hre, params.developerRegistrar, projectOwner)
+      );
       params.tokenUriRoot = await getTokenURIData(rl);
       params.lockinPeriod = await getServiceTimelock(rl);
       params.serviceId = await getServiceId(rl);
@@ -263,10 +269,10 @@ task("createProject", "Create a new project using the ArxProjectEnrollmentManage
         ownershipProofs
       );
       if (await getPostToIpfs(rl)) {
-        chipValidationDataUri = "ipfs://" + await uploadFilesToIPFS(developerValidationFiles);
+        chipValidationDataUri = createIpfsAddress(await uploadFilesToIPFS(developerValidationFiles));
         console.log(`Project enrollment files created and saved at ${chipValidationDataUri}`);
       } else {
-        chipValidationDataUri = "ipfs://blank"; 
+        chipValidationDataUri = createIpfsAddress("dummyAddress"); 
       }
 
       saveFilesLocally(`projectEnrollments/${network}`, developerValidationFiles);

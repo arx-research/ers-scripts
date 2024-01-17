@@ -72,6 +72,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   });
   console.log("SECP256k1Model deployed to:", secp256AuthModelDeploy.address);
 
+  const openTransferPolicyDeploy = await deploy("OpenTransferPolicy", {
+    from: deployer,
+    args: [],
+  });
+  console.log("OpenTransferPolicy deployed to:", openTransferPolicyDeploy.address);
+
   const chipRegistry = await ethers.getContractAt("ChipRegistry", chipRegistryDeploy.address);
   const developerRegistry = await ethers.getContractAt("DeveloperRegistry", developerRegistryDeploy.address);
   const ersRegistry = await ethers.getContractAt("ERSRegistry", ersRegistryDeploy.address);

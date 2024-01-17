@@ -19,6 +19,8 @@ import {
   DeveloperMerkleProofInfo,
   DeveloperNameGovernor,
   DeveloperNameGovernor__factory,
+  DeveloperRegistrar,
+  DeveloperRegistrar__factory,
   DeveloperRegistry,
   DeveloperRegistry__factory,
   ERSRegistry,
@@ -51,6 +53,10 @@ export async function saveFilesLocally(directoryRoot: string, files: File[]): Pr
     const filePath = `task_outputs/${directoryRoot}/${files[i].name}`;
     fs.writeFileSync(filePath, await files[i].text(), { flag: 'w' });
   }
+}
+
+export function createIpfsAddress(cid: CIDString): string {
+  return `ipfs://${cid}`;
 }
 
 export async function instantiateGateway(): Promise<any> {
@@ -177,6 +183,16 @@ export  async function getDeveloperRegistry(
   const developerRegistryAddress = getDeployedContractAddress(hre.network.name, "DeveloperRegistry");
   const signer = await hre.ethers.getSigner(signerAddress);
   const developerRegistry = new DeveloperRegistry__factory(signer).attach(developerRegistryAddress);
+  return developerRegistry;
+}
+
+export  async function getDeveloperRegistrar(
+  hre: HardhatRuntimeEnvironment,
+  registrarAddress: Address,
+  signerAddress: Address,
+): Promise<DeveloperRegistrar> {
+  const signer = await hre.ethers.getSigner(signerAddress);
+  const developerRegistry = new DeveloperRegistrar__factory(signer).attach(registrarAddress);
   return developerRegistry;
 }
 

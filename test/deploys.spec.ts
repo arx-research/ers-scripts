@@ -270,7 +270,7 @@ describe("Base System Deploy", () => {
 
     it("should have the correct transferPolicy", async () => {
       const actualTransferPolicy = await arxProjectEnrollmentManager.transferPolicy();
-      expect(actualTransferPolicy).to.eq(ADDRESS_ZERO);
+      expect(actualTransferPolicy).to.eq(await getDeployedContractAddress(network, "OpenTransferPolicy"));
     });
 
     it("should have the correct max block window", async () => {

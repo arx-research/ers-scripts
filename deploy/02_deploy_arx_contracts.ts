@@ -83,7 +83,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         developerRegistrarAddress,
         getDeployedContractAddress(network, "ERSRegistry"),
         getDeployedContractAddress(network, "ManufacturerRegistry"),
-        ADDRESS_ZERO,
+        getDeployedContractAddress(network, "OpenTransferPolicy"),
         MAX_BLOCK_WINDOW[network]
       ],
     });

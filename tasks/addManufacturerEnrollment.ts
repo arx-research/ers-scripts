@@ -11,6 +11,7 @@ import { CIDString, File } from "nft.storage";
 
 import { getDeployedContractAddress } from "../utils/helpers";
 import {
+  createIpfsAddress,
   getChipPublicKeys,
   getManufacturerRegistry,
   instantiateGateway,
@@ -114,9 +115,9 @@ task("addManufacturerEnrollment", "Add a new enrollment to the ManufacturerRegis
       // Post to IPFS if requested
       if (await getPostToIpfs(rl)) {
         console.log(`Posting manufacturer enrollment to IPFS...`);
-        chipValidationDataUri = "ipfs://" + await uploadFilesToIPFS(manufacturerValidationFiles);
+        chipValidationDataUri = createIpfsAddress(await uploadFilesToIPFS(manufacturerValidationFiles));
       } else {
-        chipValidationDataUri = "N/A"; 
+        chipValidationDataUri = createIpfsAddress("dummyAddress"); 
       }
 
       // Post to DB if requested

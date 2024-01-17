@@ -1,6 +1,12 @@
 import * as readline from 'readline';
 import { BigNumber } from "ethers";
-import { calculateSubnodeHash, ADDRESS_ZERO, ERSRegistry } from "@arx-research/ers-contracts/";
+import {
+  ADDRESS_ZERO,
+  calculateLabelHash,
+  calculateSubnodeHash,
+  DeveloperRegistrar,
+  ERSRegistry,
+} from "@arx-research/ers-contracts/";
 
 import { queryUser } from "../scriptHelpers";
 
@@ -25,10 +31,14 @@ export async function getUserDeveloperRegistrar(prompter: readline.ReadLine): Pr
   );
 }
 
-export async function getProjectName(prompter: readline.ReadLine, ersRegistry: ERSRegistry): Promise<string> {
+export async function getProjectName(
+  prompter: readline.ReadLine,
+  ersRegistry: ERSRegistry,
+  developerRegistrar: DeveloperRegistrar
+): Promise<string> {
   const name = await queryUser(
     prompter,
-    "What name would you like to give your project? In ERS this will create a subnode with the path [name].arx-playground.ers. "
+    "What name would you like to give your project? "
   );
 
   if (name.length == 0) {
@@ -36,11 +46,17 @@ export async function getProjectName(prompter: readline.ReadLine, ersRegistry: E
   }
 
   // Check that the namespace hasn't been taken
-  const labelHash = calculateSubnodeHash(name + ".arxplayground.ers");
-  const labelOwner = await ersRegistry.getOwner(labelHash);
+  let labelOwner;
+  if (developerRegistrar.address != ADDRESS_ZERO) {
+    const developerRootnode = await developerRegistrar.rootNode();
+    labelOwner = await ersRegistry.getSubnodeOwner(developerRootnode, calculateLabelHash(name));
+  } else {
+    const userSubnodeHash = calculateSubnodeHash(name + ".arxplayground.ers");
+    labelOwner = await ersRegistry.getOwner(userSubnodeHash);
+  }
   if (labelOwner != ADDRESS_ZERO) {
     console.log(`The name ${name} has already been taken. Please choose a different name.`);
-    return await getProjectName(prompter, ersRegistry);
+    return await getProjectName(prompter, ersRegistry, developerRegistrar);
   }
 
   return name;
@@ -115,8 +131,8 @@ export async function getTokenURIData(prompter: readline.ReadLine): Promise<stri
     "What's the tokenUri root for chips in the project? All chip metadata should be bundled at the same root. "
   );
 
-  // If tokenURIRoot doesn't end in backslash then append backslash
-  return tokenURIRoot[tokenURIRoot.length-1] == "/" ? tokenURIRoot : tokenURIRoot + "/";
+  // lib-ers adds the slash when generating the tokenURI, so we need to remove it if it's there
+  return tokenURIRoot[tokenURIRoot.length-1] == "/" ? tokenURIRoot.slice(0,-1) : tokenURIRoot;
 }
 
 export async function getPostToIpfs(prompter: readline.ReadLine): Promise<boolean> {
