@@ -39,6 +39,7 @@ import {
   getUserDeveloperRegistrar,
   getPostToIpfs,
   getProjectName,
+  getProjectRegistrarType,
   getServiceTimelock,
   getServiceId,
   getTokenURIData,
@@ -138,16 +139,31 @@ task("createProject", "Create a new project using the ArxProjectEnrollmentManage
     } else {
       // deploy project registrar
       const { deploy } = await hre.deployments;
-      const projectRegistrarDeploy = await deploy("AuthenticityProjectRegistrar", {
-        from: projectOwner,
-        args: [
-          projectOwner,
-          getDeployedContractAddress(hre.network.name, "ChipRegistry"),
-          getDeployedContractAddress(hre.network.name, "ERSRegistry"),
-          params.developerRegistrar,
-          MAX_BLOCK_WINDOW[hre.network.name]
-        ],
-      });
+      const projectRegistrarType = await getProjectRegistrarType(rl);
+
+      let projectRegistrarDeploy;
+      if (projectRegistrarType == 1) {
+        projectRegistrarDeploy = await deploy("AuthenticityProjectRegistrar", {
+          from: projectOwner,
+          args: [
+            projectOwner,
+            getDeployedContractAddress(hre.network.name, "ChipRegistry"),
+            getDeployedContractAddress(hre.network.name, "ERSRegistry"),
+            params.developerRegistrar,
+            MAX_BLOCK_WINDOW[hre.network.name]
+          ],
+        });
+      } else {
+        projectRegistrarDeploy = await deploy("RedirectProjectRegistrar", {
+          from: projectOwner,
+          args: [
+            projectOwner,
+            getDeployedContractAddress(hre.network.name, "ChipRegistry"),
+            getDeployedContractAddress(hre.network.name, "ERSRegistry"),
+            params.developerRegistrar
+          ],
+        });
+      }
 
       chipValidationDataUri = await generateAndSaveProjectEnrollmentFiles(projectRegistrarDeploy.address);
 

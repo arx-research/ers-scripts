@@ -125,6 +125,22 @@ export async function getManufacturerValidationLocation(prompter: readline.ReadL
   );
 }
 
+export async function getProjectRegistrarType(prompter: readline.ReadLine): Promise<number> {
+  const projectRegistrarType = await queryUser(
+    prompter,
+    `What type of project registrar would you like to use?
+      1. Autheticity
+      2. Redirect `
+  );
+
+  if (!["1", "2"].includes(projectRegistrarType.toLowerCase())) {
+    console.log("I'm sorry we could not understand that response. Reply with 1 (Authenticity) or 2 (Redirect). ");
+    return getProjectRegistrarType(prompter);
+  }
+
+  return parseInt(projectRegistrarType);
+}
+
 export async function getTokenURIData(prompter: readline.ReadLine): Promise<string> {
   const tokenURIRoot = await queryUser(
     prompter,

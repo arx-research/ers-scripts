@@ -22,10 +22,10 @@
     typescript "^4.9.4"
     web3 "^1.8.1"
 
-"@arx-research/ers-contracts@^1.2.7":
-  version "1.2.7"
-  resolved "https://registry.yarnpkg.com/@arx-research/ers-contracts/-/ers-contracts-1.2.7.tgz#8c04d737a4ffc9513a8ad6e76dcc420d424db82c"
-  integrity sha512-hn+MfTYMmvAg8HjctEEYXkI1bYBRyORsyFYuGSjcSShH6yJGOsVF629oh7dFQG5IDXrKTTfTxx2Bi8LCE0TwOQ==
+"@arx-research/ers-contracts@^1.2.8-rc":
+  version "1.2.8-rc"
+  resolved "https://registry.yarnpkg.com/@arx-research/ers-contracts/-/ers-contracts-1.2.8-rc.tgz#a70e9a81ff6a5320219c9bd0617c8b7a97551247"
+  integrity sha512-B61NHffwSBm4d7ZWPXUJ+f8V6NN9ro9p+piEeYN0qBgTGncEnA3vKE6fLn2Yz0+pdx5kkifrUKgvHBrfnyOilw==
   dependencies:
     "@openzeppelin/contracts" "^4.9.2"
     "@openzeppelin/merkle-tree" "^1.0.5"
