@@ -69,12 +69,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   
     // Get ArxPlaygroundRegistrar address, create contract object, and save to deployments
     developerRegistrarAddress = await getDeveloperRegistrarAddress(tx, developerRegistry);
-    const developerRegistrar = await ethers.getContractAt("DeveloperRegistrar", developerRegistrarAddress);
+    developerRegistrar = await ethers.getContractAt("DeveloperRegistrar", developerRegistrarAddress);
     saveFactoryDeploy(hre, "ArxPlaygroundRegistrar", DeveloperRegistrar__factory.abi, developerRegistrarAddress);
     console.log("New DeveloperRegistrar deployed at:", developerRegistrarAddress);
   }
-
-  developerRegistrar = await ethers.getContractAt("DeveloperRegistrar", await getDeployedContractAddress(network, "ArxPlaygroundRegistrar"));
 
   if (developerRegistrarAddress != ADDRESS_ZERO) {
     // Deploy ArxProjectEnrollmentManager
