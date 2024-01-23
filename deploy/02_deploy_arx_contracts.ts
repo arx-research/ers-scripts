@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { ethers } from "hardhat";
 
-import { Address, ADDRESS_ZERO, calculateLabelHash, DeveloperRegistrar__factory } from "@arx-research/ers-contracts";
+import { Address, ADDRESS_ZERO, calculateLabelHash, DeveloperNameGovernor, DeveloperRegistrar__factory } from "@arx-research/ers-contracts";
 
 import { getDeployedContractAddress, saveFactoryDeploy, setNewOwner } from "../utils/helpers";
 import {
@@ -21,7 +21,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const multiSig = MULTI_SIG_ADDRESSES[network] ? MULTI_SIG_ADDRESSES[network] : deployer;
 
   // Add allowed Developer to deploy ArxPlaygroundRegistrar
-  const developerNameGovernor = await ethers.getContractAt(
+  const developerNameGovernor: DeveloperNameGovernor = await ethers.getContractAt(
     "DeveloperNameGovernor",
     getDeployedContractAddress(network, "DeveloperNameGovernor")
   );
@@ -69,10 +69,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   
     // Get ArxPlaygroundRegistrar address, create contract object, and save to deployments
     developerRegistrarAddress = await getDeveloperRegistrarAddress(tx, developerRegistry);
-    developerRegistrar = await ethers.getContractAt("DeveloperRegistrar", developerRegistrarAddress);
+    const developerRegistrar = await ethers.getContractAt("DeveloperRegistrar", developerRegistrarAddress);
     saveFactoryDeploy(hre, "ArxPlaygroundRegistrar", DeveloperRegistrar__factory.abi, developerRegistrarAddress);
     console.log("New DeveloperRegistrar deployed at:", developerRegistrarAddress);
   }
+
+  developerRegistrar = await ethers.getContractAt("DeveloperRegistrar", await getDeployedContractAddress(network, "ArxPlaygroundRegistrar"));
 
   if (developerRegistrarAddress != ADDRESS_ZERO) {
     // Deploy ArxProjectEnrollmentManager
@@ -92,8 +94,22 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const arxProjectEnrollmentManager = await ethers.getContractAt(
     "ArxProjectEnrollmentManager",
-    arxProjectEnrollmentManagerDeploy.address
+    await getDeployedContractAddress(network, "ArxProjectEnrollmentManager")
   );
+
+  // Set NameCoordinator role
+  if ((await developerNameGovernor.nameCoordinator()).toLowerCase() != NAME_COORDINATOR[network].toLowerCase()) {
+    await rawTx(
+      {
+        from: deployer,
+        to: developerNameGovernor.address,
+        data: developerNameGovernor.interface.encodeFunctionData(
+          "updateNameCoordinator",
+          [NAME_COORDINATOR[network]]
+        ),
+      }
+    );
+  }
 
   // Set new owner for ArxProjectEnrollmentManager, DeveloperRegistrar, DeveloperRegistry, and DeveloperNameGovernor
   // DeveloperRegistrar owner is set to ArxProjectEnrollmentManager

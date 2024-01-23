@@ -36,48 +36,69 @@ const config: HardhatUserConfig = {
       url: "https://goerli.infura.io/v3/" + process.env.INFURA_TOKEN,
       // @ts-ignore
       accounts: [
-        `0x${process.env.GOERLI_DEPLOY_PRIVATE_KEY}`,
-        `0x${process.env.GOERLI_MANUFACTURER_PRIVATE_KEY}`,
-        `0x${process.env.GOERLI_MANUFACTURER_SIGNER_PRIVATE_KEY}`,
-        `0x${process.env.GOERLI_SERVICE_CREATOR_PRIVATE_KEY}`,
-        `0x${process.env.GOERLI_PROJECT_OWNER_PRIVATE_KEY}`,
-        `0x${process.env.GOERLI_PROJECT_PUBLIC_PRIVATE_KEY}`,
-        `0x${process.env.GOERLI_CHIP_OWNER_PRIVATE_KEY}`,
+        `0x${process.env.TESTNET_DEPLOY_PRIVATE_KEY}`,
+        `0x${process.env.TESTNET_MANUFACTURER_PRIVATE_KEY}`,
+        `0x${process.env.TESTNET_MANUFACTURER_SIGNER_PRIVATE_KEY}`,
+        `0x${process.env.TESTNET_SERVICE_CREATOR_PRIVATE_KEY}`,
+        `0x${process.env.TESTNET_PROJECT_OWNER_PRIVATE_KEY}`,
+        `0x${process.env.TESTNET_PROJECT_PUBLIC_PRIVATE_KEY}`,
+        `0x${process.env.TESTNET_CHIP_OWNER_PRIVATE_KEY}`,
+      ],
+    },
+    sepolia: {
+      url: "https://sepolia.infura.io/v3/" + process.env.INFURA_TOKEN,
+      // @ts-ignore
+      accounts: [
+        `0x${process.env.TESTNET_DEPLOY_PRIVATE_KEY}`,
+        `0x${process.env.TESTNET_MANUFACTURER_PRIVATE_KEY}`,
+        `0x${process.env.TESTNET_MANUFACTURER_SIGNER_PRIVATE_KEY}`,
+        `0x${process.env.TESTNET_SERVICE_CREATOR_PRIVATE_KEY}`,
+        `0x${process.env.TESTNET_PROJECT_OWNER_PRIVATE_KEY}`,
+        `0x${process.env.TESTNET_PROJECT_PUBLIC_PRIVATE_KEY}`,
+        `0x${process.env.TESTNET_CHIP_OWNER_PRIVATE_KEY}`,
       ],
     },
   },
   namedAccounts: {
     deployer: {
       localhost: 0,
-      goerli: `privatekey://0x${process.env.GOERLI_DEPLOY_PRIVATE_KEY}`,
+      goerli: `privatekey://0x${process.env.TESTNET_DEPLOY_PRIVATE_KEY}`,
+      sepolia: `privatekey://0x${process.env.TESTNET_DEPLOY_PRIVATE_KEY}`,
     },
     defaultManufacturer: {
       localhost: 1,
-      goerli: `privatekey://0x${process.env.GOERLI_MANUFACTURER_PRIVATE_KEY}`,
+      goerli: `privatekey://0x${process.env.TESTNET_MANUFACTURER_PRIVATE_KEY}`,
+      sepolia: `privatekey://0x${process.env.TESTNET_MANUFACTURER_PRIVATE_KEY}`,
     },
     defaultManufacturerSigner: {
       localhost: 2,
-      goerli: `privatekey://0x${process.env.GOERLI_MANUFACTURER_SIGNER_PRIVATE_KEY}`,
+      goerli: `privatekey://0x${process.env.TESTNET_MANUFACTURER_SIGNER_PRIVATE_KEY}`,
+      sepolia: `privatekey://0x${process.env.TESTNET_MANUFACTURER_SIGNER_PRIVATE_KEY}`,
     },
     developerOwner: {
       localhost: 3,
-      goerli: `privatekey://0x${process.env.GOERLI_DEVELOPER_OWNER_PRIVATE_KEY}`,
+      goerli: `privatekey://0x${process.env.TESTNET_DEVELOPER_OWNER_PRIVATE_KEY}`,
+      sepolia: `privatekey://0x${process.env.TESTNET_DEVELOPER_OWNER_PRIVATE_KEY}`,
     },
     serviceCreator: {
       localhost: 4,
-      goerli: `privatekey://0x${process.env.GOERLI_SERVICE_CREATOR_PRIVATE_KEY}`,
+      goerli: `privatekey://0x${process.env.TESTNET_SERVICE_CREATOR_PRIVATE_KEY}`,
+      sepolia: `privatekey://0x${process.env.TESTNET_SERVICE_CREATOR_PRIVATE_KEY}`,
     },
     projectOwner: {
       localhost: 5,
-      goerli: `privatekey://0x${process.env.GOERLI_PROJECT_OWNER_PRIVATE_KEY}`,
+      goerli: `privatekey://0x${process.env.TESTNET_PROJECT_OWNER_PRIVATE_KEY}`,
+      sepolia: `privatekey://0x${process.env.TESTNET_PROJECT_OWNER_PRIVATE_KEY}`,
     },
     projectPublicKey: {
       localhost: 6,
-      goerli: `privatekey://0x${process.env.GOERLI_PROJECT_PUBLIC_PRIVATE_KEY}`,
+      goerli: `privatekey://0x${process.env.TESTNET_PROJECT_PUBLIC_PRIVATE_KEY}`,
+      sepolia: `privatekey://0x${process.env.TESTNET_PROJECT_PUBLIC_PRIVATE_KEY}`,
     },
     chipOwner: {
       localhost: 7,
-      goerli: `privatekey://0x${process.env.GOERLI_CHIP_OWNER_PRIVATE_KEY}`,
+      goerli: `privatekey://0x${process.env.TESTNET_CHIP_OWNER_PRIVATE_KEY}`,
+      sepolia: `privatekey://0x${process.env.TESTNET_CHIP_OWNER_PRIVATE_KEY}`,
     }
   },
   verify: {
