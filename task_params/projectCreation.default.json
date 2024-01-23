@@ -1,8 +1,0 @@
-{
-    "name": "",
-    "chipDataLocation": "",
-    "manufacturerValidationLocation": "task_outputs/addManufacturerEnrollment/",
-    "tokenUriRoot": "ipfs://tokenUriRoot/",
-    "lockinPeriod": 0,
-    "serviceId": ""
-}

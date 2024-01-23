@@ -1,24 +1,21 @@
-import { ethers } from "ethers";
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment as HRE } from "hardhat/types";
 import { ServiceRecord, ServicesRegistry, ServicesRegistry__factory } from "@arx-research/ers-contracts";
-import { boolean } from "hardhat/internal/core/params/argumentTypes";
 
-import { stringToBytes } from "../utils/scriptHelpers";
+import { stringToBytes, rl } from "../utils/scriptHelpers";
 import { CONTENT_APP_RECORD_TYPE } from "../utils/constants";
 import { getDeployedContractAddress } from "../utils/helpers";
+import { getServiceId, getRedirectContent, getAppendId } from "../utils/prompts/serviceCreationPrompts";
 
 task("createService", "Create a new service on the ServiceRegistry")
-  .addParam("serviceName", "Name of the new service")
-  .addParam("content", "String representing a link to off-chain content")
-  .addParam("appendId", "Append chipId to end of content string", false, boolean)
   .setAction(async (taskArgs, hre: HRE) => {
     const { rawTx } = hre.deployments;
-    const { serviceName, content, appendId } = taskArgs;
 
     const { serviceCreator } = await hre.getNamedAccounts();
-
-    const serviceId = ethers.utils.formatBytes32String(serviceName);
+    const [serviceId, serviceName] = await getServiceId(rl, await getServicesRegistry());
+    const content = await getRedirectContent(rl);
+    const appendId = await getAppendId(rl);
+    rl.close();
 
     const serviceRecord: ServiceRecord = {
       recordType: CONTENT_APP_RECORD_TYPE,

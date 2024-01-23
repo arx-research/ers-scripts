@@ -2,70 +2,111 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { ethers } from "hardhat";
 
-import { Address, ADDRESS_ZERO, calculateLabelHash, TSMRegistrar__factory } from "@arx-research/ers-contracts";
+import { Address, ADDRESS_ZERO, calculateLabelHash, DeveloperRegistrar__factory } from "@arx-research/ers-contracts";
 
 import { getDeployedContractAddress, saveFactoryDeploy, setNewOwner } from "../utils/helpers";
-import { MAX_BLOCK_WINDOW, MULTI_SIG_ADDRESSES } from "../utils/constants";
+import {
+  ARX_REGISTRAR_LABEL,
+  MAX_BLOCK_WINDOW,
+  MULTI_SIG_ADDRESSES,
+  NAME_COORDINATOR
+} from "../deployments/parameters";
+import { NULL_NODE } from "../utils/constants";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { deploy } = await hre.deployments
+  const { deploy, rawTx } = await hre.deployments
   const network = hre.deployments.getNetworkName();
 
   const { deployer } = await hre.getNamedAccounts();
   const multiSig = MULTI_SIG_ADDRESSES[network] ? MULTI_SIG_ADDRESSES[network] : deployer;
 
-  // Add allowed TSM to deploy ArxPlaygroundRegistrar
-  const tsmRegistry = await ethers.getContractAt(
-    "TSMRegistry",
-    getDeployedContractAddress(network, "TSMRegistry")
+  // Add allowed Developer to deploy ArxPlaygroundRegistrar
+  const developerNameGovernor = await ethers.getContractAt(
+    "DeveloperNameGovernor",
+    getDeployedContractAddress(network, "DeveloperNameGovernor")
+  );
+  
+  const developerRegistry = await ethers.getContractAt(
+    "DeveloperRegistry",
+    getDeployedContractAddress(network, "DeveloperRegistry")
   );
 
-  await tsmRegistry.addAllowedTSM(
-    deployer,
-    calculateLabelHash("arxplayground")
-  );
-  console.log("New TSM added to TSMRegistry");
+  const deployerSigner = await hre.ethers.getSigner(deployer);
+  const nameLabelHash = calculateLabelHash(ARX_REGISTRAR_LABEL[network]);
+  const nameClaimMsg = ethers.utils.solidityPack(["address", "bytes32"], [deployer, nameLabelHash]);
+  const nameClaim = await deployerSigner.signMessage(ethers.utils.arrayify(nameClaimMsg));
+
+  if ((await developerRegistry.pendingDevelopers(deployer)) == NULL_NODE) {
+    await rawTx(
+      {
+        from: deployer,
+        to: developerNameGovernor.address,
+        data: developerNameGovernor.interface.encodeFunctionData(
+          "claimName", 
+          [nameLabelHash, nameClaim]
+        ),
+      }
+    );
+    console.log("New Developer added to DeveloperRegistry");
+  }
 
   // Deploy ArxPlaygroundRegistrar
-  const tx = await tsmRegistry.createNewTSMRegistrar(
-    getDeployedContractAddress(network, "TSMRegistrarFactory")
-  );
-
-  // Get ArxPlaygroundRegistrar address, create contract object, and save to deployments
-  const tsmRegistrarAddress = await getTSMRegistrarAddress(tx, tsmRegistry);
-  const tsmRegistrar = await ethers.getContractAt("TSMRegistrar", tsmRegistrarAddress);
-  saveFactoryDeploy(hre, "ArxPlaygroundRegistrar", TSMRegistrar__factory.abi, tsmRegistrarAddress);
-  console.log("New TSMRegistrar deployed at:", tsmRegistrarAddress);
+  let developerRegistrarAddress: Address = ADDRESS_ZERO;
+  let developerRegistrar: any;
+  let arxProjectEnrollmentManagerDeploy: any;
+  const isAllowed = (await developerRegistry.pendingDevelopers(deployer)) != NULL_NODE;
+  if (isAllowed) {
+    const tx = await rawTx(
+      {
+        from: deployer,
+        to: developerRegistry.address,
+        data: developerRegistry.interface.encodeFunctionData(
+          "createNewDeveloperRegistrar",
+          [getDeployedContractAddress(network, "DeveloperRegistrarFactory")]
+        ),
+      }
+    );
   
-  // Deploy ArxProjectEnrollmentManager
-  const arxProjectEnrollmentManagerDeploy = await deploy("ArxProjectEnrollmentManager", {
-    from: deployer,
-    args: [
-      getDeployedContractAddress(network, "ChipRegistry"),
-      tsmRegistrarAddress,
-      getDeployedContractAddress(network, "ERSRegistry"),
-      getDeployedContractAddress(network, "ManufacturerRegistry"),
-      ADDRESS_ZERO,
-      MAX_BLOCK_WINDOW[network]
-    ],
-  });
-  console.log("ArxProjectEnrollmentManager deployed to:", arxProjectEnrollmentManagerDeploy.address);
+    // Get ArxPlaygroundRegistrar address, create contract object, and save to deployments
+    developerRegistrarAddress = await getDeveloperRegistrarAddress(tx, developerRegistry);
+    developerRegistrar = await ethers.getContractAt("DeveloperRegistrar", developerRegistrarAddress);
+    saveFactoryDeploy(hre, "ArxPlaygroundRegistrar", DeveloperRegistrar__factory.abi, developerRegistrarAddress);
+    console.log("New DeveloperRegistrar deployed at:", developerRegistrarAddress);
+  }
+
+  if (developerRegistrarAddress != ADDRESS_ZERO) {
+    // Deploy ArxProjectEnrollmentManager
+    arxProjectEnrollmentManagerDeploy = await deploy("ArxProjectEnrollmentManager", {
+      from: deployer,
+      args: [
+        getDeployedContractAddress(network, "ChipRegistry"),
+        developerRegistrarAddress,
+        getDeployedContractAddress(network, "ERSRegistry"),
+        getDeployedContractAddress(network, "ManufacturerRegistry"),
+        getDeployedContractAddress(network, "OpenTransferPolicy"),
+        MAX_BLOCK_WINDOW[network]
+      ],
+    });
+    console.log("ArxProjectEnrollmentManager deployed to:", arxProjectEnrollmentManagerDeploy.address);
+  }
 
   const arxProjectEnrollmentManager = await ethers.getContractAt(
     "ArxProjectEnrollmentManager",
     arxProjectEnrollmentManagerDeploy.address
   );
 
-  // Set new owner for ArxProjectEnrollmentManager, TSMRegistrar, and TSMRegistry. TSMRegistrar owner is set to ArxProjectEnrollmentManager
+  // Set new owner for ArxProjectEnrollmentManager, DeveloperRegistrar, DeveloperRegistry, and DeveloperNameGovernor
+  // DeveloperRegistrar owner is set to ArxProjectEnrollmentManager
   await setNewOwner(hre, arxProjectEnrollmentManager, multiSig);
-  await setNewOwner(hre, tsmRegistrar, arxProjectEnrollmentManager.address);
-  await setNewOwner(hre, tsmRegistry, multiSig);
+  await setNewOwner(hre, developerRegistrar, arxProjectEnrollmentManager.address);
+  await setNewOwner(hre, developerRegistry, multiSig);
+  await setNewOwner(hre, developerNameGovernor, multiSig);
   console.log("Ownership set for remaining contracts");
 };
 
-async function getTSMRegistrarAddress(tx: any, tsmRegistry: any): Promise<Address> {
-  const receipt = await ethers.provider.getTransactionReceipt(tx.hash)
-  const registrarAddress = tsmRegistry.interface.parseLog(receipt.logs[receipt.logs.length - 1]).args.tsmRegistrar;
+async function getDeveloperRegistrarAddress(tx: any, developerRegistry: any): Promise<Address> {
+  const receipt = await ethers.provider.getTransactionReceipt(tx.transactionHash)
+  const registrarAddress = developerRegistry.interface.parseLog(receipt.logs[receipt.logs.length - 1]).args.developerRegistrar;
   return registrarAddress;
 }
 

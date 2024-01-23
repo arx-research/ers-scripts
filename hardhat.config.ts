@@ -3,6 +3,7 @@ import { HardhatUserConfig } from "hardhat/config";
 import '@nomiclabs/hardhat-ethers';
 import 'hardhat-deploy';
 import '@nomiclabs/hardhat-etherscan';
+import '@nomicfoundation/hardhat-viem';
 import './tasks';
 
 const config: HardhatUserConfig = {
@@ -58,20 +59,24 @@ const config: HardhatUserConfig = {
       localhost: 2,
       goerli: `privatekey://0x${process.env.GOERLI_MANUFACTURER_SIGNER_PRIVATE_KEY}`,
     },
-    serviceCreator: {
+    developerOwner: {
       localhost: 3,
+      goerli: `privatekey://0x${process.env.GOERLI_DEVELOPER_OWNER_PRIVATE_KEY}`,
+    },
+    serviceCreator: {
+      localhost: 4,
       goerli: `privatekey://0x${process.env.GOERLI_SERVICE_CREATOR_PRIVATE_KEY}`,
     },
     projectOwner: {
-      localhost: 4,
+      localhost: 5,
       goerli: `privatekey://0x${process.env.GOERLI_PROJECT_OWNER_PRIVATE_KEY}`,
     },
     projectPublicKey: {
-      localhost: 5,
+      localhost: 6,
       goerli: `privatekey://0x${process.env.GOERLI_PROJECT_PUBLIC_PRIVATE_KEY}`,
     },
     chipOwner: {
-      localhost: 6,
+      localhost: 7,
       goerli: `privatekey://0x${process.env.GOERLI_CHIP_OWNER_PRIVATE_KEY}`,
     }
   },

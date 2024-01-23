@@ -4,34 +4,19 @@ import { HardhatRuntimeEnvironment as HRE } from "hardhat/types";
 import { File } from "nft.storage";
 import * as fs from 'fs';
 import * as path from 'path';
-import * as readline from 'readline';
-import { instantiateGateway, uploadFilesToIPFS, getChipPublicKeys } from "../utils/scriptHelpers";
+import { instantiateGateway, uploadFilesToIPFS, getChipPublicKeys, rl, queryUser } from "../utils/scriptHelpers";
 import { ChipKeys } from "../types/scripts";
+import * as readline from 'readline';
 
 // Chips that we will create metadata for
 let chips: ChipKeys = {};
 
-// Create a readline interface for user input
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
-
-// A utility function to prompt the user for input
-function queryUser(question: string): Promise<string> {
-    return new Promise(resolve => {
-      rl.question(question, (answer) => {
-        resolve(answer);
-      });
-    });
-  }
-
 // A utility function to prompt the user for multiple inputs
-async function queryUserForData(isCommonMetadata: boolean, address?: string): Promise<{ description: string; media: string; name: string }> {
+async function queryUserForData(prompter: readline.ReadLine, isCommonMetadata: boolean, address?: string): Promise<{ description: string; media: string; name: string }> {
   const context = isCommonMetadata ? "all chips" : `chip ${address}`;
-  const name = await queryUser(`Enter name for ${context}: `);
-  const description = await queryUser(`Enter description for ${context}: `);
-  const media = await queryUser(`Enter media URL for ${context}: `);
+  const name = await queryUser(prompter, `Enter name for ${context}: `);
+  const description = await queryUser(prompter, `Enter description for ${context}: `);
+  const media = await queryUser(prompter, `Enter media URL for ${context}: `);
 
   return {
     name,
@@ -67,15 +52,25 @@ async function generateJSONFiles(address: string, data: any): Promise<File> {
   return new File([jsonContent], fileName, { type: 'application/json' });
 }
 
+// Synchronously read and parse the chipData.json file if it exists
+function readChipDataFile(network: string): any[] {
+  try {
+    const data = fs.readFileSync(`task_outputs/chipData/${network}/chipData.json`, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    if (error === 'ENOENT') {
+      console.log('chipData.json does not exist, creating a new one.');
+      return [];
+    } else {
+      throw error;
+    }
+  }
+}
+
 // Synchronously scan the enrollmentData directory and return an array of chip data
 function readEnrollmentFiles(directoryPath: string): any[] {
-  if (!fs.existsSync(directoryPath)) {
-    console.warn(`Warning: The directory '${directoryPath}' does not exist. Please add enrollment data to this directory.`);
-    process.exit(1);
-  }
-
   const files = fs.readdirSync(directoryPath);
-  const enrollmentData = [""];
+  const enrollmentData = [];
 
   for (const file of files) {
     if (file.endsWith('.json')) {
@@ -89,19 +84,14 @@ function readEnrollmentFiles(directoryPath: string): any[] {
 }
 
 // Synchronously combine new chip data with existing enrollment data
-function combineChipData(newChips: ChipKeys, rewriteOption: boolean): void {
+function combineChipData(network: string, newChips: ChipKeys, rewriteOption: boolean): void {
   if (!rewriteOption) {
     console.log('Skipping rewrite of chipData.json.');
     return;
   }
 
-  // Check if the chipData directory exists, create if not
-  const chipDataDir = 'task_outputs/chipData';
-  if (!fs.existsSync(chipDataDir)){
-    fs.mkdirSync(chipDataDir, { recursive: true });
-  }
-
-  const enrollmentData = readEnrollmentFiles('task_outputs/enrollmentData');
+  const existingChipData = readChipDataFile(network);
+  const enrollmentData = readEnrollmentFiles(`task_outputs/enrollmentData/${network}`);
 
   // Map enrollment data by chipId for easy lookup
   const enrollmentDataMap = new Map(enrollmentData.map((item) => [item.chipId, item]));
@@ -118,18 +108,13 @@ function combineChipData(newChips: ChipKeys, rewriteOption: boolean): void {
   });
 
   // Write the combined data back to chipData.json
-  fs.writeFileSync(`${chipDataDir}/chipData.json`, JSON.stringify(combinedData, null, 2), 'utf8');
+  fs.writeFileSync(`task_outputs/chipData/${network}/chipData.json`, JSON.stringify(combinedData, null, 2), 'utf8');
 }
 
 // Define the Hardhat task
 task("generateTokenUriData", "Generates JSON files for chips and uploads to NFT.Storage")
   .addParam("scan", "Number of chips to scan", "0", undefined, true)
   .setAction(async (taskArgs, hre: HRE) => {
-    if (!process.env.NFT_STORAGE_API_KEY) {
-      console.warn("Warning: NFT_STORAGE key is missing. Please set it in your environment variables.");
-      process.exit(1);
-    }    
-    
     if(Number(taskArgs.scan) == 0){
       console.log(`Please add at least one chip to scan via --scan parameter`);
       process.exit(1);
@@ -140,24 +125,22 @@ task("generateTokenUriData", "Generates JSON files for chips and uploads to NFT.
       await getChips(taskArgs.scan);
 
       // Ask if the user wants to use the same metadata for all chips
-      let commonMetadataFlag = false;
-      let commonMetadata = {};
+      let commonMetadata = null;
       if (Object.keys(chips).length > 1) {
-        const sameMetadataAnswer = await queryUser("Do you want to use the same metadata for all chips? (yes/no): ");
+        const sameMetadataAnswer = await queryUser(rl, "Do you want to use the same metadata for all chips? (yes/no): ");
         if (sameMetadataAnswer.trim().toLowerCase() === 'yes') {
-          commonMetadataFlag = true;
-          commonMetadata = await queryUserForData(true); // Call with true for common metadata
+          commonMetadata = await queryUserForData(rl, true); // Call with true for common metadata
         }
       }
       
       let files: File[] = [];
       for (const address of Object.keys(chips)) {
         let data;
-        if (commonMetadataFlag) {
+        if (commonMetadata) {
           data = commonMetadata;
         } else {
           // When prompting for individual chip metadata, call with false and provide the address
-          data = await queryUserForData(false, address);
+          data = await queryUserForData(rl, false, address);
         }
         const file = await generateJSONFiles(address, data);
         files.push(file);
@@ -170,7 +153,7 @@ task("generateTokenUriData", "Generates JSON files for chips and uploads to NFT.
       console.log(`tokenUriData added with CID: ${cid}. Use this when creating a service.`);
 
       // Prompt the user if they want to rewrite the chipData.json file
-      const rewriteAnswer = await queryUser("Do you want to rewrite the chipData.json file with new data? (yes/no): ");
+      const rewriteAnswer = await queryUser(rl, "Do you want to rewrite the chipData.json file with new data? (yes/no): ");
       const rewriteOption = rewriteAnswer.trim().toLowerCase() === 'yes';
 
       // Close the readline interface
@@ -178,7 +161,7 @@ task("generateTokenUriData", "Generates JSON files for chips and uploads to NFT.
 
       if (rewriteOption) {
         // After collecting new chip data
-        combineChipData(chips, rewriteOption);
+        combineChipData(hre.network.name, chips, rewriteOption);
       }
 
     } catch (error) {

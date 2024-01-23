@@ -1,159 +1,323 @@
-import axios from 'axios';
-import { ethers, BigNumber, providers, Overrides } from "ethers";
+import { ethers, BigNumber } from "ethers";
 import * as fs from 'fs';
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment as HRE } from "hardhat/types";
 
 import { CIDString, File } from "nft.storage";
 
-import { libErs as ERS } from '@arx-research/lib-ers';
-import { ChipInfo } from "@arx-research/lib-ers/dist/types/src/types";
+import { ChipInfo, libErs as ERS } from '@arx-research/lib-ers';
 import {
   Address,
   ArxProjectEnrollmentManager__factory,
+  DeveloperRegistrar__factory,
   calculateLabelHash,
-  TSMMerkleProofInfo,
-  calculateProjectRegistrarAddress
+  calculateAuthenticityProjectRegistrarAddress,
+  createDeveloperInclusionProof,
+  createProjectOwnershipProof,
+  DeveloperMerkleProofInfo,
+  ManufacturerValidationInfo,
+  ADDRESS_ZERO,
 } from "@arx-research/ers-contracts/";
 
-import { createERSInstance, getChipSigWithGateway, instantiateGateway, saveFilesLocally, uploadFilesToIPFS } from "../utils/scriptHelpers";
-import { CreateProject, ManufacturerEnrollmentIPFS, ProjectEnrollmentIPFS } from "../types/scripts";
+import { CreateProject, ProjectEnrollmentIPFS } from "../types/scripts";
+
+import { 
+  createERSInstance,
+  createIpfsAddress,
+  getChipInfoFromGateway,
+  getChipSigWithGateway,
+  getDeveloperRegistrar,
+  getERSRegistry,
+  instantiateGateway,
+  saveFilesLocally,
+  queryUser,
+  rl,
+  uploadFilesToIPFS
+} from "../utils/scriptHelpers";
 import { getDeployedContractAddress } from '../utils/helpers';
-import { MAX_BLOCK_WINDOW } from "../utils/constants";
+import { 
+  getUserDeveloperRegistrar,
+  getPostToIpfs,
+  getProjectName,
+  getProjectRegistrarType,
+  getServiceTimelock,
+  getServiceId,
+  getTokenURIData,
+ } from '../utils/prompts/projectCreationPrompts';
+import { MAX_BLOCK_WINDOW } from "../deployments/parameters";
 
 task("createProject", "Create a new project using the ArxProjectEnrollmentManager")
-  .addParam("post", "Post resulting data to IPFS", undefined, undefined, true)
   .setAction(async (taskArgs, hre: HRE) => {
     const { rawTx } = hre.deployments;
-    const { post } = taskArgs;
 
-    const { projectPublicKey, projectOwner } = await hre.getNamedAccounts();
-    let params: CreateProject = getAndValidateParams();
+    const { projectPublicKey, developerOwner, projectOwner } = await hre.getNamedAccounts();
+    const network = hre.network.name;
+    let params: CreateProject = await getAndValidateParams();
 
     const ersInstance: ERS = await createERSInstance(hre);
+    
+    let gate = await instantiateGateway();
 
-    // Create merkle tree by grabbing any enrollment files.
-    const chipInfo: ChipInfo[] = JSON.parse(fs.readFileSync(params.chipDataLocation, 'utf-8'));
+    let chipInfo: ChipInfo[];
+    let ownershipProofs: string[];
+    let developerCertificates: string[];
+    if (network == "localhost") {
+      // If using localhost you will have had to run the addManufacturerEnrollment task which creates the chipData.json file
+      chipInfo = JSON.parse(fs.readFileSync(`task_outputs/chipData/${hre.network.name}/chipData.json`, 'utf-8'));
+      console.log(`Adding ${chipInfo.length} chips...`);
 
-    console.log(`Adding ${chipInfo.length} chips...`);
+      // Sign ownership proofs for each chip
+      ownershipProofs = await createOwnershipProofsFromChipInfo(chipInfo);
+      // Sign Developer certificates for each chip
+      developerCertificates = await createDeveloperCertificates(chipInfo);
+    } else {
+      // Get the amount of chips being enrolled
+      const numChips = parseInt(await queryUser(rl, "How many chips are you enrolling? "));
+      // Cycle through signing ownership proofs for each chip, getting the chipIDs, and building the chipInfo array
+      [ ownershipProofs, chipInfo ] = await createOwnershipProofsFromScan(numChips)
+      // Sign Developer certificates for each chip
+      developerCertificates = await createDeveloperCertificates(chipInfo);
+    }
 
-    await ersInstance.projectCreation.createTSMMerkleTree(
+    await ersInstance.projectCreation.createDeveloperMerkleTree(
       chipInfo,
       params.tokenUriRoot,
       BigNumber.from(params.lockinPeriod),
       params.serviceId
     );
 
-    const gate = await instantiateGateway();
+    let chipValidationDataUri: CIDString;
+    if (params.developerRegistrar == ADDRESS_ZERO){
+      // Get deterministic project registrar address
+      const projectRegistrarAddress = calculateAuthenticityProjectRegistrarAddress(
+        getDeployedContractAddress(hre.network.name, "ArxProjectEnrollmentManager"),
+        ersInstance.projectCreation.developerTree.getRoot(),
+        [
+          projectOwner,
+          getDeployedContractAddress(hre.network.name, "ChipRegistry"),
+          getDeployedContractAddress(hre.network.name, "ERSRegistry"),
+          getDeployedContractAddress(hre.network.name, "ArxPlaygroundRegistrar"),
+          MAX_BLOCK_WINDOW[hre.network.name]        // Should read blockchain for this
+        ]
+      );
+      
+      chipValidationDataUri = await generateAndSaveProjectEnrollmentFiles(projectRegistrarAddress);
+      
+      console.log("Now you need to pick one chip to scan of proof of chip ownership. This is primarily to prevent griefing attacks.");
 
-    // Create certificates (ownershipProof and tsmCertificate)
-    const { tsmCertificates, ownershipProofs } = await createCertificates();
+      // Create chip ownership proof
+      const chainId = BigNumber.from(await hre.getChainId());
+      const packedMsg = ethers.utils.solidityPack(["uint256", "address"], [chainId, projectOwner]);
+      const response = await getChipSigWithGateway(gate, packedMsg);
 
-    // Get deterministic project registrar address
-    const projectRegistrarAddress = calculateProjectRegistrarAddress(
-      getDeployedContractAddress(hre.network.name, "ArxProjectEnrollmentManager"),
-      ersInstance.projectCreation.tsmTree.getHexRoot(),
-      [
-        projectOwner,
-        getDeployedContractAddress(hre.network.name, "ChipRegistry"),
-        getDeployedContractAddress(hre.network.name, "ERSRegistry"),
-        getDeployedContractAddress(hre.network.name, "ArxPlaygroundRegistrar"),
-        MAX_BLOCK_WINDOW[hre.network.name]
-      ]
-    );
+      const chipOwnershipProof = response.signature.ether;
+      const provingChip = response.etherAddress;
 
-    // Post to IPFS / Save locally
-    let chipValidationDataUri: CIDString = await generateAndSaveProjectEnrollmentFiles();
-    
-    console.log(`Project enrollment files created and saved at ${chipValidationDataUri}`);
-    
-    // Create chip ownership proof
-    const chainId = BigNumber.from(await hre.getChainId());
-    const packedMsg = ethers.utils.solidityPack(["uint256", "address"], [chainId, projectOwner]);
-    console.log(`Awaiting chip action on smartphone to generate ownership proof...`);
-    const response = await getChipSigWithGateway(gate, packedMsg);
+      const provingChipManufacturerInfo: ManufacturerValidationInfo = await getProvingChipManufacturerValidationInfo(
+        provingChip,
+        network
+      );
 
-    const chipOwnershipProof = response.signature.ether;
-    const provingChip = response.etherAddress;
-    console.log(`Proving chip ownership proof created with chipId: ${provingChip}`);
+      // Create project ownership proof
+      const projectOwnershipProof = await createProjectOwnershipProof(
+        {
+          address: projectPublicKey,
+          wallet: await hre.ethers.getSigner(projectPublicKey)
+        },
+        projectRegistrarAddress,
+        BigNumber.from(await hre.getChainId()).toNumber()
+      );
 
-    // Create project ownership proof
-    const projectOwnershipProof = await createProjectOwnershipMessage(projectRegistrarAddress);
+      await addProjectViaEnrollmentManager(
+        projectOwnershipProof,
+        provingChip,
+        provingChipManufacturerInfo,
+        chipOwnershipProof
+      );
 
-    // Get Manufacturer Validation Info (Need to make this also able to grab from IPFS if necessary)
-    const provingChipManufacturerInfo: ManufacturerEnrollmentIPFS = await getProvingChipManufacturerValidation(provingChip);
+      console.log(`New ProjectRegistrar deployed at ${projectRegistrarAddress}`);
+    } else {
+      // deploy project registrar
+      const { deploy } = await hre.deployments;
+      const projectRegistrarType = await getProjectRegistrarType(rl);
 
-    await addProject();
-
-    console.log(`New ProjectRegistrar deployed at ${projectRegistrarAddress}`);
-
-    async function createCertificates(): Promise<any> {
-      const certSigner = await hre.ethers.getSigner(projectPublicKey);
-      const tsmCertificates: string[] = [];
-      for (let i = 0; i < chipInfo.length; i++) {
-        const packedCert = ethers.utils.solidityPack(["address"], [chipInfo[i].chipId]);
-        tsmCertificates.push(await certSigner.signMessage(ethers.utils.arrayify(packedCert)));
+      let projectRegistrarDeploy;
+      if (projectRegistrarType == 1) {
+        projectRegistrarDeploy = await deploy("AuthenticityProjectRegistrar", {
+          from: projectOwner,
+          args: [
+            projectOwner,
+            getDeployedContractAddress(hre.network.name, "ChipRegistry"),
+            getDeployedContractAddress(hre.network.name, "ERSRegistry"),
+            params.developerRegistrar,
+            MAX_BLOCK_WINDOW[hre.network.name]
+          ],
+        });
+      } else {
+        projectRegistrarDeploy = await deploy("RedirectProjectRegistrar", {
+          from: projectOwner,
+          args: [
+            projectOwner,
+            getDeployedContractAddress(hre.network.name, "ChipRegistry"),
+            getDeployedContractAddress(hre.network.name, "ERSRegistry"),
+            params.developerRegistrar
+          ],
+        });
       }
 
+      chipValidationDataUri = await generateAndSaveProjectEnrollmentFiles(projectRegistrarDeploy.address);
+
+      console.log(`New ProjectRegistrar deployed at ${projectRegistrarDeploy.address}`);
+
+      // Create project ownership proof
+      const projectOwnershipProof = await createProjectOwnershipProof(
+        {
+          address: projectPublicKey,
+          wallet: await hre.ethers.getSigner(projectPublicKey)
+        },
+        projectRegistrarDeploy.address,
+        BigNumber.from(await hre.getChainId()).toNumber()
+      );
+      
+      const developerRegistrar = new DeveloperRegistrar__factory(await hre.ethers.getSigner(projectOwner)).attach(params.developerRegistrar);
+      await rawTx({
+        from: developerOwner,
+        to: params.developerRegistrar,
+        data: developerRegistrar.interface.encodeFunctionData(
+          "addProject",
+          [
+            calculateLabelHash(params.name),
+            projectRegistrarDeploy.address,
+            ersInstance.projectCreation.developerTree.getRoot(),
+            projectPublicKey,
+            getDeployedContractAddress(hre.network.name, "OpenTransferPolicy"),
+            projectOwnershipProof,
+            chipValidationDataUri,
+          ]
+        )
+      });
+    }
+
+    async function getAndValidateParams(): Promise<CreateProject> {
+      let params: CreateProject = {} as CreateProject;
+      
+      params.developerRegistrar = await getUserDeveloperRegistrar(rl);
+      params.name = await getProjectName(
+        rl,
+        await getERSRegistry(hre, projectOwner),
+        await getDeveloperRegistrar(hre, params.developerRegistrar, projectOwner)
+      );
+      params.tokenUriRoot = await getTokenURIData(rl);
+      params.lockinPeriod = await getServiceTimelock(rl);
+      params.serviceId = await getServiceId(rl);
+  
+      return params;
+    }
+
+    async function createDeveloperCertificates(chipInfo: ChipInfo[]): Promise<string[]> {
+      const developerCertificates: string[] = new Array<string>(chipInfo.length);
+      for (let i = 0; i < chipInfo.length; i++) {
+        developerCertificates[i] = await createDeveloperInclusionProof(
+          {
+            address: projectPublicKey,
+            wallet: await hre.ethers.getSigner(projectPublicKey)
+          },
+          chipInfo[i].chipId
+        );
+      }
+
+      return developerCertificates;
+    }
+
+    async function createOwnershipProofsFromScan(numChips: number): Promise<[string[], ChipInfo[]]> {
+      const ownershipProofs: string[] = new Array<string>(numChips);
+      const chipInfo: ChipInfo[] = new Array<ChipInfo>(numChips);
+
+      const message = ethers.utils.solidityPack(["address"], [projectPublicKey]);
+      for (let i = 0; i < numChips; i++) {
+        const signResponse = await getChipSigWithGateway(gate, message);
+        console.log(`Ownership proof created for chipId: ${signResponse.etherAddress} with proof: ${signResponse.signature.ether}`)
+        ownershipProofs[i] = signResponse.signature.ether;
+
+        const [ , chipManufacturerInfo ] = await getChipInfoFromGateway(signResponse.etherAddress);
+
+        chipInfo[i] = {
+          chipId: signResponse.etherAddress,
+          enrollmentId: chipManufacturerInfo.enrollmentId
+        } as ChipInfo;
+      }
+
+      return [ownershipProofs, chipInfo];
+    }
+
+    async function createOwnershipProofsFromChipInfo(chipInfo: ChipInfo[]): Promise<string[]> {
       const ownershipProofs: string[] = new Array<string>(chipInfo.length);
       const message = ethers.utils.solidityPack(["address"], [projectPublicKey]);     
       for (let i = 0; i < chipInfo.length; i++) {
-        const sig = await getChipSigWithGateway(gate, message);
-        const index = chipInfo.findIndex(item => item.chipId == sig.etherAddress);
+        const signResponse = await getChipSigWithGateway(gate, message);
+        const index = chipInfo.findIndex(item => item.chipId == signResponse.etherAddress);
         
         if (index == -1) {
-          console.log(`Could not find chipId ${sig.etherAddress} in chipInfo`);
+          console.log(`Could not find chipId ${signResponse.etherAddress} in chipInfo`);
           i -= 1;
           continue
         };
 
         if (ownershipProofs[index]) {
-          console.log(`ChipId ${chipInfo[i].chipId} already has an custody proof`);
+          console.log(`ChipId ${chipInfo[i].chipId} already has an ownership proof`);
           i -= 1;
           continue
         }
 
-        console.log(`Custody proof created for chipId: ${chipInfo[i].chipId}`)
-        ownershipProofs[index] = sig.signature.ether;
+        console.log(`Ownership proof created for chipId: ${chipInfo[i].chipId} with proof: ${signResponse.signature.ether}`)
+        ownershipProofs[index] = signResponse.signature.ether;
       }
-      return { tsmCertificates, ownershipProofs };
+
+      return ownershipProofs;
     }
 
-    async function generateAndSaveProjectEnrollmentFiles(): Promise<CIDString> {
+    async function generateAndSaveProjectEnrollmentFiles(projectRegistrarAddress: Address): Promise<CIDString> {
       let chipValidationDataUri: CIDString;
-      const tsmValidationFiles = _generateProjectEnrollmentFiles(ersInstance, tsmCertificates, ownershipProofs);
-      if (post) {
-        chipValidationDataUri = await uploadFilesToIPFS(tsmValidationFiles);
-        saveFilesLocally("projectEnrollment", tsmValidationFiles);
+      const developerValidationFiles = _generateProjectEnrollmentFiles(
+        ersInstance,
+        projectRegistrarAddress,
+        developerCertificates,
+        ownershipProofs
+      );
+      if (await getPostToIpfs(rl)) {
+        chipValidationDataUri = createIpfsAddress(await uploadFilesToIPFS(developerValidationFiles));
+        console.log(`Project enrollment files created and saved at ${chipValidationDataUri}`);
       } else {
-        saveFilesLocally("projectEnrollment", tsmValidationFiles);
-        chipValidationDataUri = "ipfs://blank"; 
+        chipValidationDataUri = createIpfsAddress("dummyAddress"); 
       }
+
+      saveFilesLocally(`projectEnrollments/${network}`, developerValidationFiles);
 
       return chipValidationDataUri;
     }
 
     function _generateProjectEnrollmentFiles(
       ers: ERS,
+      projectRegistrarAddress: Address,
       certificates: string[],
       ownershipProof: string[]
     ): File[] {
       let projectEnrollmentFiles: File[] = [];
       for (let i = 0; i < ers.projectCreation.treeData.length; i++) {
         const chipData = ers.projectCreation.treeData[i];
-        let chipValidationInfo: TSMMerkleProofInfo = {
-          tsmIndex: BigNumber.from(i),
+        let chipValidationInfo: DeveloperMerkleProofInfo = {
+          developerIndex: BigNumber.from(i),
           serviceId: chipData.primaryServiceId,
           lockinPeriod: chipData.lockinPeriod,
           tokenUri: chipData.tokenUri,
-          tsmProof: ers.projectCreation.tsmTree.getProof(i, chipData),
+          developerProof: ers.projectCreation.developerTree.getProof(i),
         };
   
         let projectEnrollment: ProjectEnrollmentIPFS = {
           enrollmentId: chipData.enrollmentId,
           projectRegistrar: projectRegistrarAddress,
-          TSMMerkleInfo: chipValidationInfo,
-          tsmCertificate: certificates[i],
+          developerMerkleInfo: chipValidationInfo,
+          developerCertificate: certificates[i],
           custodyProof: ownershipProof[i]
         };
         projectEnrollmentFiles.push(new File([JSON.stringify(projectEnrollment)], `${chipData.chipId}.json`, { type: 'application/json' }));
@@ -162,22 +326,29 @@ task("createProject", "Create a new project using the ArxProjectEnrollmentManage
       return projectEnrollmentFiles;
     }
 
-    async function getProvingChipManufacturerValidation(chip: Address): Promise<ManufacturerEnrollmentIPFS> {
-      if (params.manufacturerValidationLocation.slice(0, 5) == 'https') {
-        return (await axios.get(params.manufacturerValidationLocation + `${provingChip}.json`)).data;
+    async function getProvingChipManufacturerValidationInfo(
+      provingChip: Address,
+      network: string
+    ): Promise<ManufacturerValidationInfo> {
+      if (network != "localhost") {
+        const [ , chipManufacturerInfo ] = await getChipInfoFromGateway(provingChip);
+        return chipManufacturerInfo;
       } else {
-        return JSON.parse(
-          fs.readFileSync(params.manufacturerValidationLocation + `${provingChip}.json`, 'utf-8')
-        );
+        return JSON.parse(fs.readFileSync(`task_outputs/manufacturerEnrollments/${network}/${provingChip}.json`, 'utf-8')).validationInfo;
       }
     }
 
-    async function addProject() {
+    async function addProjectViaEnrollmentManager(
+      projectOwnershipProof: string,
+      provingChip: Address,
+      provingChipManufacturerInfo: ManufacturerValidationInfo,
+      chipOwnershipProof: string,
+    ) {
       const signer = await hre.ethers.getSigner(projectOwner);
       const enrollmentManagerAddress = getDeployedContractAddress(hre.network.name, "ArxProjectEnrollmentManager");
       const enrollmentManager = new ArxProjectEnrollmentManager__factory(signer).attach(enrollmentManagerAddress);
 
-      const chipClaimInfo = JSON.parse(fs.readFileSync(`task_outputs/projectEnrollment/${provingChip}.json`, 'utf-8'));
+      const chipClaimInfo = JSON.parse(fs.readFileSync(`task_outputs/projectEnrollments/${network}/${provingChip}.json`, 'utf-8'));
       await rawTx({
         from: projectOwner,
         to: enrollmentManagerAddress,
@@ -187,52 +358,15 @@ task("createProject", "Create a new project using the ArxProjectEnrollmentManage
             projectOwner,
             chipValidationDataUri,
             calculateLabelHash(params.name),
-            ersInstance.projectCreation.tsmTree.getHexRoot(),
+            ersInstance.projectCreation.developerTree.getRoot(),
             projectPublicKey,
             provingChip,
-            chipClaimInfo.TSMMerkleInfo,
-            provingChipManufacturerInfo.validationInfo,
+            chipClaimInfo.developerMerkleInfo,
+            provingChipManufacturerInfo,
             chipOwnershipProof,
             projectOwnershipProof
           ]
         )
       });
     }
-
-    async function createProjectOwnershipMessage(projectRegistrarAddress: Address): Promise<string> {
-      const signer = hre.ethers.provider.getSigner(projectPublicKey);
-      const chainId = BigNumber.from(await signer.getChainId());
-      const packedMsg = ethers.utils.solidityPack(["uint256", "address"], [chainId, projectRegistrarAddress]);
-      return signer.signMessage(ethers.utils.arrayify(packedMsg));
-    }
   });
-
-  function getAndValidateParams(): CreateProject {
-    let params: CreateProject = JSON.parse(fs.readFileSync('./task_params/projectCreation.json', 'utf-8'));
-
-    if (params.name.length == 0) {
-      throw Error(`Must define a project name`);
-    }
-  
-    if (params.chipDataLocation.length == 0) {
-      throw Error(`Must define a chip data location`);
-    }
-
-    if (params.manufacturerValidationLocation.length == 0) {
-      throw Error(`Must define a manufacturer validation location`);
-    }
-
-    if (params.tokenUriRoot.length == 0) {
-      throw Error(`Must define a token URI root`);
-    }
-
-    if (params.lockinPeriod > 31536000) {         // Seconds in a year
-      throw Error(`Defined lockin period is too long`);
-    }
-
-    if(params.serviceId.slice(0, 2) != '0x' || params.serviceId.length != 66) {
-      throw Error(`Passed service Id: ${params.serviceId} is not a bytes32 hash`);
-    }
-
-    return params;
-  }

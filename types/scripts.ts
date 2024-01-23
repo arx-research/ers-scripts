@@ -1,4 +1,4 @@
-import { Address, ManufacturerValidationInfo, TSMMerkleProofInfo } from "@arx-research/ers-contracts";
+import { Address, ManufacturerValidationInfo, DeveloperMerkleProofInfo } from "@arx-research/ers-contracts";
 import { BigNumber } from "ethers";
 import mongoose from "mongoose";
 
@@ -7,7 +7,8 @@ export interface AddManufacturerEnrollment {
   chipKeys: KeysFromChipScan[],
   authModel: Address,
   bootloaderApp: string,
-  chipModel: string
+  chipModel: string,
+  numberOfChips: BigNumber,
 }
 
 export interface ManufacturerEnrollmentIPFS {
@@ -17,27 +18,27 @@ export interface ManufacturerEnrollmentIPFS {
 }
 
 export interface CreateProject {
+  developerRegistrar: Address,
   name: string,
   chipDataLocation: string,
-  manufacturerValidationLocation: string,
   tokenUriRoot: string,
-  lockinPeriod: number,
+  lockinPeriod: BigNumber,
   serviceId: string,
 }
 
 export interface ProjectEnrollmentIPFS {
   projectRegistrar: Address,
   enrollmentId: string,
-  TSMMerkleInfo: TSMMerkleProofInfo,
-  tsmCertificate: string,
+  developerMerkleInfo: DeveloperMerkleProofInfo,
+  developerCertificate: string,
   custodyProof: string
 }
 
 export interface ClaimChip {
+  chipId: Address,
   name: string,
-  projectRegistrarAddress: Address,
-  chipClaimDataLocation: string,
-  manufacturerValidationLocation: string,
+  projectEnrollment: ProjectEnrollmentIPFS,
+  manufacturerEnrollment: ManufacturerValidationInfo,
 }
 
 export interface UploadChipData {
