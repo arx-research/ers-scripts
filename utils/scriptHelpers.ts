@@ -108,12 +108,24 @@ export async function getChipSigWithGateway(gate: any, message: string): Promise
   return await gate.execHaloCmd(cmd);
 }
 
-export async function getChipInfoFromGateway(chipId: Address): Promise<[ProjectEnrollmentIPFS, ManufacturerValidationInfo]> {
+export async function getChipInfoFromGateway(hre: HardhatRuntimeEnvironment, chipId: Address): Promise<[ProjectEnrollmentIPFS, ManufacturerValidationInfo]> {
   const abiCoder = new ethers.utils.AbiCoder();
   
   // Get encoded manufacturer data from gateway, MUST UPDATE TO FOR ALL ENVS
+  let ersGatewayRoot;
+  switch (hre.network.name) {
+    case "goerli":
+      ersGatewayRoot = process.env.GOERLI_GATEWAY_URL;
+      break;
+    case "sepolia":
+      ersGatewayRoot = process.env.SEPOLIA_GATEWAY_URL;
+      break;
+    default:
+      throw Error("Invalid network");
+  }
+
   const gatewayData = await axios.get(
-    `https://goerli.ers.run/resolve-unclaimed-data/${ADDRESS_ZERO}/${chipId}`
+    `https://sepolia.ers.run/resolve-unclaimed-data/${ADDRESS_ZERO}/${chipId}`
   );
 
   const [ numEntries, entries ] = abiCoder.decode(["uint8","bytes[]"], ethers.utils.arrayify(gatewayData.data.data));
