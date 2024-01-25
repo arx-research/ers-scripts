@@ -70,13 +70,16 @@ async function organizeFiles(chainName: string) {
     fs.mkdirSync('./task_outputs');
   }
 
-  // Extract arxChips.tar.gz
-  if (fs.existsSync(`./task_outputs/arxChips.tar.gz`)) {
+  // Extract manufacturerEnrollments.tar.gz
+  if (fs.existsSync(`./task_outputs/manufacturerEnrollments.tar.gz`)) {
     await tar.x({
-      file: `./task_outputs/arxChips.tar.gz`,
+      file: `./task_outputs/manufacturerEnrollments.tar.gz`,
       C: './task_outputs'
     });
   }
+
+  // Delete the .tar file after extraction
+  fs.unlinkSync(`./task_outputs/manufacturerEnrollments.tar.gz`);
 }
 
 task("getArxManufacturerEnrollments", "Generates JSON files for chips and uploads to NFT.Storage")
