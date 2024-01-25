@@ -77,15 +77,17 @@ yarn getArxManufacturerEnrollments --network sepolia
 ```
 
 ### createService
-This script creates a [service](https://docs.ers.to/overview/concepts/services) that can be assigned to chips in the project enrollment process. It takes in four arguments:
+This script creates a [service](https://docs.ers.to/overview/concepts/services) that can be assigned to chips in the project enrollment process. It requires one argument:
+1. `network`: The network you want to interact with (defaults to `hardhat`)
+
+It will prompt you for several pieces of information:
 1. `service-name`: The name of the service
 2. `content`: URL/URI of the content app
 3. `append-id`: Indicate whether chipId should be appended to the content app URL/URI (useful for NFT applications and required for the `generateTokenUriData` task)
-4. `network`: The network you want to interact with (defaults to `hardhat`)
 
 Example:
 ```bash
-yarn createService --service-name [name] --content [url/uri] --append-id [true/false] --network [network]
+yarn createService --network [network]
 ```
 
 Note that the service creation function is narrowly scoped to only creating a service with a contentApp record. Also the resulting `serviceId` will be printed in the console as part of a successful transaction.
@@ -100,7 +102,9 @@ This script creates formatted tokenUriData for chips in the project and adds it 
 
 The script will prompt you to add `name`, `description` and `media` information. This information can be reused for all chips scanned, or you can individually add information on a per chip basis. It will then be formatted and added to IPFS via NFT.storage.
 
-The script will also prompt for the creation of a `chipData.json` file that can be used in project creation. It returns a CID that can be used for the `tokenUriRoot` in `projectCreation.json`.
+The script will also prompt to whether or not you wish to append to, or overwrite completely, any existing `chipData.json` file; the `chipData.json` file can be used in project creation. 
+
+The successful completion of the task returns a CID that can be used for the `tokenUriRoot` in `projectCreation.json`.
 
 ### createProject
 This script creates a [project](https://docs.ers.to/overview/concepts/developers#adding-projects) and enrolls chips in the project. Similarly to `addManufacturerEnrollment` it takes in two arguments:
