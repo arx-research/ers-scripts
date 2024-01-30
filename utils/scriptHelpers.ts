@@ -139,12 +139,12 @@ export async function getChipInfoFromGateway(hre: HardhatRuntimeEnvironment, chi
       manufacturerProof: decodedManufacturerData[2]
     } as ManufacturerValidationInfo;
     return [{} as ProjectEnrollmentIPFS, manufacturerInfo];
-  } else if (numEntries > 1) {
+  } else if (numEntries >= 1) {
     // MUST UPDATE TO TAKE ALL ENTRIES
     const decodedProjectData = abiCoder.decode(
       ["bytes32", "address", "tuple(uint256,bytes32,uint256,string,bytes32[])", "bytes", "bytes"],
       entries[0]
-    )[0];
+    );
     const decodedManufacturerData = abiCoder.decode(["tuple(bytes32,uint256,bytes32[])"], entries[entries.length-1])[0];
     return [
       {
