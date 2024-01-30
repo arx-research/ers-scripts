@@ -58,12 +58,7 @@ function readChipDataFile(network: string): any[] {
     const data = fs.readFileSync(`task_outputs/chipData/${network}/chipData.json`, 'utf8');
     return JSON.parse(data);
   } catch (error) {
-    if (error === 'ENOENT') {
-      console.log('chipData.json does not exist, creating a new one.');
-      return [];
-    } else {
-      throw error;
-    }
+    return [];
   }
 }
 
@@ -84,31 +79,51 @@ function readEnrollmentFiles(directoryPath: string): any[] {
 }
 
 // Synchronously combine new chip data with existing enrollment data
-function combineChipData(network: string, newChips: ChipKeys, rewriteOption: boolean): void {
+function combineChipData(network: string, newChips: ChipKeys, rewriteOption: string): void {
+  const chipDataDir = `task_outputs/chipData/${network}`;
+
   if (!rewriteOption) {
     console.log('Skipping rewrite of chipData.json.');
     return;
   }
 
-  const existingChipData = readChipDataFile(network);
-  const enrollmentData = readEnrollmentFiles(`task_outputs/enrollmentData/${network}`);
+  if (!fs.existsSync(chipDataDir)) {
+    console.log(`Directory ${chipDataDir} does not exist, creating it.`);
+    fs.mkdirSync(chipDataDir, { recursive: true });
+  } else if (rewriteOption === 'overwrite') {
+    console.log(`Removing existing chipData.json file for overwrite.`);
+    fs.unlinkSync(`${chipDataDir}/chipData.json`);
+  }
 
-  // Map enrollment data by chipId for easy lookup
+  let existingChipData = readChipDataFile(network);
+  const enrollmentData = readEnrollmentFiles(`task_outputs/enrollmentData/${network}`);
   const enrollmentDataMap = new Map(enrollmentData.map((item) => [item.chipId, item]));
 
-  // Combine the new chip data with enrollment data
-  const combinedData = Object.keys(newChips).map((chipId) => {
+  // Combine new chip data with existing data
+  Object.keys(newChips).forEach((chipId) => {
     const chip = newChips[chipId];
     const enrollment = enrollmentDataMap.get(chipId);
-    return {
-      chipId,
-      pk2: chip.secondaryKeyAddress,
-      ...enrollment,
-    };
+    const existingEntryIndex = existingChipData.findIndex(item => item.chipId === chipId);
+
+    if (existingEntryIndex !== -1) {
+      // Update existing entry
+      existingChipData[existingEntryIndex] = {
+        ...existingChipData[existingEntryIndex],
+        ...enrollment,
+        pk2: chip.secondaryKeyAddress
+      };
+    } else {
+      // Add new entry
+      existingChipData.push({
+        chipId,
+        pk2: chip.secondaryKeyAddress,
+        ...enrollment
+      });
+    }
   });
 
   // Write the combined data back to chipData.json
-  fs.writeFileSync(`task_outputs/chipData/${network}/chipData.json`, JSON.stringify(combinedData, null, 2), 'utf8');
+  fs.writeFileSync(`${chipDataDir}/chipData.json`, JSON.stringify(existingChipData, null, 2), 'utf8');
 }
 
 // Define the Hardhat task
@@ -146,22 +161,33 @@ task("generateTokenUriData", "Generates JSON files for chips and uploads to NFT.
         files.push(file);
       }
 
-      // Upload the CAR file to NFT.Storage
-      const cid = await uploadFilesToIPFS(files);
-
-      // Log the resulting CID
-      console.log(`tokenUriData added with CID: ${cid}. Use this when creating a service.`);
-
       // Prompt the user if they want to rewrite the chipData.json file
-      const rewriteAnswer = await queryUser(rl, "Do you want to rewrite the chipData.json file with new data? (yes/no): ");
-      const rewriteOption = rewriteAnswer.trim().toLowerCase() === 'yes';
+      const appendAnswer = await queryUser(rl, "Do you want to append to the existing chipData.json file with new data or overwrite any existing chipData.json fully? (append/overwrite/cancel): ");
+      const appendOption = appendAnswer.trim().toLowerCase();
 
       // Close the readline interface
       rl.close();
 
-      if (rewriteOption) {
+      if (appendOption === 'append' || appendOption === 'overwrite') {
+        // Upload the CAR file to NFT.Storage
+        const cid = await uploadFilesToIPFS(files);
+
         // After collecting new chip data
-        combineChipData(hre.network.name, chips, rewriteOption);
+        combineChipData(hre.network.name, chips, appendOption);
+        console.log(`tokenUriData added with CID: ${cid}. Use this when creating a service.`);
+      } else {
+        // Remove any files we just generated
+        files.forEach(file => {
+          try {
+            const filePath = `task_outputs/tokenUriData/${file.name}`;
+            if (fs.existsSync(filePath)) {
+              fs.unlinkSync(filePath);
+            }
+          } catch (error) {
+            console.error(`Error removing file ${file.name}: ${error}`);
+          }
+        });
+        console.error(`Task cancelled. Please remove any existing chipData for the network ${hre.network.name} before proceeding.`)
       }
 
     } catch (error) {

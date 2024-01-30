@@ -9,11 +9,22 @@ cp .env.default .env
 ```
 3. Fill out the resulting fields in the `.env` file with the appropriate values. 
 4. Get [a NFT.Storage API key](https://nft.storage/docs/quickstart/#get-an-api-token). Add this to `NFT_STORAGE_API_KEY` in `.env`. NFT.Storage is used to pin IPFS enrollment data.
-5. If you are deploying against a non-local blockchain network, add the private keys for the accounts that you wish to use (e.g. `GOERLI_SERVICE_CREATOR_PRIVATE_KEY`).
+5. If you are deploying against a non-local blockchain network, add the private keys for the accounts that you wish to use (e.g. `TESTNET_SERVICE_CREATOR_PRIVATE_KEY`).
 6. In order to deploy or run scripts there needs to be a valid node to interact with. If you are testing and planning on running locally you can start the `localhost` network by running `yarn chain`, this opens up a local node at the default port `8545`.
 
 ## Deployments
-### Goerli
+### Sepolia
+The Sepolia ERS contracts are deployed at:
+
+```
+CHIP_REGISTRY=0xd1aB0240621Aa7C89b60f6D71013Bc62a43448FD
+SERVICE_REGISTRY=0x291dC1Ce08849A0a058Db9189064448Ecb27bD41
+ENROLLMENT_MANAGER_ADDRESS=0x1ddb0445bb68BF0369E4263179cf4903DBd23d70
+ERS_REGISTRY=0x8F6F9E681d34f5306b34C2a080eFc1bc59cb77Bf
+SM_REGISTRAR=0xEf195E63896eb59d28F6C7B1874B5D5F17DD1b85
+```
+
+### Goerli (Deprecated)
 The Goerli ERS contracts are deployed at:
 
 ```
@@ -55,26 +66,28 @@ Note: for local deployments you will need to create your own test fixture data. 
 3. Create a project: `createProject` maps chips to a `serviceId` and adds associated `tokenUriData`.  Once enrolled, the chip should redirect when tapped to the `contentApp` provided.
 4. Claim a chip: `claimChip` allows the end user of a chip to claim ownership, which may or may not be necessary depending on the end use case.
 
-In order to use scripts you need to be sure that there are valid deploments in the environment you are deploying to (see previous section for information on this). Once you have a valid deployment in your chosen environment you can start running scripts. It is worth noting that these scripts build on each other, so if you're starting from a clean deployment you need first run the scripts in the `ManufacturerUsage` file then continue with the scripts below.
+In order to use scripts you need to be sure that there are valid deployments in the environment you are deploying to (see previous section for information on this). Once you have a valid deployment in your chosen environment you can start running scripts. It is worth noting that these scripts build on each other, so if you're starting from a clean deployment you need first run the scripts in the `ManufacturerUsage` file then continue with the scripts below.
 
 ### getArxManufacturerEnrollments
-This script pulls all Arx `manufacturerEnrollments` in ERS. It takes one argument, the `--network` name. These enrollments are required when adding chips to chains, e.g. Goerli.
+This script pulls all Arx `manufacturerEnrollments` in ERS. It takes one argument, the `--network` name. These enrollments are required when adding chips to chains, e.g. Sepolia.
 
 Example:
 ```bash
-yarn getArxManufacturerEnrollments --network goerli
+yarn getArxManufacturerEnrollments --network sepolia
 ```
 
 ### createService
-This script creates a [service](https://docs.ers.to/overview/concepts/services) that can be assigned to chips in the project enrollment process. It takes in four arguments:
+This script creates a [service](https://docs.ers.to/overview/concepts/services) that can be assigned to chips in the project enrollment process. It requires one argument:
+1. `network`: The network you want to interact with (defaults to `hardhat`)
+
+It will prompt you for several pieces of information:
 1. `service-name`: The name of the service
 2. `content`: URL/URI of the content app
 3. `append-id`: Indicate whether chipId should be appended to the content app URL/URI (useful for NFT applications and required for the `generateTokenUriData` task)
-4. `network`: The network you want to interact with (defaults to `hardhat`)
 
 Example:
 ```bash
-yarn createService --service-name [name] --content [url/uri] --append-id [true/false] --network [network]
+yarn createService --network [network]
 ```
 
 Note that the service creation function is narrowly scoped to only creating a service with a contentApp record. Also the resulting `serviceId` will be printed in the console as part of a successful transaction.
@@ -89,7 +102,9 @@ This script creates formatted tokenUriData for chips in the project and adds it 
 
 The script will prompt you to add `name`, `description` and `media` information. This information can be reused for all chips scanned, or you can individually add information on a per chip basis. It will then be formatted and added to IPFS via NFT.storage.
 
-The script will also prompt for the creation of a `chipData.json` file that can be used in project creation. It returns a CID that can be used for the `tokenUriRoot` in `projectCreation.json`.
+The script will also prompt to whether or not you wish to append to, or overwrite completely, any existing `chipData.json` file; the `chipData.json` file can be used in project creation. 
+
+The successful completion of the task returns a CID that can be used for the `tokenUriRoot` in `projectCreation.json`.
 
 ### createProject
 This script creates a [project](https://docs.ers.to/overview/concepts/developers#adding-projects) and enrolls chips in the project. Similarly to `addManufacturerEnrollment` it takes in two arguments:

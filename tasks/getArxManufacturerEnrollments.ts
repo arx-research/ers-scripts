@@ -43,13 +43,15 @@ async function downloadFiles(chainName: string) {
     if (file.type === 'file') {
       await downloadFile(file.download_url, `./task_outputs/${file.name}`);
     } else if (file.type === 'dir' && file.name === 'enrollmentData') {
-      const enrollmentDataPath = `./task_outputs/${file.name}`;
+      const enrollmentDataPath = `./task_outputs/${file.name}/${chainName}`;
 
       if (!fs.existsSync(enrollmentDataPath)) {
         fs.mkdirSync(enrollmentDataPath, { recursive: true });
       }
 
-      const dirResponse = await fetch(file.url);
+      // We now nest the $chainName directory inside the enrollmentData directory.
+      const enrollmentUrl = `https://api.github.com/repos/arx-research/arx-chip-enrollments/contents/${chainName}/${file.name}/${chainName}`;
+      const dirResponse = await fetch(enrollmentUrl);
       const dirFiles = await dirResponse.json();
 
       if (!Array.isArray(dirFiles)) {
@@ -70,13 +72,16 @@ async function organizeFiles(chainName: string) {
     fs.mkdirSync('./task_outputs');
   }
 
-  // Extract arxChips.tar.gz
-  if (fs.existsSync(`./task_outputs/arxChips.tar.gz`)) {
+  // Extract manufacturerEnrollments.tar.gz
+  if (fs.existsSync(`./task_outputs/manufacturerEnrollments.tar.gz`)) {
     await tar.x({
-      file: `./task_outputs/arxChips.tar.gz`,
+      file: `./task_outputs/manufacturerEnrollments.tar.gz`,
       C: './task_outputs'
     });
   }
+
+  // Delete the .tar file after extraction
+  fs.unlinkSync(`./task_outputs/manufacturerEnrollments.tar.gz`);
 }
 
 task("getArxManufacturerEnrollments", "Generates JSON files for chips and uploads to NFT.Storage")

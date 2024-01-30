@@ -78,7 +78,7 @@ task("claimChip", "Claim a chip enrolled in an ERS project")
     } else {
       console.log("Fetching Project and Manufacturer data for your chip from 3668 gateway...");
 
-      [ projectEnrollmentInfo, manufacturerEnrollmentInfo ] = await getChipInfoFromGateway(chipId);
+      [ projectEnrollmentInfo, manufacturerEnrollmentInfo ] = await getChipInfoFromGateway(hre, chipId);
     }
 
     if (projectEnrollmentInfo == {} as ProjectEnrollmentIPFS && manufacturerEnrollmentInfo == {} as ManufacturerValidationInfo) {

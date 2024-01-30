@@ -67,7 +67,7 @@ export interface ChipSchemaInterface extends Document {
 }
 
 export interface ChipKeys {
-  [primaryKeyAddress: Address]: {secondaryKeyAddress: Address}
+  [primaryKeyAddress: string]: {secondaryKeyAddress: Address}
 }
 
 export interface KeysFromChipScan {

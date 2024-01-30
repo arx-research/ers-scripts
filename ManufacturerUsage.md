@@ -19,10 +19,8 @@ Additionally there is a specific `localhost` version of this script that can be 
 yarn addManufacturer:localhost --manufacturer-name [name] --manufacturer [address]
 ```
 ### addManufacturerEnrollment
-This script adds an enrollment for a manufacturer to the ERS protocol. It takes in two arguments:
+This script adds an enrollment for a manufacturer to the ERS protocol. It takes one argument:
 1. `network`: The network you want to interact with (defaults to `hardhat`)
-2. `scan`: The amount of chips you wish to scan for the enrollment. **Optional**, if left blank it will use the chipAddresses array defined in the `task_params/addManufacturerEnrollment.json` file.
-2. `post-ipfs`: **Optional**, whether or not to post the enrollment to IPFS (defaults to `false`). Recommend leaving blank if doing local development.
 
 Additionally this script uses a param file that can be found under `task_params/addManufacturerEnrollment.json`. This file contains the information that will be used to create the enrollment. If the file doesn't exist you can create it by running:
 ```bash
@@ -40,14 +38,14 @@ This newly created file is `.gitignore`d so you can edit it without worrying abo
 ```
 Example:
 ```bash
-yarn addManufacturerEnrollment --network [network] --post [true/false]
+yarn addManufacturerEnrollment --network [network]
 ```
 
 Additionally there is a specific `localhost` version of this script that can be run by running:
 ```bash
-yarn addManufacturerEnrollment:localhost --post [true/false]
+yarn addManufacturerEnrollment:localhost
 ```
 
-Note that this script requires that there is a valid manufacturer in the environment you are deploying to (see previous section for information on this). Additionally, if you specify the `--scan` param you will be prompted by a QR code scanner that will allow you to scan the chips you want to enroll. Scan the QR code on your phone and follow the resulting instructions. You can scan your chip by tapping it to the NFC reader on the back of your phone.
+Note that this script requires that there is a valid manufacturer in the environment you are deploying to (see previous section for information on this).
 
-**Outputs:** This script has three potential outputs a `$ENROLLMENT_ID.json` file (named after the `enrollmentId`) in `task_outputs/enrollmentData/`, a `chipData.json` file in `task_outputs/chipData/` directory that can be used in the `projectCreation` script and ManufacturerValidation info for each chip in `task_outputs/addManufacturerEnrollment/`. If `--post true` is passed in the ManufacturerValidation information will also be posted to IPFS. Note that the `chipData.json` file is overwritten by every new chip enrollment created.
+**Outputs:** This script has three potential outputs a `$ENROLLMENT_ID.json` file (named after the `enrollmentId`) in `task_outputs/enrollmentData/`, a `chipData.json` file in `task_outputs/chipData/` directory that can be used in the `projectCreation` script and ManufacturerValidation info for each chip in `task_outputs/manufacturerEnrollments/`. If you opt to post to IPFS, the ManufacturerValidation information will also be posted to IPFS. Note that the `chipData.json` file is overwritten by every new chip enrollment created.

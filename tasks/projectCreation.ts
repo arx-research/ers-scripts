@@ -239,7 +239,7 @@ task("createProject", "Create a new project using the ArxProjectEnrollmentManage
         console.log(`Ownership proof created for chipId: ${signResponse.etherAddress} with proof: ${signResponse.signature.ether}`)
         ownershipProofs[i] = signResponse.signature.ether;
 
-        const [ , chipManufacturerInfo ] = await getChipInfoFromGateway(signResponse.etherAddress);
+        const [ , chipManufacturerInfo ] = await getChipInfoFromGateway(hre, signResponse.etherAddress);
 
         chipInfo[i] = {
           chipId: signResponse.etherAddress,
@@ -331,7 +331,7 @@ task("createProject", "Create a new project using the ArxProjectEnrollmentManage
       network: string
     ): Promise<ManufacturerValidationInfo> {
       if (network != "localhost") {
-        const [ , chipManufacturerInfo ] = await getChipInfoFromGateway(provingChip);
+        const [ , chipManufacturerInfo ] = await getChipInfoFromGateway(hre, provingChip);
         return chipManufacturerInfo;
       } else {
         return JSON.parse(fs.readFileSync(`task_outputs/manufacturerEnrollments/${network}/${provingChip}.json`, 'utf-8')).validationInfo;
