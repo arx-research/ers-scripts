@@ -6,7 +6,7 @@ import { queryUser } from "../scriptHelpers";
 export async function getPostToIpfs(prompter: readline.ReadLine): Promise<boolean> {
   const postToIPFS = await queryUser(
     prompter,
-    "Do you want to post your project files to IPFS (y/n)? "
+    "Do you want to post your project files to IPFS (y/n)?"
   );
 
   if (!["yes", "y", "no", "n"].includes(postToIPFS.toLowerCase())) {
@@ -15,20 +15,6 @@ export async function getPostToIpfs(prompter: readline.ReadLine): Promise<boolea
   }
 
   return ["yes", "y"].includes(postToIPFS.toLowerCase());
-}
-
-export async function getSaveToDB(prompter: readline.ReadLine): Promise<boolean> {
-  const saveToDB = await queryUser(
-    prompter,
-    "Do you want to save your project files to the provided database (y/n)? "
-  );
-
-  if (!["yes", "y", "no", "n"].includes(saveToDB.toLowerCase())) {
-    console.log("I'm sorry we could not understand that response. Reply with a yes/y or no/n. ");
-    return getPostToIpfs(prompter);
-  }
-
-  return ["yes", "y"].includes(saveToDB.toLowerCase());
 }
 
 export async function getChipData(prompter: readline.ReadLine): Promise<BigNumber> {

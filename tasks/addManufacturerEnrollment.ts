@@ -19,7 +19,7 @@ import {
   saveFilesLocally,
   uploadFilesToIPFS
 } from "../utils/scriptHelpers";
-import { getChipData, getPostToIpfs, getSaveToDB } from "../utils/prompts/addManufacturerEnrollmentPrompts";
+import { getChipData, getPostToIpfs } from "../utils/prompts/addManufacturerEnrollmentPrompts";
 import { AddManufacturerEnrollment, ManufacturerEnrollmentIPFS, UploadChipData, ChipKeys } from "../types/scripts";
 import {connectToDatabase, uploadChipToDB} from "../utils/database"
 
@@ -118,24 +118,6 @@ task("addManufacturerEnrollment", "Add a new enrollment to the ManufacturerRegis
         chipValidationDataUri = createIpfsAddress(await uploadFilesToIPFS(manufacturerValidationFiles));
       } else {
         chipValidationDataUri = createIpfsAddress("dummyAddress"); 
-      }
-
-      // Post to DB if requested
-      if(await getSaveToDB(rl)){
-        const chipAddresses = Object.keys(chips)
-        for(let i = 0; i < chipAddresses.length; i++){
-          console.log("Uploading chip to DB: " + chipAddresses[i])
-          const chipUploadData: UploadChipData = {
-            primary_key_address: chipAddresses[i],
-            secondary_key_address: chips[chipAddresses[i]].secondaryKeyAddress,
-            ipfs_cid: chipValidationDataUri,
-            manufacturerEnrollmentId: expectedEnrollmentId
-          }
-          await connectToDatabase();
-          await uploadChipToDB(chipUploadData)
-
-          console.log("Uploaded chip to DB: " + chipAddresses[i])
-        }
       }
 
       saveFilesLocally(`manufacturerEnrollments/${hre.network.name}`, manufacturerValidationFiles);
