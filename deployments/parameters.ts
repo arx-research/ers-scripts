@@ -3,7 +3,7 @@ import { BigNumber, ethers } from "ethers"
 export const MULTI_SIG_ADDRESSES: any = {
   "goerli": "0xa969B2687c5486491893a78dAfDE1A1617C2691a",
   "sepolia": "0x2764b37E4d74EEb5961429B034CBa75A93BF5199",
-  "base": "0x0",
+  "base": "0x57902DFB8EF7eA94E799155Ec59acf02E482afd0",
   "mainnet": "0x0"
 }
 
@@ -11,7 +11,7 @@ export const NAME_COORDINATOR: any = {
   "localhost": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
   "goerli": "0xa969B2687c5486491893a78dAfDE1A1617C2691a",
   "sepolia": "0x2764b37E4d74EEb5961429B034CBa75A93BF5199",
-  "base": "0x0",
+  "base": "0x2764b37E4d74EEb5961429B034CBa75A93BF5199",
   "mainnet": "0x0"
 }
 
@@ -30,7 +30,7 @@ export const CHIP_REGISTRY_DEPLOY: any = {
   },
   "base": {
     "gatewayUrls": [],
-    "maxLockinPeriod": BigNumber.from(10)
+    "maxLockinPeriod": BigNumber.from(63072000) // 2 years at 365 days in a year
   },
   "mainnet": {
     "gatewayUrls": [],
@@ -43,7 +43,7 @@ export const MAX_BLOCK_WINDOW: any = {
   "hardhat": BigNumber.from(5),
   "goerli": BigNumber.from(5),
   "sepolia": BigNumber.from(5),
-  "base": BigNumber.from(5),
+  "base": BigNumber.from(100),
   "mainnet": BigNumber.from(5),
 }
 
