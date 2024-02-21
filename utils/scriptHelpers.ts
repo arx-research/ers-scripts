@@ -125,7 +125,7 @@ export async function getChipInfoFromGateway(hre: HardhatRuntimeEnvironment, chi
   }
 
   const gatewayData = await axios.get(
-    `https://sepolia.ers.run/resolve-unclaimed-data/${ADDRESS_ZERO}/${chipId}`
+    `${ersGatewayRoot}/resolve-unclaimed-data/${ADDRESS_ZERO}/${chipId}`
   );
 
   const [ numEntries, entries ] = abiCoder.decode(["uint8","bytes[]"], ethers.utils.arrayify(gatewayData.data.data));
