@@ -16,8 +16,10 @@
     "copy-contracts": "./scripts/copy_contracts.sh",
     "deploy:localhost:clean": "rm -rf deployments/localhost && yarn deploy:localhost",
     "deploy:localhost": "npx hardhat deploy --network localhost --no-compile",
+    "deploy:base": "npx hardhat deploy --network base --no-compile && npx hardhat export --network base --export ./deployments/outputs/baseContracts.ts",
     "deploy:goerli": "npx hardhat deploy --network goerli --no-compile && npx hardhat export --network goerli --export ./deployments/outputs/goerliContracts.ts",
     "deploy:sepolia": "npx hardhat deploy --network sepolia --no-compile && npx hardhat export --network sepolia --export ./deployments/outputs/sepoliaContracts.ts",
+    "etherscan:base": "yarn hardhat --network base etherscan-verify --license MIT --solc-input",
     "etherscan:goerli": "yarn hardhat --network goerli etherscan-verify --license MIT --solc-input",
     "etherscan:sepolia": "yarn hardhat --network sepolia etherscan-verify --license MIT --solc-input",
     "claimChip": "npx hardhat claimChip",
@@ -65,7 +67,7 @@
     "typescript": ">=4.5.0"
   },
   "dependencies": {
-    "@arx-research/ers-contracts": "^1.2.8-rc",
+    "@arx-research/ers-contracts": "^1.2.8",
     "@arx-research/lib-ers": "^0.0.9",
     "@arx-research/libhalo": "^1.2.26",
     "@nomicfoundation/hardhat-viem": "^1.0.1",

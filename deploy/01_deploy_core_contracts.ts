@@ -8,6 +8,7 @@ import {
   CHIP_REGISTRY_DEPLOY,
   MAX_BLOCK_WINDOW,
   MULTI_SIG_ADDRESSES,
+  NAME_COORDINATOR
 } from "../deployments/parameters"
 import { setNewOwner } from "../utils/helpers";
 import { NULL_NODE } from "../utils/constants";
@@ -46,7 +47,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     from: deployer,
     args: [developerRegistryDeploy.address, deployer],
   });
-  console.log("DeveloperNameGovernor deployed to:", developerRegistryDeploy.address);
+  console.log("DeveloperNameGovernor deployed to:", developerNameGovernor.address);
 
   const ersRegistryDeploy = await deploy("ERSRegistry", {
     from: deployer,
