@@ -45,9 +45,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const developerNameGovernor = await deploy("DeveloperNameGovernor", {
     from: deployer,
-    args: [developerRegistryDeploy.address, NAME_COORDINATOR[network],
+    args: [developerRegistryDeploy.address, deployer],
   });
-  console.log("DeveloperNameGovernor deployed to:", developerRegistryDeploy.address);
+  console.log("DeveloperNameGovernor deployed to:", developerNameGovernor.address);
 
   const ersRegistryDeploy = await deploy("ERSRegistry", {
     from: deployer,

@@ -9,6 +9,7 @@ import {
   ARX_REGISTRAR_LABEL,
   MAX_BLOCK_WINDOW,
   MULTI_SIG_ADDRESSES,
+  NAME_COORDINATOR
 } from "../deployments/parameters";
 import { NULL_NODE } from "../utils/constants";
 
