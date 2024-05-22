@@ -28,6 +28,20 @@ export async function getChipData(prompter: readline.ReadLine): Promise<BigNumbe
   return getNumberOfChips(prompter);
 }
 
+export async function getChainId(prompter: readline.ReadLine): Promise<number> {
+  const chainId = await queryUser(
+    prompter,
+    `What chainId is the project being deployed on? (optional: default is 31337 for localhost)`
+  );
+
+  if (isNaN(parseInt(chainId))) {
+    console.log("No chainId provided. Defaulting to 31337 for localhost.");
+    return 31337;
+  }
+
+  return parseInt(chainId);
+}
+
 async function getNumberOfChips(prompter: readline.ReadLine): Promise<BigNumber> {
   const rawNoChips = await queryUser(
     prompter,

@@ -9,17 +9,18 @@ export interface AddManufacturerEnrollment {
   bootloaderApp: string,
   chipModel: string,
   numberOfChips: BigNumber,
+  chainId: number
 }
 
 export interface ManufacturerEnrollmentIPFS {
   validationInfo: ManufacturerValidationInfo,
-  certificate: string,
   pk2: Address
 }
 
 export interface CreateProject {
   developerRegistrar: Address,
   name: string,
+  tokenSymbol: string,
   chipDataLocation: string,
   tokenUriRoot: string,
   lockinPeriod: BigNumber,

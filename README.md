@@ -82,8 +82,8 @@ This script creates a [service](https://docs.ers.to/overview/concepts/services) 
 
 It will prompt you for several pieces of information:
 1. `service-name`: The name of the service
-2. `content`: URL/URI of the content app
-3. `append-id`: Indicate whether chipId should be appended to the content app URL/URI (useful for NFT applications and required for the `generateTokenUriData` task)
+2. `content`: URL/URI of the content app; in the case of a simple redirect this would be an `http` resource like `https://app.arx.org` where a chip may be scanned. For IPFS, this would be 
+3. `append-id`: Indicate whether chipId should be appended to the content app URL/URI (useful for NFT applications and required for the `generateTokenUriData` task where `tokenUri` data is added through project creation)
 
 Example:
 ```bash
@@ -98,13 +98,22 @@ This script creates formatted tokenUriData for chips in the project and adds it 
 1. `network`: The network you want to interact with (defaults to `hardhat`)
 2. `scan`: The number of chips that you wish to scan and generate tokenUriData for.
 
-*Note:* `generateTokenUrilData` anticipates that the `append-id` option for the chip's service was set to `true`.
-
-The script will prompt you to add `name`, `description` and `media` information. This information can be reused for all chips scanned, or you can individually add information on a per chip basis. It will then be formatted and added to IPFS via NFT.storage.
+The script is designed to generate JSON formatted `tokenUri` data including a `name`, `description` and `media` that is stored offchain on IPFS. The script will prompt to generate either unique data on a chip by chip basis, or it can use the same data for all chips scanned. Once input, the data is JSON formatted and added to IPFS via NFT.storage.
 
 The script will also prompt to whether or not you wish to append to, or overwrite completely, any existing `chipData.json` file; the `chipData.json` file can be used in project creation. 
 
 The successful completion of the task returns a CID that can be used for the `tokenUriRoot` in `projectCreation.json`.
+
+Example Result:
+```json
+// The file ../tokenUriData/0x74540fbb49721a53D5DEC9f60b04f33fd38aD0Ae.json where the filename is the chipId
+
+{"name":"HaLo PBT","description":"A terrific HaLo PBT","media":"https://docs.arx.org/videos/chip.mp4"}
+```
+
+*Notes:* If being used to generate data for a service with a `tokenUri` record, `generateTokenUrilData` anticipates that the `append-id` option for the chip's service was set to `true`.
+
+It is possible to encode fully onchain `tokenUri` data (e.g. `data:application/json;utf8,[...]`), however, neither this script nor `createProject` are currently designed to support preparing data in that way.
 
 ### createProject
 This script creates a [project](https://docs.ers.to/overview/concepts/developers#adding-projects) and enrolls chips in the project. Similarly to `addManufacturerEnrollment` it takes in two arguments:

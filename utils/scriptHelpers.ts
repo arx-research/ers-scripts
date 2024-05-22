@@ -42,8 +42,17 @@ export async function uploadFilesToIPFS(files: File[]): Promise<CIDString> {
   }
 
   const client = new NFTStorage({ token: nftStorageApiKey })
-  const cid = await client.storeDirectory(files);
-  return cid;
+  // const cid = await client.storeDirectory(files);
+  const { cid, car } = await NFTStorage.encodeDirectory(files)
+  console.log(`File CID: ${cid}`)
+
+  console.log('Sending file...')
+  await client.storeCar(car, {
+    maxChunkSize: 1024 * 1024 * 25, // 25MB
+    onStoredChunk: (size) => console.log(`Stored a chunk of ${size} bytes`)
+  })
+
+  return cid as unknown as CIDString;
 }
 
 export async function saveFilesLocally(directoryRoot: string, files: File[]): Promise<void> {

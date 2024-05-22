@@ -4,7 +4,6 @@ import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment as HRE } from "hardhat/types";
 import {
   calculateEnrollmentId,
-  ManufacturerTree,
   ManufacturerValidationInfo
 } from "@arx-research/ers-contracts";
 import { CIDString, File } from "nft.storage";
@@ -19,14 +18,16 @@ import {
   saveFilesLocally,
   uploadFilesToIPFS
 } from "../utils/scriptHelpers";
-import { getChipData, getPostToIpfs } from "../utils/prompts/addManufacturerEnrollmentPrompts";
+import { getChipData, getChainId, getPostToIpfs } from "../utils/prompts/addManufacturerEnrollmentPrompts";
 import { AddManufacturerEnrollment, ManufacturerEnrollmentIPFS, UploadChipData, ChipKeys } from "../types/scripts";
 import {connectToDatabase, uploadChipToDB} from "../utils/database"
+import { get } from "http";
 
 task("addManufacturerEnrollment", "Add a new enrollment to the ManufacturerRegistry")
   .setAction(async (taskArgs, hre: HRE) => {
     const { rawTx } = hre.deployments;
 
+    // TODO: we need to add a param to get the desired chain ID which should default to hardhat if not provided
     let params: AddManufacturerEnrollment = await getAndValidateParams();
     const { deployer, defaultManufacturer, defaultManufacturerSigner } = await hre.getNamedAccounts();
     let chips: ChipKeys = {};
@@ -60,9 +61,6 @@ task("addManufacturerEnrollment", "Add a new enrollment to the ManufacturerRegis
       }
     }
 
-    console.log(`Generating merkle tree for ${Object.keys(chips).length} chips...`);
-    const merkleTree = new ManufacturerTree(Object.keys(chips).map((address) => {return {"chipId": address}}));
-    
     console.log(`Creating certificates...`);
     const certificates: string[] = await createCertificates();
 
@@ -75,8 +73,8 @@ task("addManufacturerEnrollment", "Add a new enrollment to the ManufacturerRegis
     const manufacturerInfo = await manufacturerRegistry.getManufacturerInfo(params.manufacturerId);
     const expectedEnrollmentId = calculateEnrollmentId(params.manufacturerId, manufacturerInfo.nonce);
     
-    let chipValidationDataUri: CIDString = await generateAndSaveManufacturerEnrollmentFiles();
-    console.log(`Manufacturer enrollment ID is ${expectedEnrollmentId}, IPFS CID is ${chipValidationDataUri}`);
+    // TODO: in production we won't reveal all chipId, but rather dispense them to projects as needed.
+    await generateAndSaveManufacturerEnrollmentFiles();
 
     await rawTx({
       from: defaultManufacturer,
@@ -85,10 +83,9 @@ task("addManufacturerEnrollment", "Add a new enrollment to the ManufacturerRegis
         "addChipEnrollment",
         [
           params.manufacturerId,
-          merkleTree.getRoot(),
           defaultManufacturerSigner,
           params.authModel,
-          chipValidationDataUri,
+          "ipfs://",
           params.bootloaderApp,
           params.chipModel
         ]
@@ -97,50 +94,52 @@ task("addManufacturerEnrollment", "Add a new enrollment to the ManufacturerRegis
 
     await saveChipDataLocally();
 
-    console.log(`Manufacturer ${params.manufacturerId} added chip enrollment. Enrollment ID is ${expectedEnrollmentId}, IPFS address is ${chipValidationDataUri}`);
+    console.log(`Manufacturer ${params.manufacturerId} added chip enrollment. Enrollment ID is ${expectedEnrollmentId}`);
 
     async function createCertificates(): Promise<string[]> {
       const certSigner = await hre.ethers.getSigner(defaultManufacturerSigner);
       const certificates: string[] = [];
       for (let i = 0; i < Object.keys(chips).length; i++) {
-        const packedCert = ethers.utils.solidityPack(["address"], [Object.keys(chips)[i]]);
+                // TODO: we also need to sign the chain ID here
+        const packedCert = ethers.utils.solidityPack(["uint256","address"], [params.chainId, Object.keys(chips)[i]]);
         certificates.push(await certSigner.signMessage(ethers.utils.arrayify(packedCert)));
       }
       return certificates;
     }
 
-    async function generateAndSaveManufacturerEnrollmentFiles(): Promise<CIDString> {
-      let chipValidationDataUri: CIDString;
-      const manufacturerValidationFiles = _generateManufacturerEnrollmentFiles(merkleTree, expectedEnrollmentId, chips, certificates);
-      // Post to IPFS if requested
-      if (await getPostToIpfs(rl)) {
-        console.log(`Posting manufacturer enrollment to IPFS...`);
-        chipValidationDataUri = createIpfsAddress(await uploadFilesToIPFS(manufacturerValidationFiles));
-      } else {
-        chipValidationDataUri = createIpfsAddress("dummyAddress"); 
-      }
-
+    async function generateAndSaveManufacturerEnrollmentFiles(): Promise<void> {
+      const manufacturerValidationFiles = _generateManufacturerEnrollmentFiles(expectedEnrollmentId, chips, certificates);
       saveFilesLocally(`manufacturerEnrollments/${hre.network.name}`, manufacturerValidationFiles);
-
-      return chipValidationDataUri;
     }
 
     async function saveChipDataLocally(): Promise<void> {
       console.log("Saving chip data locally...")
-      const chipInfo = Object.keys(chips).map((address) => {
-        return {"chipId": address, "pk2": chips[address].secondaryKeyAddress, "enrollmentId": expectedEnrollmentId, "enrollmentCid": chipValidationDataUri}
+      const chipAddresses = Object.keys(chips);  // This collects all the chip addresses into an array
+      const chipInfo = chipAddresses.map((address, index) => {
+        // Access the corresponding certificate using the index
+        const manufacturerCertificate = certificates[index];  // Assuming certificates are ordered as per the chips
+        return {
+          "chipId": address, 
+          "pk2": chips[address].secondaryKeyAddress, 
+          "enrollmentId": expectedEnrollmentId, 
+          "manufacturerCertificate": manufacturerCertificate  // Adding the certificate directly in the chip data
+        }
       });
-
+    
       // We are saving both the enrollment info as well as a chipData.json file which can immediately be used for projectCreation.
       const enrollmentInfoFile = new File([JSON.stringify(chipInfo)], `${expectedEnrollmentId}.json`, { type: 'application/json' });
       const chipInfoFile = new File([JSON.stringify(chipInfo)], `chipData.json`, { type: 'application/json' });
       await saveFilesLocally(`enrollmentData/${hre.network.name}`, [enrollmentInfoFile]);
       await saveFilesLocally(`chipData/${hre.network.name}`, [chipInfoFile]);
     }
+    
   });
 
 async function getAndValidateParams(): Promise<AddManufacturerEnrollment> {
   let params: AddManufacturerEnrollment = JSON.parse(fs.readFileSync('./task_params/addManufacturerEnrollment.json', 'utf-8'));
+
+  // Set the default chain ID if not provided
+  params.chainId = await getChainId(rl);
 
   params.numberOfChips = await getChipData(rl);
 
@@ -164,7 +163,6 @@ async function getAndValidateParams(): Promise<AddManufacturerEnrollment> {
 }
 
 function _generateManufacturerEnrollmentFiles(
-  merkleTree: ManufacturerTree,
   enrollmentId: string,
   chips: ChipKeys,
   certificates: string[]
@@ -173,14 +171,12 @@ function _generateManufacturerEnrollmentFiles(
   for (let i = 0; i < Object.keys(chips).length; i++) {
     const chipId = Object.keys(chips)[i];
     let chipValidationInfo: ManufacturerValidationInfo = {
-      mIndex: BigNumber.from(i),
-      manufacturerProof: merkleTree.getProof(i),
       enrollmentId,
+      manufacturerCertificate: certificates[i],
     };
 
     let manufacturerValidation: ManufacturerEnrollmentIPFS = {
       validationInfo: chipValidationInfo,
-      certificate: certificates[i],
       pk2: chips[chipId].secondaryKeyAddress,
     };
     manufacturerValidationFiles.push(new File([JSON.stringify(manufacturerValidation)], `${chipId}.json`, { type: 'application/json' }));
