@@ -14,9 +14,6 @@ import { libErs as ERS, ERSConfig } from '@arx-research/lib-ers';
 import {
   ADDRESS_ZERO,
   Address,
-  AuthenticityProjectRegistrar,
-  AuthenticityProjectRegistrar__factory,
-  DeveloperMerkleProofInfo,
   DeveloperNameGovernor,
   DeveloperNameGovernor__factory,
   DeveloperRegistrar,
@@ -25,13 +22,17 @@ import {
   DeveloperRegistry__factory,
   ERSRegistry,
   ERSRegistry__factory,
+  ChipRegistry,
+  ChipRegistry__factory,
   ManufacturerRegistry,
   ManufacturerRegistry__factory,
-  ManufacturerValidationInfo
+  ManufacturerValidationInfo,
+  PBTSimpleProjectRegistrar__factory,
+  PBTSimpleProjectRegistrar,
 } from "@arx-research/ers-contracts";
 
 import { getDeployedContractAddress } from "./helpers";
-import { KeysFromChipScan, ProjectEnrollmentIPFS } from "../types/scripts";
+import { KeysFromChipScan } from "../types/scripts";
 
 dotenv.config();
 
@@ -104,6 +105,7 @@ export async function getChipPublicKeys(gate: any): Promise<[Address, Address, K
 }
 
 export async function getChipSigWithGateway(gate: any, message: string): Promise<any> {
+
   if (message.slice(0,2) == '0x') {
     message = message.slice(2);
   }
@@ -117,67 +119,15 @@ export async function getChipSigWithGateway(gate: any, message: string): Promise
   return await gate.execHaloCmd(cmd);
 }
 
-export async function getChipInfoFromGateway(hre: HardhatRuntimeEnvironment, chipId: Address): Promise<[ProjectEnrollmentIPFS, ManufacturerValidationInfo]> {
-  const abiCoder = new ethers.utils.AbiCoder();
-  
-  // Get encoded manufacturer data from gateway, MUST UPDATE TO FOR ALL ENVS
-  let ersGatewayRoot;
-  switch (hre.network.name) {
-    case "goerli":
-      ersGatewayRoot = process.env.GOERLI_GATEWAY_URL;
-      break;
-    case "sepolia":
-      ersGatewayRoot = process.env.SEPOLIA_GATEWAY_URL;
-      break;
-    default:
-      throw Error("Invalid network");
-  }
+export async function getChipTypedSigWithGateway(gate: any, typedData: any ): Promise<any> {
 
-  const gatewayData = await axios.get(
-    `${ersGatewayRoot}/resolve-unclaimed-data/${ADDRESS_ZERO}/${chipId}`
-  );
+  let cmd = {
+    "name": "sign",
+    "typedData": typedData,
+    "keyNo": 1
+  };
 
-  const [ numEntries, entries ] = abiCoder.decode(["uint8","bytes[]"], ethers.utils.arrayify(gatewayData.data.data));
-  if (numEntries == 0 && entries.length == 0) {
-    return [{} as ProjectEnrollmentIPFS, {} as ManufacturerValidationInfo];
-  } else if (numEntries == 0 && entries.length == 1) {
-    const decodedManufacturerData = abiCoder.decode(["tuple(bytes32,uint256,bytes32[])"], entries[0])[0];
-    const manufacturerInfo = {
-      enrollmentId: decodedManufacturerData[0],
-      mIndex: decodedManufacturerData[1],
-      manufacturerProof: decodedManufacturerData[2]
-    } as ManufacturerValidationInfo;
-    return [{} as ProjectEnrollmentIPFS, manufacturerInfo];
-  } else if (numEntries >= 1) {
-    // MUST UPDATE TO TAKE ALL ENTRIES
-    const decodedProjectData = abiCoder.decode(
-      ["bytes32", "address", "tuple(uint256,bytes32,uint256,string,bytes32[])", "bytes", "bytes"],
-      entries[0]
-    );
-    const decodedManufacturerData = abiCoder.decode(["tuple(bytes32,uint256,bytes32[])"], entries[entries.length-1])[0];
-    return [
-      {
-        enrollmentId: decodedProjectData[0],
-        projectRegistrar: decodedProjectData[1],
-        developerMerkleInfo: {
-          developerIndex: decodedProjectData[2][0],
-          serviceId: decodedProjectData[2][1],
-          lockinPeriod: decodedProjectData[2][2],
-          tokenUri: decodedProjectData[2][3],
-          developerProof: decodedProjectData[2][4]
-        } as DeveloperMerkleProofInfo,
-        developerCertificate: decodedProjectData[3],
-        custodyProof: decodedProjectData[4]
-      } as ProjectEnrollmentIPFS,
-      {
-        enrollmentId: decodedManufacturerData[0],
-        mIndex: decodedManufacturerData[1],
-        manufacturerProof: decodedManufacturerData[2]
-      } as ManufacturerValidationInfo
-    ];
-  } else {
-    throw Error("Invalid data returned from gateway");
-  }
+  return await gate.execHaloCmd(cmd);
 }
 
 export async function getERSRegistry(hre: HardhatRuntimeEnvironment, signerAddress: Address): Promise<ERSRegistry> {
@@ -185,6 +135,13 @@ export async function getERSRegistry(hre: HardhatRuntimeEnvironment, signerAddre
   const ersRegistryAddress = getDeployedContractAddress(hre.network.name, "ERSRegistry");
   const ersRegistry = new ERSRegistry__factory(signer).attach(ersRegistryAddress);
   return ersRegistry;
+}
+
+export async function getChipRegistry(hre: HardhatRuntimeEnvironment, signerAddress: Address): Promise<ChipRegistry> {
+  const signer = await hre.ethers.getSigner(signerAddress);
+  const chipRegistryAddress = getDeployedContractAddress(hre.network.name, "ChipRegistry");
+  const chipRegistry = new ChipRegistry__factory(signer).attach(chipRegistryAddress);
+  return chipRegistry;
 }
 
 export  async function getDeveloperNameGovernor(
@@ -221,9 +178,9 @@ export async function getProjectRegistrar(
   hre: HardhatRuntimeEnvironment,
   signerAddress: Address,
   projectRegistrarAddress: Address
-): Promise<AuthenticityProjectRegistrar> {
+): Promise<PBTSimpleProjectRegistrar> {
   const signer = await hre.ethers.getSigner(signerAddress);
-  const projectRegistrar = new AuthenticityProjectRegistrar__factory(signer).attach(projectRegistrarAddress);
+  const projectRegistrar = new PBTSimpleProjectRegistrar__factory(signer).attach(projectRegistrarAddress);
   return projectRegistrar;
 }
 

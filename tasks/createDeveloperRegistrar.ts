@@ -1,7 +1,7 @@
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment as HRE } from "hardhat/types";
 import { calculateSubnodeHash } from "@arx-research/ers-contracts";
-
+import { BigNumber } from "ethers";
 import { getDeveloperNameApproval } from "../utils/prompts/createDeveloperRegistrarPrompts";
 import { getDeveloperNameGovernor, getDeveloperRegistry, getERSRegistry } from "../utils/scriptHelpers";
 import { getDeployedContractAddress } from "../utils/helpers";
@@ -12,9 +12,12 @@ task("createDeveloperRegistrar", "Create developer registrar")
     const { rawTx } = hre.deployments;
     const { developerOwner } = await hre.getNamedAccounts();
 
-    const [approvalProof, nameHash] = await getDeveloperNameApproval(rl, developerOwner);
-
+    const chainId = BigNumber.from(await hre.getChainId());
     const developerNameGovernor = await getDeveloperNameGovernor(hre, developerOwner);
+
+    const [approvalProof, proofTimestamp, nameHash] = await getDeveloperNameApproval(rl, developerOwner, chainId, developerNameGovernor.address);
+
+    
     const developerRegistry = await getDeveloperRegistry(hre, developerOwner);
 
     await rawTx({
@@ -22,7 +25,7 @@ task("createDeveloperRegistrar", "Create developer registrar")
       to: developerNameGovernor.address,
       data: developerNameGovernor.interface.encodeFunctionData(
         "claimName",
-        [nameHash, approvalProof]
+        [nameHash, proofTimestamp, approvalProof]
       )
     });
 

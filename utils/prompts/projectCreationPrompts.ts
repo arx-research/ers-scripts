@@ -9,7 +9,7 @@ import {
 } from "@arx-research/ers-contracts/";
 
 import { queryUser } from "../scriptHelpers";
-import { token } from '@arx-research/ers-contracts/typechain/contracts';
+// import { token } from '@arx-research/ers-contracts/typechain/contracts';
 
 export async function getUserDeveloperRegistrar(prompter: readline.ReadLine): Promise<string> {
   const hasDeveloperRegistrar = await queryUser(
@@ -51,9 +51,6 @@ export async function getProjectName(
   if (developerRegistrar.address != ADDRESS_ZERO) {
     const developerRootnode = await developerRegistrar.rootNode();
     labelOwner = await ersRegistry.getSubnodeOwner(developerRootnode, calculateLabelHash(name));
-  } else {
-    const userSubnodeHash = calculateSubnodeHash(name + ".arxplayground.ers");
-    labelOwner = await ersRegistry.getOwner(userSubnodeHash);
   }
   if (labelOwner != ADDRESS_ZERO) {
     console.log(`The name ${name} has already been taken. Please choose a different name.`);
@@ -119,42 +116,6 @@ export async function getServiceId(prompter: readline.ReadLine): Promise<string>
   return serviceId;
 }
 
-export async function getChipDataLocation(prompter: readline.ReadLine): Promise<string> {
-  return await queryUser(
-    prompter,
-    `
-    Since you are using localhost you must provide a path to the chip data file.
-    What is the path to your chipData file? 
-    `
-  );
-}
-
-export async function getManufacturerValidationLocation(prompter: readline.ReadLine): Promise<string> {
-  return await queryUser(
-    prompter,
-    `
-    Since you are using localhost you must provide a path to your manufacturer validation files.
-    What is the path to your manufacturer validation file? 
-    `
-  );
-}
-
-// export async function getProjectRegistrarType(prompter: readline.ReadLine): Promise<number> {
-//   const projectRegistrarType = await queryUser(
-//     prompter,
-//     `What type of project registrar would you like to use?
-//       1. Autheticity
-//       2. Redirect `
-//   );
-
-//   if (!["1", "2"].includes(projectRegistrarType.toLowerCase())) {
-//     console.log("I'm sorry we could not understand that response. Reply with 1 (Authenticity) or 2 (Redirect). ");
-//     return getProjectRegistrarType(prompter);
-//   }
-
-//   return parseInt(projectRegistrarType);
-// }
-
 export async function getTokenURIData(prompter: readline.ReadLine): Promise<string> {
   const tokenURIRoot = await queryUser(
     prompter,
@@ -163,18 +124,4 @@ export async function getTokenURIData(prompter: readline.ReadLine): Promise<stri
 
   // lib-ers adds the slash when generating the tokenURI, so we need to remove it if it's there
   return tokenURIRoot[tokenURIRoot.length-1] == "/" ? tokenURIRoot.slice(0,-1) : tokenURIRoot;
-}
-
-export async function getPostToIpfs(prompter: readline.ReadLine): Promise<boolean> {
-  const postToIPFS = await queryUser(
-    prompter,
-    "Do you want to post your project files to IPFS (y/n)? "
-  );
-
-  if (!["yes", "y", "no", "n"].includes(postToIPFS.toLowerCase())) {
-    console.log("I'm sorry we could not understand that response. Reply with a yes/y or no/n. ");
-    return getPostToIpfs(prompter);
-  }
-
-  return ["yes", "y"].includes(postToIPFS.toLowerCase());
 }
