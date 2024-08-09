@@ -17,28 +17,17 @@ cp .env.default .env
 The Sepolia ERS contracts are deployed at:
 
 ```
-CHIP_REGISTRY=0xd1aB0240621Aa7C89b60f6D71013Bc62a43448FD
-SERVICE_REGISTRY=0x291dC1Ce08849A0a058Db9189064448Ecb27bD41
-ENROLLMENT_MANAGER_ADDRESS=0x1ddb0445bb68BF0369E4263179cf4903DBd23d70
-ERS_REGISTRY=0x8F6F9E681d34f5306b34C2a080eFc1bc59cb77Bf
-SM_REGISTRAR=0xEf195E63896eb59d28F6C7B1874B5D5F17DD1b85
-```
-
-### Goerli (Deprecated)
-The Goerli ERS contracts are deployed at:
-
-```
-CHIP_REGISTRY=0x7C3b3756e01fF450e56bfCcde521A58522666323
-SERVICE_REGISTRY=0x94419B1E44e9D279E15D08be272bF7c76f918192
-ENROLLMENT_MANAGER_ADDRESS=0xD9eF91DCeeA24f98eE0C8fd06319da6A6ECd7e15
-ERS_REGISTRY=0x4e1Ce5AbB20892405020b29de0c13AA20190C205
-SM_REGISTRAR=0xc098a32aa1425e86809a8e2D95A42d387C005Fd9
+CHIP_REGISTRY=TBD
+SERVICE_REGISTRY=TBD
+ENROLLMENT_MANAGER_ADDRESS=TBD
+ERS_REGISTRY=TBD
+SM_REGISTRAR=TBD
 ```
 
 You can find the deployment artifacts in `deployments/$CHAIN_NAME`.
 
 ### Local
-For local testing, run:
+For local testing, instantiate your local chain (e.g. `yarn chain`) and run:
 ```bash
 yarn deploy:localhost
 ```
@@ -51,12 +40,13 @@ If you want to make sure that you have a completely fresh local deployment, run:
 yarn deploy:localhost:clean
 ```
 
-
+Note: If you are working with locally modified `ers-contracts` you may need to link those contracts and rebuild in order to correctly redeploy.
+1. `npm link @arx-research/ers-contracts --force`
+2. `yarn clean-artifacts`
+3. `yarn build`
 
 ## Arx Manufacturer Enrollments
-Arx maintains a public repo with all Arx HaLo chip certificates (`manufacturerEnrollments`) at https://github.com/arx-research/arx-chip-enrollments. These certificates are the first attestations of the existence of a chip. As a part of enrolling projects to ERS, you will need to reference the chip's associated `manufacturerEnrollment`. The `getArxManufacturerEnrollments` task will help you to retrieve this enrollment data.
-
-Note: for local deployments you will need to create your own test fixture data. See [ManufacturerUsage](./ManufacturerUsage.md) for more information.
+WIP.
 
 ## Using Scripts
 
@@ -68,14 +58,6 @@ Note: for local deployments you will need to create your own test fixture data. 
 
 In order to use scripts you need to be sure that there are valid deployments in the environment you are deploying to (see previous section for information on this). Once you have a valid deployment in your chosen environment you can start running scripts. It is worth noting that these scripts build on each other, so if you're starting from a clean deployment you need first run the scripts in the `ManufacturerUsage` file then continue with the scripts below.
 
-### getArxManufacturerEnrollments
-This script pulls all Arx `manufacturerEnrollments` in ERS. It takes one argument, the `--network` name. These enrollments are required when adding chips to chains, e.g. Sepolia.
-
-Example:
-```bash
-yarn getArxManufacturerEnrollments --network sepolia
-```
-
 ### createService
 This script creates a [service](https://docs.ers.to/overview/concepts/services) that can be assigned to chips in the project enrollment process. It requires one argument:
 1. `network`: The network you want to interact with (defaults to `hardhat`)
@@ -83,7 +65,7 @@ This script creates a [service](https://docs.ers.to/overview/concepts/services) 
 It will prompt you for several pieces of information:
 1. `service-name`: The name of the service
 2. `content`: URL/URI of the content app; in the case of a simple redirect this would be an `http` resource like `https://app.arx.org` where a chip may be scanned. For IPFS, this would be 
-3. `append-id`: Indicate whether chipId should be appended to the content app URL/URI (useful for NFT applications and required for the `generateTokenUriData` task where `tokenUri` data is added through project creation)
+3. `append-id`: Indicate whether chipId should be appended to the content app URL/URI. This is useful for NFT/PBT applications where every chip might reference unique metadata and required if you are using the output of the `generateTokenUriData` for `tokenUri` data in your project.
 
 Example:
 ```bash
@@ -93,14 +75,12 @@ yarn createService --network [network]
 Note that the service creation function is narrowly scoped to only creating a service with a contentApp record. Also the resulting `serviceId` will be printed in the console as part of a successful transaction.
 
 ### generateTokenUriData
-This script creates formatted tokenUriData for chips in the project and adds it to IPFS. An NFT.storage API token is required for this script. It takes two arguments:
+This script creates formatted tokenUriData for chips in the project.
 
 1. `network`: The network you want to interact with (defaults to `hardhat`)
 2. `scan`: The number of chips that you wish to scan and generate tokenUriData for.
 
-The script is designed to generate JSON formatted `tokenUri` data including a `name`, `description` and `media` that is stored offchain on IPFS. The script will prompt to generate either unique data on a chip by chip basis, or it can use the same data for all chips scanned. Once input, the data is JSON formatted and added to IPFS via NFT.storage.
-
-The script will also prompt to whether or not you wish to append to, or overwrite completely, any existing `chipData.json` file; the `chipData.json` file can be used in project creation. 
+The script is designed to generate JSON formatted `tokenUri` data including a `name`, `description` and `media` that can be used for a project. The script will prompt to generate either unique data on a chip by chip basis, or it can use the same data for all chips scanned. Once input, the data is JSON formatted and output to `task_outputs/tokenUriData`.
 
 The successful completion of the task returns a CID that can be used for the `tokenUriRoot` in `projectCreation.json`.
 
@@ -128,8 +108,6 @@ This newly created file is `.gitignore`d so you can edit it without worrying abo
 ```
 {
     "name": .ers name for the project
-    "chipDataLocation": local path to the chipData enrollment files (created after each successful addManufacturerEnrollment and saved in task_outputs/chipData/chipData.json),
-    "manufacturerValidationLocation": local path to the folder containing manufacturerValidation data (this is auto-saved locally in task_outputs/addManufacturerEnrollment/),
     "tokenUriRoot": tokenUri root for chips in the project,
     "lockinPeriod": lockinPeriod in seconds,
     "serviceId": Primary service ID for the project,

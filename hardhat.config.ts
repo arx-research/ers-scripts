@@ -101,7 +101,7 @@ const config: HardhatUserConfig = {
       sepolia: `privatekey://0x${process.env.TESTNET_MANUFACTURER_PRIVATE_KEY}`,
       base: `privatekey://0x${process.env.BASE_MANUFACTURER_PRIVATE_KEY}`,
     },
-    defaultManufacturerSigner: {
+    defaultManufacturerSigner: { // Note: we may remove this as it's now out of bounds from ers-scripts
       localhost: 2,
       goerli: `privatekey://0x${process.env.TESTNET_MANUFACTURER_SIGNER_PRIVATE_KEY}`,
       sepolia: `privatekey://0x${process.env.TESTNET_MANUFACTURER_SIGNER_PRIVATE_KEY}`,

@@ -1,37 +1,95 @@
 import * as readline from 'readline';
 import { BigNumber } from "ethers";
+import * as fs from 'fs';
+import * as path from 'path';
 import {
   ADDRESS_ZERO,
   calculateLabelHash,
-  calculateSubnodeHash,
   DeveloperRegistrar,
   ERSRegistry,
 } from "@arx-research/ers-contracts/";
 
 import { queryUser } from "../scriptHelpers";
-// import { token } from '@arx-research/ers-contracts/typechain/contracts';
 
-export async function getUserDeveloperRegistrar(prompter: readline.ReadLine): Promise<string> {
-  const hasDeveloperRegistrar = await queryUser(
-    prompter,
-    "Are you registered as a developer in ERS and have deployed your own DeveloperRegistrar? (y/n) "
-  );
-
-  if (!["yes", "y", "no", "n"].includes(hasDeveloperRegistrar.toLowerCase())) {
-    console.log("I'm sorry we could not understand that response. Reply with a yes/y or no/n. ");
-    return getUserDeveloperRegistrar(prompter);
+// Helper function to get task outputs
+function getTaskOutputs(taskName: string): { id: string, model: string }[] {
+  const outputDir = path.join(__dirname, `../../task_outputs/${taskName}`);
+  if (!fs.existsSync(outputDir)) {
+    return [];
   }
 
-  if (["no", "n"].includes(hasDeveloperRegistrar.toLowerCase())) {
-    return ADDRESS_ZERO;
-  }
+  const files = fs.readdirSync(outputDir);
+  return files.map((file) => {
+    const content = JSON.parse(fs.readFileSync(path.join(outputDir, file), 'utf8'));
 
-  return queryUser(
-    prompter,
-    "What is the address of your DeveloperRegistrar? "
-  );
+    switch (taskName) {
+      case 'createDeveloperRegistrar':
+        return {
+          id: content.developerRegistrar || 'Unknown',
+          model: `Name: ${content.name}`
+        };
+      
+      case 'addManufacturerEnrollment':
+        const manufacturerName = lookupManufacturerName(content.manufacturerId);
+        return {
+          id: content.enrollmentId || 'Unknown',
+          model: `Manufacturer: ${manufacturerName || content.manufacturerId}`
+        };
+      
+      case 'createService':
+        return {
+          id: content.serviceId || 'Unknown',
+          model: content.serviceName || 'Unknown'
+        };
+      
+      default:
+        return { id: 'Unknown', model: 'Unknown' };
+    }
+  });
 }
 
+// Function to lookup manufacturer name from addManufacturer task outputs
+function lookupManufacturerName(manufacturerId: string): string | null {
+  const outputDir = path.join(__dirname, `../../task_outputs/addManufacturer`);
+  if (!fs.existsSync(outputDir)) {
+    return null;
+  }
+
+  const files = fs.readdirSync(outputDir);
+  for (const file of files) {
+    const content = JSON.parse(fs.readFileSync(path.join(outputDir, file), 'utf8'));
+    if (content.manufacturerId === manufacturerId) {
+      return content.manufacturerName || null;
+    }
+  }
+
+  return null;
+}
+
+// Modified function to suggest DeveloperRegistrar
+export async function getUserDeveloperRegistrar(prompter: readline.ReadLine): Promise<string> {
+  const taskOutputs = getTaskOutputs('createDeveloperRegistrar');
+
+  if (taskOutputs.length > 0) {
+    console.log("Available DeveloperRegistrars:");
+    taskOutputs.forEach((output, index) => {
+      console.log(`${index + 1}: ${output.model} (ID: ${output.id})`);
+    });
+    console.log(`${taskOutputs.length + 1}: Enter custom DeveloperRegistrar address`);
+
+    const choice = await queryUser(prompter, "Select a DeveloperRegistrar or enter a custom address (default is option 1): ");
+
+    if (!choice || parseInt(choice) <= 0 || parseInt(choice) > taskOutputs.length) {
+      return taskOutputs[0].id;
+    }
+
+    return taskOutputs[parseInt(choice) - 1].id;
+  }
+
+  return queryUser(prompter, "What is the address of your DeveloperRegistrar? ");
+}
+
+// Original function for getting project name
 export async function getProjectName(
   prompter: readline.ReadLine,
   ersRegistry: ERSRegistry,
@@ -47,7 +105,7 @@ export async function getProjectName(
   }
 
   // Check that the namespace hasn't been taken
-  let labelOwner;
+  let labelOwner = ADDRESS_ZERO;
   if (developerRegistrar.address != ADDRESS_ZERO) {
     const developerRootnode = await developerRegistrar.rootNode();
     labelOwner = await ersRegistry.getSubnodeOwner(developerRootnode, calculateLabelHash(name));
@@ -60,6 +118,7 @@ export async function getProjectName(
   return name;
 }
 
+// Original function for getting project symbol
 export async function getProjectSymbol(prompter: readline.ReadLine): Promise<string> {
   const tokenSymbol = await queryUser(
     prompter,
@@ -73,13 +132,25 @@ export async function getProjectSymbol(prompter: readline.ReadLine): Promise<str
   return tokenSymbol;
 }
 
+// Modified function for getting service timelock with default and fault tolerance
 export async function getServiceTimelock(prompter: readline.ReadLine): Promise<BigNumber> {
-  const rawTimelock = await queryUser(
+  let rawTimelock = await queryUser(
     prompter,
-    "How long do you want to lock-in the redirect URL for (in seconds)? After this time the chip holder can change the redirect URL, time period can be no longer than 2 years. "
+    "How long do you want to lock-in the redirect URL for (in seconds)? (Default is 0): "
   );
-  
-  const timelock = BigNumber.from(rawTimelock);
+
+  // Default to 0 if nothing is entered
+  if (!rawTimelock) {
+    rawTimelock = "0";
+  }
+
+  let timelock;
+  try {
+    timelock = BigNumber.from(rawTimelock);
+  } catch {
+    console.log("Invalid input. Defaulting to 0.");
+    timelock = BigNumber.from("0");
+  }
 
   const verifyInput = await queryUser(
     prompter,
@@ -101,11 +172,27 @@ export async function getServiceTimelock(prompter: readline.ReadLine): Promise<B
   return currentTimestamp.add(timelock);
 }
 
+// Modified function to suggest Service ID
 export async function getServiceId(prompter: readline.ReadLine): Promise<string> {
-  const serviceId = await queryUser(
-    prompter,
-    `Which service ID would you like to set as primary service for your project enrollment? `
-  );
+  const taskOutputs = getTaskOutputs('createService');
+
+  if (taskOutputs.length > 0) {
+    console.log("Available Services:");
+    taskOutputs.forEach((output, index) => {
+      console.log(`${index + 1}: ${output.model} (ID: ${output.id})`);
+    });
+    console.log(`${taskOutputs.length + 1}: Enter custom Service ID`);
+
+    const choice = await queryUser(prompter, "Select a Service ID or enter a custom ID (default is option 1): ");
+
+    if (!choice || parseInt(choice) <= 0 || parseInt(choice) > taskOutputs.length) {
+      return taskOutputs[0].id;
+    }
+
+    return taskOutputs[parseInt(choice) - 1].id;
+  }
+
+  const serviceId = await queryUser(prompter, `Which service ID would you like to set as primary service for your project enrollment? `);
 
   if(serviceId.slice(0, 2) != '0x' || serviceId.length != 66) {
     console.log("Not a valid Service ID, service ID must be a bytes32 hash");
@@ -116,6 +203,7 @@ export async function getServiceId(prompter: readline.ReadLine): Promise<string>
   return serviceId;
 }
 
+// Original function for getting token URI data
 export async function getTokenURIData(prompter: readline.ReadLine): Promise<string> {
   const tokenURIRoot = await queryUser(
     prompter,
@@ -124,4 +212,34 @@ export async function getTokenURIData(prompter: readline.ReadLine): Promise<stri
 
   // lib-ers adds the slash when generating the tokenURI, so we need to remove it if it's there
   return tokenURIRoot[tokenURIRoot.length-1] == "/" ? tokenURIRoot.slice(0,-1) : tokenURIRoot;
+}
+
+// Modified function to suggest Enrollment ID
+export async function getEnrollmentId(prompter: readline.ReadLine): Promise<string> {
+  const taskOutputs = getTaskOutputs('addManufacturerEnrollment');
+
+  if (taskOutputs.length > 0) {
+    console.log("Available Enrollment IDs:");
+    taskOutputs.forEach((output, index) => {
+      console.log(`${index + 1}: ${output.model} (ID: ${output.id})`);
+    });
+    console.log(`${taskOutputs.length + 1}: Enter custom Enrollment ID`);
+
+    const choice = await queryUser(prompter, "Select an Enrollment ID or enter a custom ID (default is option 1): ");
+
+    if (!choice || parseInt(choice) <= 0 || parseInt(choice) > taskOutputs.length) {
+      return taskOutputs[0].id;
+    }
+
+    return taskOutputs[parseInt(choice) - 1].id;
+  }
+
+  const enrollmentId = await queryUser(prompter, `What is the enrollmentId for these chips (only required for localhost deployments)? `);
+
+  if (enrollmentId.slice(0, 2) != '0x' || enrollmentId.length != 66) {
+    console.log("Invalid enrollmentId. Please provide a valid address.");
+    return getEnrollmentId(prompter);
+  }
+
+  return enrollmentId;
 }

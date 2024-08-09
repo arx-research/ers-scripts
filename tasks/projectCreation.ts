@@ -10,6 +10,7 @@ import {
   calculateLabelHash,
   ProjectChipAddition,
   ManufacturerValidationInfo,
+  createDeveloperCustodyProof,
   ADDRESS_ZERO,
 } from "@arx-research/ers-contracts/";
 
@@ -33,6 +34,7 @@ import {
   getServiceTimelock,
   getServiceId,
   getTokenURIData,
+  getEnrollmentId,
  } from '../utils/prompts/projectCreationPrompts';
 import { MAX_BLOCK_WINDOW } from "../deployments/parameters";
 
@@ -46,15 +48,16 @@ const supabaseUrl = process.env.SUPABASE_URL!;
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-task("createProject", "Create a new project using the ArxProjectEnrollmentManager")
+task("createProject", "Create a new project")
   .setAction(async (taskArgs, hre: HRE) => {
     const { rawTx } = hre.deployments;
 
-    const { developerOwner, projectOwner } = await hre.getNamedAccounts();
+    const { developerOwner } = await hre.getNamedAccounts();
     const network = hre.network.name;
     const chainId = BigNumber.from(await hre.getChainId());
     const chipRegistry = getDeployedContractAddress(hre.network.name, "ChipRegistry");
 
+    let enrollmentIdLocal: string;
     let params: CreateProject = await getAndValidateParams();
 
     const ersInstance: ERS = await createERSInstance(hre);
@@ -66,9 +69,12 @@ task("createProject", "Create a new project using the ArxProjectEnrollmentManage
 
     // Get the amount of chips being enrolled
     const numChips = parseInt(await queryUser(rl, "How many chips are you enrolling? "));
-    // Cycle through signing ownership proofs for each chip, getting the chipIDs, and building the chipInfo array
-      
-    //TODO: replace this function with one that scans chips (getChipPublicKeys) and creates the chipInfo array. We don't care about ownershipProofs anymore.
+
+    // Attach the DeveloperRegistrar contract
+    const developerRegistrar = new DeveloperRegistrar__factory(await hre.ethers.getSigner(developerOwner)).attach(params.developerRegistrar);
+    const developerRegistrarAddress = developerRegistrar.address;
+
+    // Cycle through signing ownership proofs for each chip, getting the chipIDs, and building the chipInfo array     
     [ ownershipProofs, chipInfo ] = await createOwnershipProofsFromScan(numChips)
     
     const { deploy } = await hre.deployments;
@@ -76,9 +82,8 @@ task("createProject", "Create a new project using the ArxProjectEnrollmentManage
     let projectRegistrarDeploy;
 
     projectRegistrarDeploy = await deploy("PBTSimpleProjectRegistrar", {
-      from: projectOwner,
+      from: developerOwner,
       args: [
-        projectOwner,
         getDeployedContractAddress(hre.network.name, "ChipRegistry"),
         getDeployedContractAddress(hre.network.name, "ERSRegistry"),
         params.developerRegistrar,
@@ -92,7 +97,6 @@ task("createProject", "Create a new project using the ArxProjectEnrollmentManage
 
     console.log(`New ProjectRegistrar deployed at ${projectRegistrarDeploy.address}`);
     
-    const developerRegistrar = new DeveloperRegistrar__factory(await hre.ethers.getSigner(projectOwner)).attach(params.developerRegistrar);
     await rawTx({
       from: developerOwner,
       to: params.developerRegistrar,
@@ -110,21 +114,8 @@ task("createProject", "Create a new project using the ArxProjectEnrollmentManage
 
     console.log(`Project ${params.name} added to DeveloperRegistrar`);
 
-  //   struct ProjectChipAddition {
-  //     address chipId;
-  //     address chipOwner;
-  //     bytes32 nameHash; // A label used to identify the chip; in a PBT imlementation, this might match the tokenId
-  //     IChipRegistry.ManufacturerValidation manufacturerValidation;
-  //     bytes custodyProof;
-  // }
-
-  // export interface ManufacturerValidationInfo {
-  //   enrollmentId: string;             // id of manufacturer enrollment the chip belongs to
-  //   manufacturerCertificate: string;  // The chip certificate signed by the manufacturer
-  //   payload: string;                  // The optional payload used in the ManufacturerCertificate
-  // }
-
-    const projectRegistrar = new PBTSimpleProjectRegistrar__factory(await hre.ethers.getSigner(projectOwner)).attach(projectRegistrarDeploy.address);
+    const projectRegistrar = new PBTSimpleProjectRegistrar__factory(await hre.ethers.getSigner(developerOwner)).attach(projectRegistrarDeploy.address);
+    console.log(`ChipInfo: ${JSON.stringify(chipInfo)}`)
     await rawTx({
       from: developerOwner,
       to: projectRegistrarDeploy.address,
@@ -134,40 +125,16 @@ task("createProject", "Create a new project using the ArxProjectEnrollmentManage
           chipInfo.map((chip) => {
             return {
               chipId: chip.chipId,
-              chipOwner: projectOwner,
+              chipOwner: developerOwner,
               nameHash: calculateLabelHash(params.name),
               manufacturerValidation: chip.manufacturerValidation,
+              custodyProof: ownershipProofs.shift(),
             } as ProjectChipAddition
           }),
         ]
       )
     });
-
-
-
-    // TODO: add chips to project.
-
-    // Here is an extremely roughh example -- this has been lifted from hardhat tests. What we need to do is create another tx to call addChips with chipInfo for each chip.
-    //   subjectAdditionData = [
-    //     {
-    //       chipId: chipIdOne,
-    //       chipOwner: developerOne.address,
-    //       nameHash: nameHashOne,
-    //       manufacturerValidation: manufacturerValidationOne,
-    //     } as ProjectChipAddition,
-    //     {
-    //       chipId: chipIdTwo,
-    //       chipOwner: developerOne.address,
-    //       nameHash: nameHashTwo,
-    //       manufacturerValidation: manufacturerValidationTwo,
-    //     } as ProjectChipAddition,
-    //   ];
-    //   subjectCaller = developerOne;
-    // });
-
-    // async function subject(): Promise<any> {
-    //   return projectRegistrar.connect(subjectCaller.wallet).addChips(subjectAdditionData);
-    // }
+    console.log(`Chips added to ProjectRegistrar`);
 
     async function getAndValidateParams(): Promise<CreateProject> {
       let params: CreateProject = {} as CreateProject;
@@ -175,27 +142,42 @@ task("createProject", "Create a new project using the ArxProjectEnrollmentManage
       params.developerRegistrar = await getUserDeveloperRegistrar(rl);
       params.name = await getProjectName(
         rl,
-        await getERSRegistry(hre, projectOwner),
-        await getDeveloperRegistrar(hre, params.developerRegistrar, projectOwner)
+        await getERSRegistry(hre, developerOwner),
+        await getDeveloperRegistrar(hre, params.developerRegistrar, developerOwner)
       );
       params.tokenSymbol = await getProjectSymbol(rl);
       params.tokenUriRoot = await getTokenURIData(rl);
       params.lockinPeriod = await getServiceTimelock(rl);
       params.serviceId = await getServiceId(rl);
+      
+      // In the case of a localhost deployment, we request the enrollmentId which will not be saved in Supabase
+      if (chainId.eq(31337)) {
+        enrollmentIdLocal = await getEnrollmentId(rl);
+      }
   
       return params;
     }
 
-    // Function to fetch ManufacturerValidationInfo from Supabase
+    // Retrieve Arx ManufacturerValidationInfo fro public Supabase
     async function getEnrollmentData(chipId: string): Promise<ManufacturerValidationInfo | null> {
       const { data, error } = await supabase
-        .from('your_table_name') // Replace with your actual table name
+        .from('certificates')
         .select('enrollmentId, manufacturerCertificate, payload')
         .eq('chipId', chipId)
         .single();
 
       if (error) {
         throw Error(`Error fetching enrollment data for chipId ${chipId}`);
+      }
+
+      if (enrollmentIdLocal) {
+        data.enrollmentId = enrollmentIdLocal;
+      } else if (!data.enrollmentId) {
+        throw Error(`No enrollmentId found for chipId ${chipId}`);
+      }
+
+      if (!data.payload) {
+        data.payload = "0x00";
       }
 
       return data as ManufacturerValidationInfo;
@@ -205,30 +187,27 @@ task("createProject", "Create a new project using the ArxProjectEnrollmentManage
       const ownershipProofs: string[] = new Array<string>(numChips);
       const chipInfo: ChipInfo[] = new Array<ChipInfo>(numChips);
 
-      // const message = ethers.utils.solidityPack(["address"], [projectPublicKey]);
-      const typedSig = {};
+      const chainIdNumber = chainId.toNumber();
 
       const domain = {
-        name: "ERS",
-        version: "1.0.0",
-        chainId,
-        chipRegistry,
+        name: 'ERS',
+        version: '2.0.0',
+        chainId: chainIdNumber,
+        verifyingContract: chipRegistry,
       };
     
       const types = {
         DeveloperCustodyProof: [
-          { name: "developerRegistrar", type: "address" },
+          { name: 'developerRegistrar', type: 'address' },
         ],
       };
     
-      const domainWithChainId = { ...domain, chainId };
-    
       const value = {
-        developerRegistrar,
+        developerRegistrar: developerRegistrarAddress
       };
 
       for (let i = 0; i < numChips; i++) {
-        const signResponse = await getChipTypedSigWithGateway(gate, typedSig);
+        const signResponse = await getChipTypedSigWithGateway(gate, { domain, types, value });
         console.log(`Ownership proof created for chipId: ${signResponse.etherAddress} with proof: ${signResponse.signature.ether}`)
         ownershipProofs[i] = signResponse.signature.ether;
 

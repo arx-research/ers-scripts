@@ -1,6 +1,8 @@
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment as HRE } from "hardhat/types";
 import { ServiceRecord, ServicesRegistry, ServicesRegistry__factory } from "@arx-research/ers-contracts";
+import * as fs from 'fs';
+import * as path from 'path';
 
 import { stringToBytes, rl } from "../utils/scriptHelpers";
 import { CONTENT_APP_RECORD_TYPE } from "../utils/constants";
@@ -10,6 +12,7 @@ import { getServiceId, getRedirectContent, getAppendId } from "../utils/prompts/
 task("createService", "Create a new service on the ServiceRegistry")
   .setAction(async (taskArgs, hre: HRE) => {
     const { rawTx } = hre.deployments;
+    const chainId = await hre.getChainId();
 
     const { serviceCreator } = await hre.getNamedAccounts();
     const [serviceId, serviceName] = await getServiceId(rl, await getServicesRegistry());
@@ -38,6 +41,28 @@ task("createService", "Create a new service on the ServiceRegistry")
     });
 
     console.log(`Service ${serviceName} created on ServiceRegistry with following id: ${serviceId}`);
+
+    // Save the service creation data to a JSON file
+    const outputDir = path.join(__dirname, "../task_outputs/createService");
+    const outputFilePath = path.join(outputDir, `${serviceId}.json`);
+
+    // Ensure the output directory exists
+    fs.mkdirSync(outputDir, { recursive: true });
+
+    // Data to be saved
+    const outputData = {
+      chainId: chainId.toString(),
+      serviceId,
+      serviceName,
+      serviceCreator,
+      serviceRecord,
+      servicesRegistry: servicesRegistry.address,
+    };
+
+    // Write the data to the JSON file
+    fs.writeFileSync(outputFilePath, JSON.stringify(outputData, null, 2), "utf8");
+
+    console.log(`Data saved to ${outputFilePath}`);
 
     async function getServicesRegistry(): Promise<ServicesRegistry> {
       const signer = await hre.ethers.getSigner(serviceCreator);

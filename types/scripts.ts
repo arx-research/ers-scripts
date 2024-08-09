@@ -23,7 +23,6 @@ export interface CreateProject {
   developerRegistrar: Address,
   name: string,
   tokenSymbol: string,
-  chipDataLocation: string,
   tokenUriRoot: string,
   lockinPeriod: BigNumber,
   serviceId: string,

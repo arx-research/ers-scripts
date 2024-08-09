@@ -11,7 +11,6 @@ import {
 import {
   getChipPublicKeys,
   getChipSigWithGateway,
-  getERSRegistry,
   getChipRegistry,
   getProjectRegistrar,
   instantiateGateway,

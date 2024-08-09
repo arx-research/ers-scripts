@@ -3,8 +3,6 @@ import { deployments } from "hardhat";
 import {
   Address,
   ADDRESS_ZERO,
-  ArxProjectEnrollmentManager,
-  ArxProjectEnrollmentManager__factory,
   calculateSubnodeHash,
   ChipRegistry,
   ChipRegistry__factory,
@@ -49,7 +47,6 @@ describe("Base System Deploy", () => {
   let deployer: Account;
   let multiSig: Address;
 
-  let arxProjectEnrollmentManager: ArxProjectEnrollmentManager;
   let chipRegistry: ChipRegistry;
   let ersRegistry: ERSRegistry;
   let manufacturerRegistry: ManufacturerRegistry;
@@ -67,9 +64,6 @@ describe("Base System Deploy", () => {
     ] = await getAccounts();
 
     multiSig = MULTI_SIG_ADDRESSES[network] ? MULTI_SIG_ADDRESSES[network] : deployer.address;
-
-    const arxProjectEnrollmentManagerAddress = (await deployments.get("ArxProjectEnrollmentManager")).address;
-    arxProjectEnrollmentManager = new ArxProjectEnrollmentManager__factory(deployer.wallet).attach(arxProjectEnrollmentManagerAddress);
 
     const chipRegistryAddress  = await getDeployedContractAddress(network, "ChipRegistry");
     chipRegistry = new ChipRegistry__factory(deployer.wallet).attach(chipRegistryAddress);
@@ -107,29 +101,9 @@ describe("Base System Deploy", () => {
       expect(actualErsRegistry).to.eq(ersRegistry.address);
     });
 
-    it("should have the correct services registry", async () => {
-      const actualServicesRegistry = await chipRegistry.servicesRegistry();
-      expect(actualServicesRegistry).to.eq(servicesRegistry.address);
-    });
-
     it("should have the correct developer registry", async () => {
       const actualTsmRegistry = await chipRegistry.developerRegistry();
       expect(actualTsmRegistry).to.eq(developerRegistry.address);
-    });
-
-    it("should have the correct gateway Urls", async () => {
-      const actualGatewayUrls = await chipRegistry.getGatewayUrls();
-      expect(actualGatewayUrls).to.deep.eq(CHIP_REGISTRY_DEPLOY[network].gatewayUrls);
-    });
-
-    it("should have the correct gateway Urls", async () => {
-      const actualGatewayUrls = await chipRegistry.maxLockinPeriod();
-      expect(actualGatewayUrls).to.deep.eq(CHIP_REGISTRY_DEPLOY[network].maxLockinPeriod);
-    });
-
-    it("should have the correct max block window", async () => {
-      const actualMaxBlockWindow = await chipRegistry.maxBlockWindow();
-      expect(actualMaxBlockWindow).to.eq(MAX_BLOCK_WINDOW[network]);
     });
 
     it("should have the correct owner", async () => {
@@ -232,50 +206,6 @@ describe("Base System Deploy", () => {
     it("should have the correct developer registry", async () => {
       const actualTsmRegistry = await developerRegistrarFactory.developerRegistry();
       expect(actualTsmRegistry).to.eq(developerRegistry.address);
-    });
-  });
-
-  describe("ArxPlaygroundRegistrar", async () => {
-    it("should have the correct owner", async () => {
-      const actualOwner = await playgroundRegistrar.owner();
-      expect(actualOwner).to.eq(arxProjectEnrollmentManager.address);
-    });
-
-    it("should be the owner of the arxplayground.ers node", async () => {
-      const actualNodeOwner = await ersRegistry.getOwner(calculateSubnodeHash("arxplayground.ers"));
-      expect(actualNodeOwner).to.eq(playgroundRegistrar.address);
-    });
-  });
-
-  describe("ArxProjectEnrollmentManager", async () => {
-    it("should have the correct owner", async () => {
-      const actualOwner = await arxProjectEnrollmentManager.owner();
-      expect(actualOwner).to.eq(multiSig);
-    });
-
-    it("should have the correct ers registry", async () => {
-      const actualErsRegistry = await arxProjectEnrollmentManager.ers();
-      expect(actualErsRegistry).to.eq(ersRegistry.address);
-    });
-
-    it("should have the correct chipRegistry", async () => {
-      const actualChipRegistry = await arxProjectEnrollmentManager.chipRegistry();
-      expect(actualChipRegistry).to.eq(chipRegistry.address);
-    });
-
-    it("should have the correct developerRegistrar", async () => {
-      const actualDeveloperRegistrar = await arxProjectEnrollmentManager.developerRegistrar();
-      expect(actualDeveloperRegistrar).to.eq(playgroundRegistrar.address);
-    });
-
-    it("should have the correct transferPolicy", async () => {
-      const actualTransferPolicy = await arxProjectEnrollmentManager.transferPolicy();
-      expect(actualTransferPolicy).to.eq(await getDeployedContractAddress(network, "OpenTransferPolicy"));
-    });
-
-    it("should have the correct max block window", async () => {
-      const actualMaxBlockWindow = await arxProjectEnrollmentManager.maxBlockWindow();
-      expect(actualMaxBlockWindow).to.eq(MAX_BLOCK_WINDOW[network]);
     });
   });
 });

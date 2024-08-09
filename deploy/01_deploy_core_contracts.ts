@@ -86,6 +86,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   });
   console.log("SECP256k1Model deployed to:", secp256AuthModelDeploy.address);
 
+  const enrollmentEIP191Model = await deploy("EnrollmentEIP191Model", {
+    from: deployer,
+    args: [],
+  });
+  console.log("EnrollmentEIP191Model deployed to:", enrollmentEIP191Model.address);
+
   const openTransferPolicyDeploy = await deploy("OpenTransferPolicy", {
     from: deployer,
     args: [],

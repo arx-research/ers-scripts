@@ -8,7 +8,7 @@ In order to use scripts you need to be sure that there are valid deploments in t
 This script adds a manufacturer to the ERS protocol. It takes in three arguments:
 1. `network`: The network you want to interact with (defaults to `hardhat`)
 2. `manufacturer-name`: The name of the manufacturer
-3. `manufacturer`: The address of the manufacturer. **Optional**, If it is not included the second address in the specified network's accounts array will be used (see managing accounts section for more information on this).
+3. `manufacturer`: The address of the manufacturer. **Exclude for Localhost**, If it is not included the second address in the specified network's accounts array will be used (see managing accounts section for more information on this).
 
 Example:
 ```bash

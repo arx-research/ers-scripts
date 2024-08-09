@@ -120,11 +120,10 @@ export async function getChipSigWithGateway(gate: any, message: string): Promise
 }
 
 export async function getChipTypedSigWithGateway(gate: any, typedData: any ): Promise<any> {
-
   let cmd = {
     "name": "sign",
+    "keyNo": 1,
     "typedData": typedData,
-    "keyNo": 1
   };
 
   return await gate.execHaloCmd(cmd);
@@ -198,9 +197,7 @@ export async function createERSInstance(hre: any): Promise<ERS> {
   const ersConfig: ERSConfig = {
     chipRegistry: getDeployedContractAddress(hre.network.name, "ChipRegistry") as `0x${string}`,
     servicesRegistry: getDeployedContractAddress(hre.network.name, "ServicesRegistry") as `0x${string}`,
-    enrollmentManagerAddress: getDeployedContractAddress(hre.network.name, "ArxProjectEnrollmentManager") as `0x${string}`,
     ersRegistry: getDeployedContractAddress(hre.network.name, "ERSRegistry") as `0x${string}`,
-    developerRegistrar: getDeployedContractAddress(hre.network.name, "ArxPlaygroundRegistrar") as `0x${string}`,
   };
   // console.log(await hre.viem.getWalletClients());
   return new ERS((await hre.viem.getWalletClients())[0], ersConfig);

@@ -6,7 +6,7 @@ import { queryUser } from "../scriptHelpers";
 export async function getChainId(prompter: readline.ReadLine): Promise<number> {
   const chainId = await queryUser(
     prompter,
-    `What chainId is the project being deployed on? (optional: default is 31337 for localhost)`
+    `What chainId is the project being deployed on (optional: default is 31337 for localhost)? `
   );
 
   if (isNaN(parseInt(chainId))) {
@@ -48,7 +48,7 @@ export async function getManufacturerId(prompter: readline.ReadLine): Promise<st
 export async function getAuthModel(prompter: readline.ReadLine): Promise<string> {
   const manufacturerAuthModel = await queryUser(
     prompter,
-    `What is the auth model? `
+    `What is the chip auth model? `
   );
 
   if (manufacturerAuthModel.slice(0, 2) != '0x' || manufacturerAuthModel.length != 42) {
