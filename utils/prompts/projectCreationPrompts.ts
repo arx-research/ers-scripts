@@ -12,41 +12,94 @@ import {
 import { queryUser } from "../scriptHelpers";
 
 // Helper function to get task outputs
-function getTaskOutputs(taskName: string): { id: string, model: string }[] {
+// TODO: make sure that we only show task output that match the current chainId
+// Helper function to get task outputs
+function getTaskOutputs(taskName: string, currentChainId: string): { id: string, model: string }[] {
   const outputDir = path.join(__dirname, `../../task_outputs/${taskName}`);
   if (!fs.existsSync(outputDir)) {
     return [];
   }
 
   const files = fs.readdirSync(outputDir);
-  return files.map((file) => {
-    const content = JSON.parse(fs.readFileSync(path.join(outputDir, file), 'utf8'));
+  return files
+    .map((file) => {
+      const content = JSON.parse(fs.readFileSync(path.join(outputDir, file), 'utf8'));
 
-    switch (taskName) {
-      case 'createDeveloperRegistrar':
-        return {
-          id: content.developerRegistrar || 'Unknown',
-          model: `Name: ${content.name}`
-        };
-      
-      case 'addManufacturerEnrollment':
-        const manufacturerName = lookupManufacturerName(content.manufacturerId);
-        return {
-          id: content.enrollmentId || 'Unknown',
-          model: `Manufacturer: ${manufacturerName || content.manufacturerId}`
-        };
-      
-      case 'createService':
-        return {
-          id: content.serviceId || 'Unknown',
-          model: content.serviceName || 'Unknown'
-        };
-      
-      default:
-        return { id: 'Unknown', model: 'Unknown' };
-    }
-  });
+      // Filter by chainId
+      if (content.chainId !== currentChainId) {
+        return null; // Skip non-matching chainId
+      }
+
+      switch (taskName) {
+        case 'createDeveloperRegistrar':
+          return {
+            id: content.developerRegistrar || 'Unknown',
+            model: `Name: ${content.name}`
+          };
+
+        case 'addManufacturerEnrollment':
+          const manufacturerName = lookupManufacturerName(content.manufacturerId);
+          return {
+            id: content.enrollmentId || 'Unknown',
+            model: `Manufacturer: ${manufacturerName || content.manufacturerId}`
+          };
+
+        case 'createService':
+          return {
+            id: content.serviceId || 'Unknown',
+            model: content.serviceName || 'Unknown'
+          };
+
+        default:
+          return null; // Return null for any unhandled cases
+      }
+    })
+    .filter((output): output is { id: string, model: string } => output !== null); // Filter out null results and enforce correct typing
 }
+
+// Function to get project registrars from task outputs
+function getProjectRegistrars(currentChainId: string): { id: string, model: string }[] {
+  return getTaskOutputs('createProject', currentChainId);
+}
+
+// Prompt user for adding chips to existing project or creating a new one
+export async function promptProjectRegistrar(
+  prompter: readline.ReadLine,
+  chainId: string
+): Promise<{ id: string; isNew: boolean; artifactFound: boolean }> {
+  console.log("Would you like to add chips to an existing project or create a new one?");
+  console.log("1: Add chips to an existing project");
+  console.log("2: Create a new project");
+
+  const choice = await queryUser(prompter, "Select an option (default is option 1): ");
+
+  if (!choice || choice === '1') {
+    const projectRegistrars = getProjectRegistrars(chainId);
+
+    if (projectRegistrars.length > 0) {
+      console.log("Available Projects:");
+      projectRegistrars.forEach((output, index) => {
+        console.log(`${index + 1}: ${output.model} (ID: ${output.id})`);
+      });
+      console.log(`${projectRegistrars.length + 1}: Enter custom project address`);
+
+      const projectChoice = await queryUser(prompter, "Select a project or enter a custom address (default is option 1): ");
+
+      if (!projectChoice || parseInt(projectChoice) <= 0 || parseInt(projectChoice) > projectRegistrars.length) {
+        return { id: projectRegistrars[0].id, isNew: false, artifactFound: true };
+      }
+
+      return { id: projectRegistrars[parseInt(projectChoice) - 1].id, isNew: false, artifactFound: true };
+    }
+    // TODO: validate address
+    const projectChoice = await queryUser(prompter, "Enter existing project address: ");
+    return { id: projectChoice, isNew: false, artifactFound: false };
+
+  }
+
+  return { id: '', isNew: true, artifactFound: false };
+}
+
 
 // Function to lookup manufacturer name from addManufacturer task outputs
 function lookupManufacturerName(manufacturerId: string): string | null {
@@ -67,8 +120,8 @@ function lookupManufacturerName(manufacturerId: string): string | null {
 }
 
 // Modified function to suggest DeveloperRegistrar
-export async function getUserDeveloperRegistrar(prompter: readline.ReadLine): Promise<string> {
-  const taskOutputs = getTaskOutputs('createDeveloperRegistrar');
+export async function getUserDeveloperRegistrar(prompter: readline.ReadLine, chainId: string): Promise<string> {
+  const taskOutputs = getTaskOutputs('createDeveloperRegistrar', chainId);
 
   if (taskOutputs.length > 0) {
     console.log("Available DeveloperRegistrars:");
@@ -173,8 +226,8 @@ export async function getServiceTimelock(prompter: readline.ReadLine): Promise<B
 }
 
 // Modified function to suggest Service ID
-export async function getServiceId(prompter: readline.ReadLine): Promise<string> {
-  const taskOutputs = getTaskOutputs('createService');
+export async function getServiceId(prompter: readline.ReadLine, chainId: string): Promise<string> {
+  const taskOutputs = getTaskOutputs('createService', chainId);
 
   if (taskOutputs.length > 0) {
     console.log("Available Services:");
@@ -197,7 +250,7 @@ export async function getServiceId(prompter: readline.ReadLine): Promise<string>
   if(serviceId.slice(0, 2) != '0x' || serviceId.length != 66) {
     console.log("Not a valid Service ID, service ID must be a bytes32 hash");
 
-    return await getServiceId(prompter);
+    return await getServiceId(prompter, chainId);
   }
 
   return serviceId;
@@ -215,8 +268,8 @@ export async function getTokenURIData(prompter: readline.ReadLine): Promise<stri
 }
 
 // Modified function to suggest Enrollment ID
-export async function getEnrollmentId(prompter: readline.ReadLine): Promise<string> {
-  const taskOutputs = getTaskOutputs('addManufacturerEnrollment');
+export async function getEnrollmentId(prompter: readline.ReadLine, chainId: string): Promise<string> {
+  const taskOutputs = getTaskOutputs('addManufacturerEnrollment', chainId);
 
   if (taskOutputs.length > 0) {
     console.log("Available Enrollment IDs:");
@@ -238,7 +291,7 @@ export async function getEnrollmentId(prompter: readline.ReadLine): Promise<stri
 
   if (enrollmentId.slice(0, 2) != '0x' || enrollmentId.length != 66) {
     console.log("Invalid enrollmentId. Please provide a valid address.");
-    return getEnrollmentId(prompter);
+    return getEnrollmentId(prompter, chainId);
   }
 
   return enrollmentId;
