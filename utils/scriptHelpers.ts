@@ -104,7 +104,7 @@ export async function getChipPublicKeys(gate: any): Promise<[Address, Address, K
   return [rawKeys.etherAddresses['1'], rawKeys.etherAddresses['2'], rawKeys];
 }
 
-export async function getChipSigWithGateway(gate: any, message: string): Promise<any> {
+export async function getChipMessageSigWithGateway(gate: any, message: string): Promise<any> {
 
   if (message.slice(0,2) == '0x') {
     message = message.slice(2);

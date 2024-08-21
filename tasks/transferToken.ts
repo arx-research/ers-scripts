@@ -10,7 +10,7 @@ import {
 
 import {
   getChipPublicKeys,
-  getChipSigWithGateway,
+  getChipMessageSigWithGateway,
   getChipRegistry,
   getProjectRegistrar,
   instantiateGateway,
@@ -19,34 +19,43 @@ import {
 import { ChipInfo } from "../types/scripts";
 // import { getChipName } from "../utils/prompts/claimChipPrompts";
 
-task("transferChip", "Transfer a chip PBT enrolled in an ERS project")
+task("transferToken", "Transfer a chip PBT enrolled in an ERS project")
   .setAction(async (taskArgs, hre: HRE) => {
     const { rawTx } = hre.deployments;
     
     const gate = await instantiateGateway();
     const { chipOwner } = await hre.getNamedAccounts();
+    console.log(`Desired new chip owner set to: ${chipOwner} (modify this in hardhat.config.ts if necessary)`)
     
     const chipRegistry = await getChipRegistry(hre, chipOwner);
 
     let params: ChipInfo = await getAndValidateParams(hre, gate, chipOwner);
 
     const chipInfo = await chipRegistry.chipEnrollments(params.chipId);
-    params.nameHash = chipInfo.nameHash;
-    params.projectRegistrar = chipInfo.projectRegistrar;
-    params.enrollmentId = chipInfo.manufacturerEnrollmentId;
+
+    const oldOwner = await chipRegistry.ownerOf(params.chipId);
+    console.log(`Current owner of chip ${params.chipId} is: ${oldOwner}`);
+    
+    console.log(JSON.stringify(chipInfo));
+    params.nameHash = chipInfo[0]; // bytes32 nameHash
+    params.projectRegistrar = chipInfo[1]; // address projectRegistrar
+    params.enrollmentId = chipInfo[2]; // bytes32 manufacturerEnrollmentId
 
     const projectRegistrar = await getProjectRegistrar(hre, chipOwner, params.projectRegistrar);
     
     const chainId = BigNumber.from(await hre.getChainId());
-    const commitBlock = BigNumber.from(await hre.ethers.provider.getBlockNumber());
+    const commitBlock = await hre.ethers.provider.getBlock("latest");
 
     const packedMsg = ethers.utils.solidityPack(
-      ["uint256", "uint256", "bytes32", "address"],
-      [chainId, commitBlock, params.nameHash, chipOwner]
-  );
+      ["address", "bytes32", "bytes"],
+      [chipOwner, commitBlock.hash, "0x"]
+    );
   
-  console.log(`Please scan your chip to create the chip ownership proof for ${params.chipId}...`);
-  const chipOwnershipProof = (await getChipSigWithGateway(gate, packedMsg)).signature;
+    console.log(`Packed message: ${packedMsg.toString()}`)
+
+    console.log(`Please scan your chip to create the chip ownership proof for ${params.chipId}...`);
+    const chipOwnershipProof = (await getChipMessageSigWithGateway(gate, packedMsg)).signature.ether;
+    console.log(`Chip ownership proof: ${chipOwnershipProof}`);
 
 
     // TODO: change to transferToken tx
@@ -59,12 +68,22 @@ task("transferChip", "Transfer a chip PBT enrolled in an ERS project")
         [
           params.chipId,
           chipOwnershipProof,
-          commitBlock,
+          commitBlock.number,
           false,
           "0x" // Assuming payload is empty; change if necessary
         ]
       )
     });
+
+    // Final check to verify the new owner
+    const newOwner = await chipRegistry.ownerOf(params.chipId);
+    console.log(`New owner of chip ${params.chipId} is: ${newOwner}`);
+
+    if (newOwner === chipOwner) {
+      console.log(`Ownership transfer successful. New owner is: ${newOwner}`);
+    } else {
+      console.log(`Ownership transfer failed.`);
+    }
   });
 
   async function getAndValidateParams(
@@ -76,6 +95,7 @@ task("transferChip", "Transfer a chip PBT enrolled in an ERS project")
 
     console.log("Grabbing chipId...scan chip please");
     const [chipId,, ] = await getChipPublicKeys(gate);
+    params.chipId = chipId;
 
     return params;
   }
