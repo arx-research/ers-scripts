@@ -10,9 +10,15 @@ import {
 } from "@arx-research/ers-contracts/";
 
 import { queryUser } from "../scriptHelpers";
+import { get } from 'http';
 
-// Helper function to get task outputs
-// TODO: make sure that we only show task output that match the current chainId
+// TODO: create a function that parse a tokenUriData CSV file and return a JSON object
+// chipId,media_uri,media_mime_type,name,description,notes 
+// The chipId may be empty; if it is not empty we should iterate through the data and tell 
+// the user to scan the chip named $name and render the media_uri (or attempt to) in the CLI. 
+// If the chipId is not empty we should prompt the user to scan the chip with that chipId to
+// capture the require proof data. 
+
 // Helper function to get task outputs
 function getTaskOutputs(taskName: string, currentChainId: string): { id: string, model: string }[] {
   const outputDir = path.join(__dirname, `../../task_outputs/${taskName}`);
@@ -49,6 +55,12 @@ function getTaskOutputs(taskName: string, currentChainId: string): { id: string,
             id: content.serviceId || 'Unknown',
             model: content.serviceName || 'Unknown'
           };
+        
+        case 'createProject':
+          return {
+            id: content.projectRegistrar || 'Unknown',
+            model: content.name || 'Unknown'
+          };
 
         default:
           return null; // Return null for any unhandled cases
@@ -68,12 +80,12 @@ export async function promptProjectRegistrar(
   chainId: string
 ): Promise<{ id: string; isNew: boolean; artifactFound: boolean }> {
   console.log("Would you like to add chips to an existing project or create a new one?");
-  console.log("1: Add chips to an existing project");
-  console.log("2: Create a new project");
+  console.log("1: Create a new project");
+  console.log("2: Add chips to an existing project");
 
   const choice = await queryUser(prompter, "Select an option (default is option 1): ");
 
-  if (!choice || choice === '1') {
+  if (choice === '2') {
     const projectRegistrars = getProjectRegistrars(chainId);
 
     if (projectRegistrars.length > 0) {
@@ -91,7 +103,6 @@ export async function promptProjectRegistrar(
 
       return { id: projectRegistrars[parseInt(projectChoice) - 1].id, isNew: false, artifactFound: true };
     }
-    // TODO: validate address
     const projectChoice = await queryUser(prompter, "Enter existing project address: ");
     return { id: projectChoice, isNew: false, artifactFound: false };
 
@@ -256,15 +267,42 @@ export async function getServiceId(prompter: readline.ReadLine, chainId: string)
   return serviceId;
 }
 
+// Ask if the users wants to (1) generate tokenURI data from a CSV as they scan or (2) paste and existing tokrenURI they already generated
+export async function getTokenUriSource(prompter: readline.ReadLine): Promise<string> {
+  console.log("How would you like to add the tokenURI data? (chip metadata like name, image, descriptions, etc.) ");
+  console.log("1: Input a CSV file with tokenUri data and generate tokenUri data as you scan chips ");
+  console.log("2: Input a tokenUri that you have already generated ");
+  console.log("3: Skip. ");
+
+  const choice = await queryUser(prompter, "Select an option (default is option 3): ");
+
+  if (choice === '1') {
+    return "csv";
+  } else if (choice === '2') {
+    return "uri";
+  }
+  return '';
+}
+
+
 // Original function for getting token URI data
-export async function getTokenURIData(prompter: readline.ReadLine): Promise<string> {
+export async function getTokenUriData(prompter: readline.ReadLine): Promise<string> {
   const tokenURIRoot = await queryUser(
     prompter,
-    "What's the tokenUri root for chips in the project? All chip metadata should be bundled at the same root. "
+    "What's the tokenUri root for expected chips in the project? All chip metadata should be bundled at the same root. "
   );
 
   // lib-ers adds the slash when generating the tokenURI, so we need to remove it if it's there
   return tokenURIRoot[tokenURIRoot.length-1] == "/" ? tokenURIRoot.slice(0,-1) : tokenURIRoot;
+}
+
+export async function getTokenUriCsv(prompter: readline.ReadLine): Promise<string> {
+  const tokenURICsv = await queryUser(
+    prompter,
+    "What's the path to the CSV file containing the tokenUri data? (see README for expected format) "
+  );
+
+  return tokenURICsv;
 }
 
 // Modified function to suggest Enrollment ID

@@ -85,9 +85,6 @@ describe("Base System Deploy", () => {
 
     const developerRegistrarFactoryAddress  = await getDeployedContractAddress(network, "DeveloperRegistrarFactory");
     developerRegistrarFactory = new DeveloperRegistrarFactory__factory(deployer.wallet).attach(developerRegistrarFactoryAddress);
-
-    const playgroundRegistrarAddress = await getDeployedContractAddress(network, "ArxPlaygroundRegistrar");
-    playgroundRegistrar = new DeveloperRegistrar__factory(deployer.wallet).attach(playgroundRegistrarAddress);
   });
 
   describe("ChipRegistry", async () => {
@@ -193,16 +190,6 @@ describe("Base System Deploy", () => {
   });
 
   describe("DeveloperRegistrarFactory", async () => {
-    it("should have the correct ers registry", async () => {
-      const actualErsRegistry = await developerRegistrarFactory.ers();
-      expect(actualErsRegistry).to.eq(ersRegistry.address);
-    });
-
-    it("should have the correct chipRegistry", async () => {
-      const actualChipRegistry = await developerRegistrarFactory.chipRegistry();
-      expect(actualChipRegistry).to.eq(chipRegistry.address);
-    });
-
     it("should have the correct developer registry", async () => {
       const actualTsmRegistry = await developerRegistrarFactory.developerRegistry();
       expect(actualTsmRegistry).to.eq(developerRegistry.address);

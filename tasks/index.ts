@@ -4,5 +4,4 @@ export * from './serviceCreation';
 export * from './projectCreation';
 export * from './transferToken';
 export * from './scanChips';
-export * from './generateTokenUriData';
 export * from './createDeveloperRegistrar';

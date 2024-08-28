@@ -4,28 +4,25 @@ import * as path from 'path';
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment as HRE } from "hardhat/types";
 import { createClient } from '@supabase/supabase-js';
-import { libErs as ERS } from '@arx-research/lib-ers';
 import {
-  Address,
   PBTSimpleProjectRegistrar__factory,
   DeveloperRegistrar__factory,
   calculateLabelHash,
   ProjectChipAddition,
   ManufacturerValidationInfo,
-  createDeveloperCustodyProof,
-  ADDRESS_ZERO,
 } from "@arx-research/ers-contracts/";
 
 import { CreateProject } from "../types/scripts";
 
 import { 
-  createERSInstance,
   getChipTypedSigWithGateway,
   getDeveloperRegistrar,
   getERSRegistry,
   instantiateGateway,
-  saveFilesLocally,
   queryUser,
+  parseTokenUriDataCSV,
+  validateCSVHeaders,
+  renderImageInTerminal,
   rl,
 } from "../utils/scriptHelpers";
 import { getDeployedContractAddress } from '../utils/helpers';
@@ -35,15 +32,24 @@ import {
   getProjectSymbol,
   getServiceTimelock,
   getServiceId,
-  getTokenURIData,
+  getTokenUriSource,
+  getTokenUriCsv,
+  getTokenUriData,
   getEnrollmentId,
   promptProjectRegistrar,
  } from '../utils/prompts/projectCreationPrompts';
-import { MAX_BLOCK_WINDOW } from "../deployments/parameters";
 
 interface ChipInfo {
   chipId: string;
   manufacturerValidation: ManufacturerValidationInfo;
+}
+
+interface ChipData {
+  chipId?: string;
+  name: string;
+  description: string;
+  media_uri: string;
+  media_mime_type: string;
 }
 
 // Initialize Supabase client using environment variables
@@ -66,10 +72,42 @@ task("createProject", "Create a new project")
     const projectChoice = await promptProjectRegistrar(rl, chainId.toString());
     let projectRegistrarAddress: string = projectChoice.id;
     let developerRegistrarAddress: string;
+    let params: CreateProject = {} as CreateProject;
+    
+    // Set empty tokenUriRoot as default
+    params.tokenUriRoot = "ipfs://";
+
+    let chipInfo: ChipInfo[];          // Chip manufacturer validation info
+    let chipDataList: ChipData[] = []; // Chip token URI data
+    let ownershipProofs: string[];     // Ownership proofs for chips    
+    let enrollmentIdLocal: string;     // Enrollment ID for localhost deployment
+
+    // Prompt the user for the token URI root or to scan chips one by one based on a tokenUriData CSV
+    let tokenUriDataChoice = await getTokenUriSource(rl);
+
+    if (tokenUriDataChoice === "csv") {
+      const tokenUriCsv = await getTokenUriCsv(rl);
+
+      // Validate the CSV headers before proceeding
+      try {
+        await validateCSVHeaders(tokenUriCsv);
+        chipDataList = await parseTokenUriDataCSV(tokenUriCsv); // TODO: in this case we need to call the updateTokenURI function after we have scanned all chips
+        console.log("Token URI data parsed from CSV.");
+      } catch (error) {
+        console.error(`CSV Validation Failed: ${JSON.stringify(error)}`);
+        return;
+      }
+
+    } else if (tokenUriDataChoice === "uri") {
+      params.tokenUriRoot = await getTokenUriData(rl);
+      console.log("Token URI data entered.");
+    } else {
+      console.log("No token URI data entered, skipping.");
+    }
 
     if (projectChoice.isNew) {
       // If a new project is to be created, get the parameters and deploy it
-      let params: CreateProject = await getAndValidateParams();
+      params = await getAndValidateParams();
       [projectRegistrarAddress, developerRegistrarAddress] = await deployNewProject(params, developerOwner, hre);
     } else if (projectChoice.artifactFound) {
       // If artifact found, use the artifact data
@@ -78,24 +116,20 @@ task("createProject", "Create a new project")
       // If no artifact found, call on-chain to get the developerRegistrar
       developerRegistrarAddress = await getDeveloperRegistrarFromContract(projectRegistrarAddress, provider);
     }
-    let enrollmentIdLocal: string;
 
     // In the case of a localhost deployment, we request the enrollmentId which will not be saved in Supabase
     if (chainId.eq(31337)) {
       enrollmentIdLocal = await getEnrollmentId(rl, chainId.toString());
     }
-    
+
+    // Instantiate the projectRegistrar
+    const projectRegistrar = new PBTSimpleProjectRegistrar__factory(await hre.ethers.getSigner(developerOwner)).attach(projectRegistrarAddress);
+
     let gate = await instantiateGateway();
 
-    let chipInfo: ChipInfo[];
-    let ownershipProofs: string[];
-
     // Cycle through signing ownership proofs for each chip, getting the chipIDs, and building the chipInfo array     
-    [ ownershipProofs, chipInfo ] = await createOwnershipProofsFromScan()
+    [ownershipProofs, chipInfo] = await createOwnershipProofsFromScan(chipDataList);
 
-    const projectRegistrar = new PBTSimpleProjectRegistrar__factory(await hre.ethers.getSigner(developerOwner)).attach(projectRegistrarAddress);
-    
-    console.log(`ChipInfo: ${JSON.stringify(chipInfo)}`)
     await rawTx({
       from: developerOwner,
       to: projectRegistrarAddress,
@@ -115,6 +149,8 @@ task("createProject", "Create a new project")
       )
     });
     console.log(`Chips added to ProjectRegistrar`);
+
+    // TODO: call the project to update the tokenURI int he case that we  have tokenUriData from a CSV
 
     async function deployNewProject(params: CreateProject, developerOwner: string, hre: HRE): Promise<string[]> {
       const { deploy } = await hre.deployments;
@@ -154,7 +190,7 @@ task("createProject", "Create a new project")
       console.log(`Project ${params.name} added to DeveloperRegistrar`);
 
       // Save the projectRegistrar artifact
-      saveProjectRegistrarArtifact(projectRegistrarDeploy.address, developerRegistrar.address, params, hre);
+      saveProjectRegistrarArtifact(projectRegistrarDeploy.address, developerRegistrar.address, params, chainId.toString());
     
       return [projectRegistrarDeploy.address, developerRegistrar.address];
     }
@@ -175,7 +211,7 @@ task("createProject", "Create a new project")
     }
 
     async function getDeveloperRegistrarAddressFromArtifact(projectRegistrarAddress: string, chainId: string): Promise<string> {
-      const outputDir = path.join(__dirname, `../../task_outputs/createProject`);
+      const outputDir = path.join(__dirname, `../task_outputs/createProject`);
       const artifactPath = path.join(outputDir, `${projectRegistrarAddress}.json`);
     
       if (!fs.existsSync(artifactPath)) {
@@ -192,8 +228,6 @@ task("createProject", "Create a new project")
     }
 
     async function getAndValidateParams(): Promise<CreateProject> {
-      let params: CreateProject = {} as CreateProject;
-
       params.developerRegistrar = await getUserDeveloperRegistrar(rl, chainId.toString());
       params.name = await getProjectName(
         rl,
@@ -201,10 +235,8 @@ task("createProject", "Create a new project")
         await getDeveloperRegistrar(hre, params.developerRegistrar, developerOwner)
       );
       params.tokenSymbol = await getProjectSymbol(rl);
-      params.tokenUriRoot = await getTokenURIData(rl);
       params.lockinPeriod = await getServiceTimelock(rl);
       params.serviceId = await getServiceId(rl, chainId.toString());
-  
       return params;
     }
 
@@ -233,7 +265,7 @@ task("createProject", "Create a new project")
       return data as ManufacturerValidationInfo;
     }
 
-    async function createOwnershipProofsFromScan(): Promise<[string[], ChipInfo[]]> {
+    async function createOwnershipProofsFromScan(chipDataList: ChipData[]): Promise<[string[], ChipInfo[]]> {
       let ownershipProofs: string[] = [];
       let chipInfo: ChipInfo[] = [];
       let i = 0;
@@ -245,7 +277,7 @@ task("createProject", "Create a new project")
         chainId: chainIdNumber,
         verifyingContract: chipRegistry,
       };
-      
+    
       const types = {
         DeveloperCustodyProof: [
           { name: 'developerRegistrar', type: 'address' },
@@ -257,17 +289,54 @@ task("createProject", "Create a new project")
       };
     
       while (true) {
+        const chipData = chipDataList[i];
+    
+        if (chipData) {
+          console.log('\nPlease scan the following chip...\n');
+          // Attempt to render the media if it's a JPEG or PNG image
+          if (chipData.media_mime_type === 'image/jpg' || chipData.media_mime_type === 'image/jpeg' || chipData.media_mime_type === 'image/png') {
+            try {
+                const image = await renderImageInTerminal(chipData.media_uri);
+            } catch (error) {
+                console.log(`Unable to render image from URI: ${chipData.media_uri}. Error: ${error}`);
+            }
+        }
+          console.log(`Name: ${chipData.name}`);
+          console.log(`Description: ${chipData.description}`);
+          console.log(`Media URI: ${chipData.media_uri}`); // TODO: we should grab this and store it if it isn't and IPFS URI
+          console.log(`Media MIME Type: ${chipData.media_mime_type}`);
+          console.log(`Chip ID: ${chipData.chipId || "Not Provided"}`);
+      } else {
+          console.log("Please scan the next chip.");
+      }
+    
         const signResponse = await getChipTypedSigWithGateway(gate, { domain, types, value });
-        console.log(`Ownership proof created for chipId: ${signResponse.etherAddress} with proof: ${signResponse.signature.ether}`)
+
+        // TODO: we should do a lookup for the chip now to see if it exists in chipRegistry, and if so we should skip it and tell them to scan another chip
+    
+        if (chipData && chipData.chipId && chipData.chipId !== signResponse.etherAddress) {
+          console.error(`Scanned chip ID does not match expected chip ID for ${chipData.name}. Please scan the correct chip.`);
+          continue;
+        }
+    
         ownershipProofs.push(signResponse.signature.ether);
     
-        // Fetch enrollment data from Supabase
         const manufacturerValidation = await getEnrollmentData(signResponse.etherAddress);
     
         chipInfo.push({
           chipId: signResponse.etherAddress,
-          manufacturerValidation: manufacturerValidation
+          manufacturerValidation: manufacturerValidation,
         } as ChipInfo);
+    
+        // Save ChipData as JSON if provided
+        if (chipData) {
+          const outputDir = path.join(__dirname, `../task_outputs/createProject/${projectRegistrarAddress}`);
+          if (!fs.existsSync(outputDir)) {
+            fs.mkdirSync(outputDir, { recursive: true });
+          }
+          const chipJsonPath = path.join(outputDir, `${signResponse.etherAddress}.json`);
+          fs.writeFileSync(chipJsonPath, JSON.stringify(chipData, null, 2));
+        }
     
         const continueScanning = await queryUser(rl, "Do you want to continue scanning chips? (y/n): ");
         if (continueScanning.toLowerCase() !== 'y') {
@@ -277,19 +346,24 @@ task("createProject", "Create a new project")
         i++;
       }
     
+      if (chipDataList.length > 0) {
+        // Save the JSON files in a single CAR file
+        // TODO: Implement CAR file creation logic here
+      }
+    
       return [ownershipProofs, chipInfo];
     }
     
   });
 
-  function saveProjectRegistrarArtifact(projectRegistrar: string, developerRegistrar: string, params: CreateProject, hre: HRE) {
-    const outputDir = path.join(__dirname, `../../task_outputs/createProject`);
+  function saveProjectRegistrarArtifact(projectRegistrar: string, developerRegistrar: string, params: CreateProject, chainId: string) {
+    const outputDir = path.join(__dirname, `../task_outputs/createProject`);
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir, { recursive: true });
     }
   
     const artifact = {
-      chainId: hre.network.config.chainId?.toString() || '',
+      chainId: chainId || '',
       projectRegistrar: projectRegistrar,
       developerRegistrar: developerRegistrar,
       name: params.name,
