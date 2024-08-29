@@ -18,10 +18,6 @@ export const CHIP_REGISTRY_DEPLOY: any = {
     "gatewayUrls": [],
     "maxLockinPeriod": BigNumber.from(10)
   },
-  "goerli": {
-    "gatewayUrls": [],
-    "maxLockinPeriod": BigNumber.from(10)
-  },
   "sepolia": {
     "gatewayUrls": ["https://sepolia.ers.run/resolve-unclaimed-data/{sender}/{data}"],
     "maxLockinPeriod": BigNumber.from(10)
@@ -39,7 +35,6 @@ export const CHIP_REGISTRY_DEPLOY: any = {
 export const MAX_BLOCK_WINDOW: any = {
   "localhost": BigNumber.from(5),
   "hardhat": BigNumber.from(5),
-  "goerli": BigNumber.from(5),
   "sepolia": BigNumber.from(5),
   "base": BigNumber.from(100),
   "mainnet": BigNumber.from(5),
@@ -47,7 +42,6 @@ export const MAX_BLOCK_WINDOW: any = {
 
 export const ARX_REGISTRAR_LABEL: any = {
   "localhost": "arx-playground",
-  "goerli": "arx-playground",
   "sepolia": "arx-playground",
   "base": "arx-playground",
   "mainnet": "arx-playground"

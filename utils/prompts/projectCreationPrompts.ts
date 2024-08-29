@@ -10,16 +10,7 @@ import {
 } from "@arx-research/ers-contracts/";
 
 import { queryUser } from "../scriptHelpers";
-import { get } from 'http';
 
-// TODO: create a function that parse a tokenUriData CSV file and return a JSON object
-// chipId,media_uri,media_mime_type,name,description,notes 
-// The chipId may be empty; if it is not empty we should iterate through the data and tell 
-// the user to scan the chip named $name and render the media_uri (or attempt to) in the CLI. 
-// If the chipId is not empty we should prompt the user to scan the chip with that chipId to
-// capture the require proof data. 
-
-// Helper function to get task outputs
 function getTaskOutputs(taskName: string, currentChainId: string): { id: string, model: string }[] {
   const outputDir = path.join(__dirname, `../../task_outputs/${taskName}`);
   if (!fs.existsSync(outputDir)) {
@@ -28,42 +19,48 @@ function getTaskOutputs(taskName: string, currentChainId: string): { id: string,
 
   const files = fs.readdirSync(outputDir);
   return files
+    .filter(file => path.extname(file).toLowerCase() === '.json') // Only process .json files
     .map((file) => {
-      const content = JSON.parse(fs.readFileSync(path.join(outputDir, file), 'utf8'));
+      try {
+        const content = JSON.parse(fs.readFileSync(path.join(outputDir, file), 'utf8'));
 
-      // Filter by chainId
-      if (content.chainId !== currentChainId) {
-        return null; // Skip non-matching chainId
-      }
+        // Filter by chainId
+        if (content.chainId !== currentChainId) {
+          return null; // Skip non-matching chainId
+        }
 
-      switch (taskName) {
-        case 'createDeveloperRegistrar':
-          return {
-            id: content.developerRegistrar || 'Unknown',
-            model: `Name: ${content.name}`
-          };
+        switch (taskName) {
+          case 'createDeveloperRegistrar':
+            return {
+              id: content.developerRegistrar || 'Unknown',
+              model: `Name: ${content.name}`
+            };
 
-        case 'addManufacturerEnrollment':
-          const manufacturerName = lookupManufacturerName(content.manufacturerId);
-          return {
-            id: content.enrollmentId || 'Unknown',
-            model: `Manufacturer: ${manufacturerName || content.manufacturerId}`
-          };
+          case 'addManufacturerEnrollment':
+            const manufacturerName = lookupManufacturerName(content.manufacturerId);
+            return {
+              id: content.enrollmentId || 'Unknown',
+              model: `Manufacturer: ${manufacturerName || content.manufacturerId}`
+            };
 
-        case 'createService':
-          return {
-            id: content.serviceId || 'Unknown',
-            model: content.serviceName || 'Unknown'
-          };
-        
-        case 'createProject':
-          return {
-            id: content.projectRegistrar || 'Unknown',
-            model: content.name || 'Unknown'
-          };
+          case 'createService':
+            return {
+              id: content.serviceId || 'Unknown',
+              model: content.serviceName || 'Unknown'
+            };
+          
+          case 'createProject':
+            return {
+              id: content.projectRegistrar || 'Unknown',
+              model: content.name || 'Unknown'
+            };
 
-        default:
-          return null; // Return null for any unhandled cases
+          default:
+            return null; // Return null for any unhandled cases
+        }
+      } catch (error) {
+        console.error(`Failed to process file ${file}:`, error);
+        return null;
       }
     })
     .filter((output): output is { id: string, model: string } => output !== null); // Filter out null results and enforce correct typing
@@ -296,13 +293,73 @@ export async function getTokenUriData(prompter: readline.ReadLine): Promise<stri
   return tokenURIRoot[tokenURIRoot.length-1] == "/" ? tokenURIRoot.slice(0,-1) : tokenURIRoot;
 }
 
-export async function getTokenUriCsv(prompter: readline.ReadLine): Promise<string> {
-  const tokenURICsv = await queryUser(
-    prompter,
-    "What's the path to the CSV file containing the tokenUri data? (see README for expected format) "
-  );
+const TASK_PARAMS_DIR = path.join(__dirname, '../../task_params');
 
-  return tokenURICsv;
+export async function getTokenUriCsv(rl: readline.Interface): Promise<string> {
+  while (true) {
+    // List all .csv files in the task_params directory
+    const csvFiles = await listCsvFilesInDirectory(TASK_PARAMS_DIR);
+
+    if (csvFiles.length > 0) {
+      console.log("Available CSV files in 'task_params' directory:");
+      csvFiles.forEach((file, index) => console.log(`${index + 1}: ${file}`));
+    } else {
+      console.log("No CSV files found in 'task_params' directory.");
+    }
+
+    // Prompt user to either select a file by number or enter a custom CSV file path
+    const input = await promptUserForCsvInput(rl);
+
+    // Determine if the input is a selection or a file path
+    let filePath: string;
+    if (input.match(/^\d+$/)) {
+      const fileIndex = parseInt(input) - 1;
+      if (fileIndex >= 0 && fileIndex < csvFiles.length) {
+        filePath = path.join(TASK_PARAMS_DIR, csvFiles[fileIndex]);
+      } else {
+        console.error("Invalid selection. Please try again.");
+        continue;
+      }
+    } else if (input.toLowerCase().endsWith('.csv')) {
+      filePath = path.isAbsolute(input) ? input : path.resolve(input);
+    } else {
+      console.error("Invalid input. Please enter a valid CSV file name or path.");
+      continue;
+    }
+
+    try {
+      const stat = await fs.promises.stat(filePath);
+      if (stat.isDirectory()) {
+        console.error(`The path provided is a directory, not a file: ${filePath}`);
+        continue;
+      }
+
+      // Check if the file exists
+      await fs.promises.access(filePath, fs.constants.F_OK);
+      console.log(`File found at: ${filePath}`);
+      return filePath;
+    } catch (error) {
+      console.error(`Cannot locate or open file at: ${filePath}. Please try again.`);
+    }
+  }
+}
+
+async function listCsvFilesInDirectory(directory: string): Promise<string[]> {
+  try {
+    const files = await fs.promises.readdir(directory);
+    return files.filter(file => path.extname(file).toLowerCase() === '.csv');
+  } catch (error) {
+    console.error(`Error reading directory: ${directory}`, error);
+    return [];
+  }
+}
+
+async function promptUserForCsvInput(rl: readline.Interface): Promise<string> {
+  return new Promise((resolve) => {
+    rl.question("Select a file by number or enter a CSV file name/path: ", (answer) => {
+      resolve(answer.trim());
+    });
+  });
 }
 
 // Modified function to suggest Enrollment ID

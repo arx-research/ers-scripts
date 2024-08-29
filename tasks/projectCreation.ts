@@ -18,11 +18,15 @@ import {
   getChipTypedSigWithGateway,
   getDeveloperRegistrar,
   getERSRegistry,
+  getChipRegistry,
   instantiateGateway,
   queryUser,
   parseTokenUriDataCSV,
   validateCSVHeaders,
   renderImageInTerminal,
+  uploadDirectoryToIPFS,
+  uploadFileToIPFS,
+  getAllFiles,
   rl,
 } from "../utils/scriptHelpers";
 import { getDeployedContractAddress } from '../utils/helpers';
@@ -91,7 +95,7 @@ task("createProject", "Create a new project")
       // Validate the CSV headers before proceeding
       try {
         await validateCSVHeaders(tokenUriCsv);
-        chipDataList = await parseTokenUriDataCSV(tokenUriCsv); // TODO: in this case we need to call the updateTokenURI function after we have scanned all chips
+        chipDataList = await parseTokenUriDataCSV(tokenUriCsv);
         console.log("Token URI data parsed from CSV.");
       } catch (error) {
         console.error(`CSV Validation Failed: ${JSON.stringify(error)}`);
@@ -129,6 +133,35 @@ task("createProject", "Create a new project")
 
     // Cycle through signing ownership proofs for each chip, getting the chipIDs, and building the chipInfo array     
     [ownershipProofs, chipInfo] = await createOwnershipProofsFromScan(chipDataList);
+    // TODO: we should take the ownership proofs and add them back to the tokenURI csv file under "developerProof"
+
+    // Upload token URI data to IPFS and update the ProjectRegistrar
+    const directoryPath = path.resolve(`task_outputs/createProject/${projectRegistrarAddress}/tokenUri`);
+   
+    if (fs.existsSync(directoryPath)) {
+      const chipTokenUriFiles = (await getAllFiles(directoryPath)).filter(file => path.extname(file.path) === '.json');
+  
+      // Upload the directory to IPFS
+      const ipfsObject = await uploadDirectoryToIPFS(directoryPath, projectRegistrarAddress);
+      const ipfsBaseUri = `ipfs://${ipfsObject.cid}/`;
+      console.log(`Token URI data uploaded to IPFS: ${ipfsBaseUri}`);
+  
+      if(ipfsBaseUri) {
+        // Call the setBaseURI function to update the token URI base in the ProjectRegistrar
+        await rawTx({
+          from: developerOwner,
+          to: projectRegistrarAddress,
+          data: projectRegistrar.interface.encodeFunctionData(
+            "setBaseURI",
+            [ipfsBaseUri]
+          )
+        });
+        console.log(`Token URI base updated to ${ipfsBaseUri}`);
+      } else {
+        console.log(`No tokenURI data was found, not updating contract.`);
+      }
+
+    }
 
     await rawTx({
       from: developerOwner,
@@ -149,8 +182,6 @@ task("createProject", "Create a new project")
       )
     });
     console.log(`Chips added to ProjectRegistrar`);
-
-    // TODO: call the project to update the tokenURI int he case that we  have tokenUriData from a CSV
 
     async function deployNewProject(params: CreateProject, developerOwner: string, hre: HRE): Promise<string[]> {
       const { deploy } = await hre.deployments;
@@ -288,8 +319,21 @@ task("createProject", "Create a new project")
         developerRegistrar: developerRegistrarAddress
       };
     
+      // TODO: we should match the number of chips scanned to the metadata; if we have iterated through all the metadata we should stop scanning and indicate the count of chips scanned
       while (true) {
         const chipData = chipDataList[i];
+        const chipRegistry = await getChipRegistry(hre, developerOwner);
+
+        if (chipData && chipData.chipId) {
+          // Check if chip already exists in the chip registry
+          const existingChipInfo = await chipRegistry.chipEnrollments(chipData.chipId);
+          
+          if (existingChipInfo.chipEnrolled) {
+            console.log(`Chip with ID ${chipData.chipId} is already enrolled, skipping.`);
+            i++;
+            continue;
+          }
+        }
     
         if (chipData) {
           console.log('\nPlease scan the following chip...\n');
@@ -303,7 +347,7 @@ task("createProject", "Create a new project")
         }
           console.log(`Name: ${chipData.name}`);
           console.log(`Description: ${chipData.description}`);
-          console.log(`Media URI: ${chipData.media_uri}`); // TODO: we should grab this and store it if it isn't and IPFS URI
+          console.log(`Media URI: ${chipData.media_uri}`);
           console.log(`Media MIME Type: ${chipData.media_mime_type}`);
           console.log(`Chip ID: ${chipData.chipId || "Not Provided"}`);
       } else {
@@ -312,13 +356,30 @@ task("createProject", "Create a new project")
     
         const signResponse = await getChipTypedSigWithGateway(gate, { domain, types, value });
 
-        // TODO: we should do a lookup for the chip now to see if it exists in chipRegistry, and if so we should skip it and tell them to scan another chip
-    
         if (chipData && chipData.chipId && chipData.chipId !== signResponse.etherAddress) {
           console.error(`Scanned chip ID does not match expected chip ID for ${chipData.name}. Please scan the correct chip.`);
           continue;
         }
-    
+
+        // Check if chip already exists in the chip registry
+        const existingChipInfo = await chipRegistry.chipEnrollments(signResponse.etherAddress);
+        
+        if (existingChipInfo.chipEnrolled) {
+          console.log(`Chip with ID ${signResponse.etherAddress} is already enrolled. Please scan another chip.`);
+          i++;
+          continue;
+        }
+
+        // Upload chip media to IPFS, if needed
+        if (
+          !chipData.media_uri.startsWith('ipfs://') &&
+          !chipData.media_uri.startsWith('https://') &&
+          !chipData.media_uri.startsWith('http://')
+        ) {
+          const uploadedMedia = await uploadFileToIPFS(chipData.media_uri);
+          chipData.media_uri = `ipfs://${uploadedMedia.cid}`;  // Assuming the CID is returned in the format `{ cid: '...' }`
+        }
+          
         ownershipProofs.push(signResponse.signature.ether);
     
         const manufacturerValidation = await getEnrollmentData(signResponse.etherAddress);
@@ -330,7 +391,7 @@ task("createProject", "Create a new project")
     
         // Save ChipData as JSON if provided
         if (chipData) {
-          const outputDir = path.join(__dirname, `../task_outputs/createProject/${projectRegistrarAddress}`);
+          const outputDir = path.join(__dirname, `../task_outputs/createProject/${projectRegistrarAddress}/tokenUri`);
           if (!fs.existsSync(outputDir)) {
             fs.mkdirSync(outputDir, { recursive: true });
           }
@@ -344,11 +405,6 @@ task("createProject", "Create a new project")
         }
     
         i++;
-      }
-    
-      if (chipDataList.length > 0) {
-        // Save the JSON files in a single CAR file
-        // TODO: Implement CAR file creation logic here
       }
     
       return [ownershipProofs, chipInfo];

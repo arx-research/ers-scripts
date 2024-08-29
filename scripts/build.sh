@@ -4,4 +4,3 @@ set -o errexit
 
 yarn copy-contracts
 yarn transpile
-

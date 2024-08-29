@@ -1,6 +1,5 @@
 import { ethers } from "ethers";
 import { HaloGateway } from "@arx-research/libhalo/api/desktop.js";
-import axios from "axios";
 import terminalImage from 'terminal-image';
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
@@ -12,6 +11,12 @@ import fs from "fs";
 import * as readline from 'readline';
 
 import csv from 'csv-parser';
+
+import { ObjectManager } from "@filebase/sdk";
+
+const objectManager = new ObjectManager("E4CD6EF84A5448129CAF", "0AlYp2TRAw89PEgadZZGOkFjly38Z3AT7MZ0QUIb", {
+  bucket: "ers-scripts-demo"
+});
 
 interface ChipData {
   chipId?: string;
@@ -45,25 +50,56 @@ import { KeysFromChipScan } from "../types/scripts";
 
 dotenv.config();
 
-// export async function uploadFilesToIPFS(files: File[]): Promise<CIDString> {
-//   const nftStorageApiKey = process.env.NFT_STORAGE_API_KEY;
-//   if(!nftStorageApiKey){
-//     throw new Error("NFT_STORAGE_API_KEY environment variable not set");
-//   }
+export async function getAllFiles(dirPath: string): Promise<{ path: string, content: fs.ReadStream }[]> {
+  const filesArray: { path: string, content: fs.ReadStream }[] = [];
 
-//   const client = new NFTStorage({ token: nftStorageApiKey })
-//   // const cid = await client.storeDirectory(files);
-//   const { cid, car } = await NFTStorage.encodeDirectory(files)
-//   console.log(`File CID: ${cid}`)
+  async function readDir(directory: string) {
+    const files = await fs.promises.readdir(directory, { withFileTypes: true });
 
-//   console.log('Sending file...')
-//   await client.storeCar(car, {
-//     maxChunkSize: 1024 * 1024 * 25, // 25MB
-//     onStoredChunk: (size) => console.log(`Stored a chunk of ${size} bytes`)
-//   })
+    for (const file of files) {
+      const fullPath = path.join(directory, file.name);
+      if (file.isDirectory()) {
+        await readDir(fullPath); // Recursively read the directory
+      } else {
+        filesArray.push({ path: fullPath, content: fs.createReadStream(fullPath) });
+      }
+    }
+  }
 
-//   return cid as unknown as CIDString;
-// }
+  await readDir(dirPath);
+  return filesArray;
+}
+
+export async function uploadDirectoryToIPFS(directoryPath: string, uploadName: string): Promise<any> {
+  try {
+    // Ensure the path is absolute
+    const absolutePath = path.resolve(directoryPath);
+    const filesArray = (await getAllFiles(absolutePath)).filter(file => path.extname(file.path) === '.json');
+    const uploadedObject = await objectManager.upload(uploadName, filesArray, undefined, undefined);
+    return uploadedObject;
+  } catch (error) {
+    console.error("Error uploading files:", error);
+    throw error;
+  }
+}
+
+export async function uploadFileToIPFS(filePath: string): Promise<any> {
+  try {
+    // Ensure the path is absolute
+    console.log("Uploading file to IPFS:", filePath);
+    const absoluteFilePath = path.resolve(filePath);
+    const fileName = path.basename(absoluteFilePath);  // Extract the file name from the path
+    const fileStream = fs.createReadStream(absoluteFilePath);  // Create a read stream for the file
+
+    const uploadedObject = await objectManager.upload(fileName, fileStream, undefined, undefined);
+    return uploadedObject;
+  } catch (error) {
+    console.error("Error uploading file:", error);
+    throw error;
+  }
+}
+
+// TODO: create an uploadFileToIPFS function that takes a file path and uploads it to IPFS
 
 export async function saveFilesLocally(directoryRoot: string, files: File[]): Promise<void> {
   fs.mkdirSync(`task_outputs/${directoryRoot}`, { recursive: true });
@@ -73,10 +109,6 @@ export async function saveFilesLocally(directoryRoot: string, files: File[]): Pr
     fs.writeFileSync(filePath, await files[i].text(), { flag: 'w' });
   }
 }
-
-// export function createIpfsAddress(cid: CIDString): string {
-//   return `ipfs://${cid}`;
-// }
 
 export async function instantiateGateway(): Promise<any> {
   let gate = new HaloGateway('wss://s1.halo-gateway.arx.org', {
@@ -202,16 +234,6 @@ export async function getManufacturerRegistry(
   return manufacturerRegistry;
 }
 
-// export async function createERSInstance(hre: any): Promise<ERS> {
-//   const ersConfig: ERSConfig = {
-//     chipRegistry: getDeployedContractAddress(hre.network.name, "ChipRegistry") as `0x${string}`,
-//     servicesRegistry: getDeployedContractAddress(hre.network.name, "ServicesRegistry") as `0x${string}`,
-//     ersRegistry: getDeployedContractAddress(hre.network.name, "ERSRegistry") as `0x${string}`,
-//   };
-//   // console.log(await hre.viem.getWalletClients());
-//   return new ERS((await hre.viem.getWalletClients())[0], ersConfig);
-// }
-
 export const stringToBytes = (content: string): string => {
   return ethers.utils.hexlify(Buffer.from(content));
 }
@@ -256,7 +278,7 @@ export async function parseTokenUriDataCSV(filePath: string): Promise<ChipData[]
 
 export async function validateCSVHeaders(filePath: string): Promise<void> {
   const expectedHeaders: string[] = ['chipId', 'media_uri', 'media_mime_type', 'name', 'description'];
-  const optionalHeaders: string[] = ['notes'];
+  const optionalHeaders: string[] = ['notes', 'edition', 'developerProof', 'repeatMetadata'];
 
   try {
     await fs.promises.access(filePath);

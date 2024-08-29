@@ -16,7 +16,5 @@ yarn-error.log
 /dist
 
 # Don't commit task param files other than defaults
-/task_params/addManufacturerEnrollment.json
-/task_params/projectCreation.json
-/task_params/claimChip.json
+/task_params/
 /task_outputs/

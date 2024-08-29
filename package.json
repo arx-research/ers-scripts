@@ -13,11 +13,11 @@
     "build": "./scripts/build.sh",
     "chain": "npx hardhat node --no-deploy",
     "clean-artifacts": "rm -rf contracts artifacts external cache",
+    "clean-task-outputs": "rm -rf task_outputs",
     "copy-contracts": "./scripts/copy_contracts.sh",
     "deploy:localhost:clean": "rm -rf deployments/localhost && yarn deploy:localhost",
     "deploy:localhost": "npx hardhat deploy --network localhost --no-compile",
     "deploy:base": "npx hardhat deploy --network base --no-compile && npx hardhat export --network base --export ./deployments/outputs/baseContracts.ts",
-    "deploy:goerli": "npx hardhat deploy --network goerli --no-compile && npx hardhat export --network goerli --export ./deployments/outputs/goerliContracts.ts",
     "deploy:sepolia": "npx hardhat deploy --network sepolia --no-compile && npx hardhat export --network sepolia --export ./deployments/outputs/sepoliaContracts.ts",
     "etherscan:base": "yarn hardhat --network base etherscan-verify --license MIT --solc-input",
     "etherscan:goerli": "yarn hardhat --network goerli etherscan-verify --license MIT --solc-input",
@@ -65,8 +65,9 @@
     "typescript": ">=4.5.0"
   },
   "dependencies": {
-    "@arx-research/ers-contracts": "^2.0.0",
+    "@arx-research/ers-contracts": "^2.0.2",
     "@arx-research/libhalo": "1.2.33",
+    "@filebase/sdk": "^1.0.4",
     "@nomicfoundation/hardhat-viem": "^1.0.1",
     "@nomiclabs/hardhat-etherscan": "^3.1.7",
     "@supabase/supabase-js": "^2.45.0",

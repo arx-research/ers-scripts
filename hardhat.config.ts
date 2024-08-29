@@ -32,24 +32,6 @@ const config: HardhatUserConfig = {
       gas: 12000000,
       blockGasLimit: 12000000,
     },
-    goerli: {
-      url: "https://goerli.infura.io/v3/" + process.env.INFURA_TOKEN,
-      // @ts-ignore
-      accounts: [
-        `0x${process.env.TESTNET_DEPLOY_PRIVATE_KEY}`,
-        `0x${process.env.TESTNET_MANUFACTURER_PRIVATE_KEY}`,
-        `0x${process.env.TESTNET_MANUFACTURER_SIGNER_PRIVATE_KEY}`,
-        `0x${process.env.TESTNET_SERVICE_CREATOR_PRIVATE_KEY}`,
-        `0x${process.env.TESTNET_PROJECT_OWNER_PRIVATE_KEY}`,
-        `0x${process.env.TESTNET_PROJECT_PUBLIC_PRIVATE_KEY}`,
-        `0x${process.env.TESTNET_CHIP_OWNER_PRIVATE_KEY}`,
-      ],
-      verify: {
-        etherscan: {
-          apiKey: process.env.ETHERSCAN_KEY
-        }
-      },
-    },
     sepolia: {
       url: "https://sepolia.infura.io/v3/" + process.env.INFURA_TOKEN,
       // @ts-ignore
