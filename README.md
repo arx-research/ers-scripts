@@ -8,7 +8,7 @@ Scripts for deploying and interacting with the Ethereum Reality Service ("ERS") 
 cp .env.default .env
 ```
 3. Fill out the resulting fields in the `.env` file with the appropriate values. 
-4. Get [a NFT.Storage API key](https://nft.storage/docs/quickstart/#get-an-api-token). Add this to `NFT_STORAGE_API_KEY` in `.env`. NFT.Storage is used to pin IPFS enrollment data.
+4. You will need a `SUPABASE_ANON_KEY` in order to access Arx manufacturer enrollments and a  
 5. If you are deploying against a non-local blockchain network, add the private keys for the accounts that you wish to use (e.g. `TESTNET_SERVICE_CREATOR_PRIVATE_KEY`).
 6. In order to deploy or run scripts there needs to be a valid node to interact with. If you are testing and planning on running locally you can start the `localhost` network by running `yarn chain`, this opens up a local node at the default port `8545`.
 
@@ -45,106 +45,76 @@ Note: If you are working with locally modified `ers-contracts` you may need to l
 2. `yarn clean-artifacts`
 3. `yarn build`
 
-## Arx Manufacturer Enrollments
-WIP.
-
 ## Using Scripts
 
-0. If using `ers-scripts` against a deployed version of ERS, download the Arx `manufacturerEnrollments` for the appropriate chain using `getArxManufacturerEnrollments`.
+0. If using `ers-scripts` for localhost testing, see `ManufacturerUsage.md` for more details on creating a mock manufacturer and enrollment.
 1. Create a service: `createService` with the options indicated below. A service is the `contentApp` that you want to redirect a chip to (e.g. a decentralized app hosted on IPFS, a centralized app hosted at a URL).
-2. Generate tokenUriData: `generateTokenUriData` with the options indicated below. This will generate media associated with a chip, similar to the tokenUriData that would be typically associated with an NFT. If you are simple using the chip for a redirect you may not need this data.
-3. Create a project: `createProject` maps chips to a `serviceId` and adds associated `tokenUriData`.  Once enrolled, the chip should redirect when tapped to the `contentApp` provided.
-4. Claim a chip: `claimChip` allows the end user of a chip to claim ownership, which may or may not be necessary depending on the end use case.
+2. Create a project: `createProject` maps chips to a `serviceId` and adds associated `tokenUriData` (recommended, but optional).  Once enrolled, the chip should redirect when tapped to the `contentApp` provided. Some content apps may be designed to render the `tokenUriData`.
+3. Claim a chip: `transferToken` allows the end user of a chip to claim ownership of the associated chip [PBT](https://eips.ethereum.org/EIPS/eip-5791), which may or may not be necessary depending on the end use case.
 
-In order to use scripts you need to be sure that there are valid deployments in the environment you are deploying to (see previous section for information on this). Once you have a valid deployment in your chosen environment you can start running scripts. It is worth noting that these scripts build on each other, so if you're starting from a clean deployment you need first run the scripts in the `ManufacturerUsage` file then continue with the scripts below.
+In order to use scripts, first ensure that there are valid deployments in the environment you are deploying to (see `Deployments` above). It is worth noting that these scripts build on each other, each step creating artifacts in `task_outputs` that can be easily selected for use in the subsequent steps. You may wish to backup `task_outputs` periodically as some artifacts, such as those used for building `tokenUri` data, may be difficult to rebuild from scratch if removed.
 
 ### createService
-This script creates a [service](https://docs.ers.to/overview/concepts/services) that can be assigned to chips in the project enrollment process. It requires one argument:
-1. `network`: The network you want to interact with (defaults to `hardhat`)
+This script creates a [service](https://docs.ers.to/overview/concepts/services) that can be assigned to chips in the project enrollment process.
 
 It will prompt you for several pieces of information:
 1. `service-name`: The name of the service
 2. `content`: URL/URI of the content app; in the case of a simple redirect this would be an `http` resource like `https://app.arx.org` where a chip may be scanned. For IPFS, this would be 
 3. `append-id`: Indicate whether chipId should be appended to the content app URL/URI. This is useful for NFT/PBT applications where every chip might reference unique metadata and required if you are using the output of the `generateTokenUriData` for `tokenUri` data in your project.
 
+Arguments:
+`network`: The network you want to interact with (defaults to `hardhat`)
+
 Example:
 ```bash
 yarn createService --network [network]
 ```
 
-Note that the service creation function is narrowly scoped to only creating a service with a contentApp record. Also the resulting `serviceId` will be printed in the console as part of a successful transaction.
+Note that the resulting `serviceId` will be printed in the console as part of a successful transaction.
 
-### generateTokenUriData
-This script creates formatted tokenUriData for chips in the project.
+### createDeveloperRegistrar
+This script creates your named developerRegistrar in the `.ers` namespace (e.g. `brand.ers`).
 
-1. `network`: The network you want to interact with (defaults to `hardhat`)
-2. `scan`: The number of chips that you wish to scan and generate tokenUriData for.
+It will prompt you for your desired developer name.
 
-The script is designed to generate JSON formatted `tokenUri` data including a `name`, `description` and `media` that can be used for a project. The script will prompt to generate either unique data on a chip by chip basis, or it can use the same data for all chips scanned. Once input, the data is JSON formatted and output to `task_outputs/tokenUriData`.
+Arguments:
+`network`: The network you want to interact with (defaults to `hardhat`)
 
-The successful completion of the task returns a CID that can be used for the `tokenUriRoot` in `projectCreation.json`.
-
-Example Result:
-```json
-// The file ../tokenUriData/0x74540fbb49721a53D5DEC9f60b04f33fd38aD0Ae.json where the filename is the chipId
-
-{"name":"HaLo PBT","description":"A terrific HaLo PBT","media":"https://docs.arx.org/videos/chip.mp4"}
-```
-
-*Notes:* If being used to generate data for a service with a `tokenUri` record, `generateTokenUrilData` anticipates that the `append-id` option for the chip's service was set to `true`.
-
-It is possible to encode fully onchain `tokenUri` data (e.g. `data:application/json;utf8,[...]`), however, neither this script nor `createProject` are currently designed to support preparing data in that way.
-
-### createProject
-This script creates a [project](https://docs.ers.to/overview/concepts/developers#adding-projects) and enrolls chips in the project. Similarly to `addManufacturerEnrollment` it takes in two arguments:
-1. `network`: The network you want to interact with (defaults to `hardhat`)
-2. `post`: Whether or not to post the project to IPFS (defaults to `false`)
-Additionally this script uses a param file that can be found under `task_params/projectCreation.json`. This file contains the information that will be used to create the project. If the file doesn't exist you can create it by running:
-```bash
-cp task_params/projectCreation.default.json task_params/projectCreation.json
-```
-
-This newly created file is `.gitignore`d so you can edit it without worrying about committing it to the repo. In the file you will see the following params that can be edited:
-```
-{
-    "name": .ers name for the project
-    "tokenUriRoot": tokenUri root for chips in the project,
-    "lockinPeriod": lockinPeriod in seconds,
-    "serviceId": Primary service ID for the project,
-}
-```
-
-You will be prompted to scan a QR code scanner to create ownership proofs for the chips and sign the message for the proving chip. Scan the QR code on your smartphone and follow the prompts to capture chip data. You can scan your chip by tapping it to the NFC reader on the back of your smartphone.
-
-```
 Example:
 ```bash
-yarn createProject --network [network] --post [true/false]
+yarn createDeveloperRegistrar --network [network]
 ```
 
-**Outputs:** If `--post false` is included in the command the files that would be posted to IPFS will be saved in the `task_outputs/projectEnrollment/` directory.
+Note: Most common names are reserved, and if not reserved a name will be checked to match the enrolling developer address with the ENS owner address. If you would like to enroll using a reserved name, please contact names@ers.to -- note that trademarks, well known brand names and domain history are all factors that will be considered when requesting a reserved name.
 
-### claimChip
-This script [claims a chip](https://docs.ers.to/overview/concepts/chip-claim) that has been enrolled in a project. To run this script, you need to have the chip you want to claim and need to select the environment you are looking to claim it in by specifying the following argument:
-1. `network`: The network you want to interact with (defaults to `hardhat`)
+### createProject
+This script creates a [project](https://docs.ers.to/overview/concepts/developers#adding-projects) and enrolls chips in the project.
 
-Additionally this script uses a param file that can be found under `task_params/claimChip.json`. This file contains the information that will be used to create the project. If the file doesn't exist you can create it by running:
+It will prompt you for several pieces of information:
+1. Whether or not you wish to create a new project or add chips to an existing project; if you select an existing project, artifacts in `task_outputs` will be used to suggest options or you can manually enter the address of an existing project. (both cases will be chain specific based on the `network` argument)
+2. How you would like to add `tokenUri` data: via a formatted CSV, using an existing URL, or skip. (this can be updated after contract deployment)
+3. If you are on `localhost`, you will be prompted to select a manufacturer enrollment as well. For other chains this information comes from the hosted Arx enrollment data on Supabase.
+
+You will be prompted to scan a QR code on your NFC-enabled smartphone; scan the QR code on your smartphone and follow the prompts to capture chip proof data. You can scan your chip by tapping it to the NFC reader on the back of your smartphone.
+
+Arguments:
+`network`: The network you want to interact with (defaults to `hardhat`)
+
+Example:
 ```bash
-cp task_params/claimChip.default.json task_params/claimChip.json
+yarn createProject --network [network]
 ```
 
-This newly created file is `.gitignore`d so you can edit it without worrying about committing it to the repo. In the file you will see the following parameters that can be edited:
-```
-{
-    "name": ERS name you want to tie to the chip,
-    "chipClaimDataLocation": local path to the chipData (version of this is created in createProject and saved in task_outputs/projectEnrollment),
-    "manufacturerValidationLocation": local path to the folder containing manufacturerValidation data (this is auto-saved locally in task_outputs/addManufacturerEnrollment/). Additionally, an IPFS hash can be provided from which data posted in addManufacturerEnrollment can be retrieved.
-}
-```
+Note: If you are creating `tokenUri` data from a formatted CSV, make sure that you backup `task_outputs`. When chips are added to an existing project, `task_outputs` will be used to ensure that metadata from previously added chips is included in the final `tokenUri` data. If this data is missing, metadata with previously enrollment chips will be overwritten and their `tokenUri` will not resolve when looked up. 
 
-You will be prompted by a QR code scanner to scan the chip to get the `chipId`. Scan the QR code on your smartphone and follow the prompts to capture chip data. You can scan your chip by tapping it to the NFC reader on the back of your smartphone. You will also be prompted to scan the chip to sign an ownership message that ties the chip to the claiming address, follow the same scanning instructions.
+### transferToken
+This script [claims ownership of a chip](https://docs.ers.to/overview/concepts/chip-claim) that has been enrolled in a project by transfering it to a new owner.
 
-```
+You will be prompted by a QR code scanner to scan the chip to get the `chipId` and to create a `transferToken` signature. Scan the QR code on your smartphone and follow the prompts to capture chip data. You can scan your chip by tapping it to the NFC reader on the back of your smartphone.
+
+Arguments:
+`network`: The network you want to interact with (defaults to `hardhat`)
+
 Example:
 ```bash
 yarn claimChip --network [network]

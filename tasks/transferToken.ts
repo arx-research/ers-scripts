@@ -4,8 +4,6 @@ import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment as HRE, HardhatRuntimeEnvironment } from "hardhat/types";
 import {
   Address,
-  calculateLabelHash,
-  ManufacturerValidationInfo
 } from "@arx-research/ers-contracts";
 
 import {
@@ -43,22 +41,16 @@ task("transferToken", "Transfer a chip PBT enrolled in an ERS project")
 
     const projectRegistrar = await getProjectRegistrar(hre, chipOwner, params.projectRegistrar);
     
-    const chainId = BigNumber.from(await hre.getChainId());
     const commitBlock = await hre.ethers.provider.getBlock("latest");
 
     const packedMsg = ethers.utils.solidityPack(
       ["address", "bytes32", "bytes"],
       [chipOwner, commitBlock.hash, "0x"]
     );
-  
-    console.log(`Packed message: ${packedMsg.toString()}`)
 
     console.log(`Please scan your chip to create the chip ownership proof for ${params.chipId}...`);
     const chipOwnershipProof = (await getChipMessageSigWithGateway(gate, packedMsg)).signature.ether;
-    console.log(`Chip ownership proof: ${chipOwnershipProof}`);
 
-
-    // TODO: change to transferToken tx
     console.log(`Submitting transfer for ${params.chipId}...`);
     await rawTx({
       from: chipOwner,
@@ -77,8 +69,8 @@ task("transferToken", "Transfer a chip PBT enrolled in an ERS project")
 
     // Final check to verify the new owner
     const newOwner = await chipRegistry.ownerOf(params.chipId);
-    console.log(`New owner of chip ${params.chipId} is: ${newOwner}`);
 
+    // Ensure the desired new owner is the actual new owner
     if (newOwner === chipOwner) {
       console.log(`Ownership transfer successful. New owner is: ${newOwner}`);
     } else {

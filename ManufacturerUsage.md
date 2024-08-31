@@ -1,11 +1,13 @@
 # Manufacturer Usage
-See README for general usage and protocol deployment tips. This document will focus more on actions that manufacturers can take like enrolling their own chips.
+See `README.md` for general usage and protocol deployment tips. This document will focus more on actions that manufacturers can take like enrolling their own chips. Typically ERS users will not need to run through these scripts unless they wish to deploy a local instance of ERS.
 
 ## Using Scripts
 In order to use scripts you need to be sure that there are valid deploments in the environment you are deploying to (see previous section for information on this). Once you have a valid deployment in your chosen environment you can start running scripts. It is worth noting that these scripts build on each other, so if you're starting from a clean deployment you need to run them in the order below.
 
 ### addManufacturer
-This script adds a manufacturer to the ERS protocol. It takes in three arguments:
+This script adds a manufacturer to the ERS protocol.=
+
+Arguments:
 1. `network`: The network you want to interact with (defaults to `hardhat`)
 2. `manufacturer-name`: The name of the manufacturer
 3. `manufacturer`: The address of the manufacturer. **Exclude for Localhost**, If it is not included the second address in the specified network's accounts array will be used (see managing accounts section for more information on this).
@@ -19,23 +21,18 @@ Additionally there is a specific `localhost` version of this script that can be 
 yarn addManufacturer:localhost --manufacturer-name [name] --manufacturer [address]
 ```
 ### addManufacturerEnrollment
-This script adds an enrollment for a manufacturer to the ERS protocol. It takes one argument:
-1. `network`: The network you want to interact with (defaults to `hardhat`)
+This script adds an enrollment for a manufacturer to the ERS protocol. You will be prompted to answer a number of questions about the chip enrollment including:
+1. `chainId`
+2. `manufacturerSigner` (the address the signed th)
+3. `manufacturerId` (available from the previous step)
+4. `authModel` (the auth model of the chips, typically the address of the deployed `SECP256k1Model` contract)
+5. `enrollmentAuthModel` (the auth model of the enrollment, typically `EnrollmentEIP191Model` for Arx chips)
+6. `bootloaderApp` (fallback URL to resolve the chips to)
+7. `chipModel` (the model of the chip)
 
-Additionally this script uses a param file that can be found under `task_params/addManufacturerEnrollment.json`. This file contains the information that will be used to create the enrollment. If the file doesn't exist you can create it by running:
-```bash
-cp task_params/addManufacturerEnrollment.default.json task_params/addManufacturerEnrollment.json
-```
-This newly created file is `.gitignore`d so you can edit it without worrying about committing it to the repo. In the file you will see the following params that can be edited:
-```
-{
-    "manufacturerId": ID of the manufacturer you want to add an enrollment for (printed in the addManufacturer step),
-    "chipAddresses": Array of addresses of the chips you want to enroll,
-    "authModel": Address of the auth model you want to use,
-    "bootloaderApp": Link that points to the bootloader app for chip's in the enrollment
-    "chipModel": Name of the chip model
-}
-```
+Arguments:
+`network`: The network you want to interact with (defaults to `hardhat`)
+
 Example:
 ```bash
 yarn addManufacturerEnrollment --network [network]
@@ -46,6 +43,6 @@ Additionally there is a specific `localhost` version of this script that can be 
 yarn addManufacturerEnrollment:localhost
 ```
 
-Note that this script requires that there is a valid manufacturer in the environment you are deploying to (see previous section for information on this).
+Note that this script requires that there is a valid manufacturer in the environment you are deploying to (see previous section for information on this). For `localhost` deployments you can still use the associated Arx Supabase instance to look up chip manufacturer certificates as long as you enter the correct `manufacturerSigner`; `bootloaderApp` and `chipModel` won't matter in this instance.
 
-**Outputs:** This script has three potential outputs a `$ENROLLMENT_ID.json` file (named after the `enrollmentId`) in `task_outputs/enrollmentData/`, a `chipData.json` file in `task_outputs/chipData/` directory that can be used in the `projectCreation` script and ManufacturerValidation info for each chip in `task_outputs/manufacturerEnrollments/`. If you opt to post to IPFS, the ManufacturerValidation information will also be posted to IPFS. Note that the `chipData.json` file is overwritten by every new chip enrollment created.
+**Outputs:** This script will output artifacts to `task_outputs/addManufacturerEnrollment/`. Those artifacts will be used to suggest enrollments to subsequent scripts.

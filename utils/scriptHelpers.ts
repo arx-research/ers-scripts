@@ -15,8 +15,8 @@ import csv from 'csv-parser';
 
 import { ObjectManager } from "@filebase/sdk";
 
-const objectManager = new ObjectManager("", "", {
-  bucket: ""
+const objectManager = new ObjectManager(process.env.FILEBASE_API_KEY, process.env.FILEBASE_SECRET, {
+  bucket: process.env.FILEBASE_BUCKET,
 });
 
 interface ChipData {

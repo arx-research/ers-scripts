@@ -86,7 +86,7 @@ task("addManufacturerEnrollment", "Add a new enrollment to the ManufacturerRegis
     console.log(`Data saved to ${outputFilePath}`);
 
     async function getAndValidateParams(): Promise<AddManufacturerEnrollment> {
-      let params: AddManufacturerEnrollment = JSON.parse(fs.readFileSync('./task_params/addManufacturerEnrollment.json', 'utf-8'));
+      let params: AddManufacturerEnrollment = {} as AddManufacturerEnrollment;
 
       // Set the default chain ID if not provided
       params.chainId = await getChainId(rl);

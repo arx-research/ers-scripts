@@ -6,7 +6,6 @@ import { Address, ADDRESS_ZERO, calculateLabelHash, DeveloperNameGovernor, Devel
 
 import { getDeployedContractAddress, saveFactoryDeploy, setNewOwner } from "../utils/helpers";
 import {
-  ARX_REGISTRAR_LABEL,
   MAX_BLOCK_WINDOW,
   MULTI_SIG_ADDRESSES,
   NAME_COORDINATOR

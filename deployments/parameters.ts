@@ -15,19 +15,15 @@ export const NAME_COORDINATOR: any = {
 
 export const CHIP_REGISTRY_DEPLOY: any = {
   "localhost": {
-    "gatewayUrls": [],
     "maxLockinPeriod": BigNumber.from(10)
   },
   "sepolia": {
-    "gatewayUrls": ["https://sepolia.ers.run/resolve-unclaimed-data/{sender}/{data}"],
     "maxLockinPeriod": BigNumber.from(10)
   },
   "base": {
-    "gatewayUrls": ["https://base.ers.run/resolve-unclaimed-data/{sender}/{data}"],
     "maxLockinPeriod": BigNumber.from(63072000) // 2 years at 365 days in a year
   },
   "mainnet": {
-    "gatewayUrls": [],
     "maxLockinPeriod": BigNumber.from(10)
   },
 }
@@ -39,10 +35,3 @@ export const MAX_BLOCK_WINDOW: any = {
   "base": BigNumber.from(100),
   "mainnet": BigNumber.from(5),
 }
-
-export const ARX_REGISTRAR_LABEL: any = {
-  "localhost": "arx-playground",
-  "sepolia": "arx-playground",
-  "base": "arx-playground",
-  "mainnet": "arx-playground"
-};
