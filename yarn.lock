@@ -5403,6 +5403,11 @@ csv-parser@^3.0.0:
   dependencies:
     minimist "^1.2.0"
 
+csv-writer@^1.6.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/csv-writer/-/csv-writer-1.6.0.tgz#d0cea44b6b4d7d3baa2ecc6f3f7209233514bcf9"
+  integrity sha512-NOx7YDFWEsM/fTRAJjRpPp8t+MKRVvniAg9wQlUKx20MFrPs73WLJhFf5iteqrxNYnsy924K3Iroh3yNHeYd2g==
+
 cycled@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/cycled/-/cycled-1.2.0.tgz#dde6d9d58b0b14d02c8138c8f55be416a6595baf"

@@ -83,6 +83,7 @@ export async function promptProjectRegistrar(
   const choice = await queryUser(prompter, "Select an option (default is option 1): ");
 
   if (choice === '2') {
+    console.log("WARNING: if you add chips to an existing project, the project's tokenURI data will be overwritten using data from task_outputs. If previously added chips in the project are not in task_outputs, their metadata will be missing.");
     const projectRegistrars = getProjectRegistrars(chainId);
 
     if (projectRegistrars.length > 0) {
@@ -269,7 +270,7 @@ export async function getTokenUriSource(prompter: readline.ReadLine): Promise<st
   console.log("How would you like to add the tokenURI data? (chip metadata like name, image, descriptions, etc.) ");
   console.log("1: Input a CSV file with tokenUri data and generate tokenUri data as you scan chips ");
   console.log("2: Input a tokenUri that you have already generated ");
-  console.log("3: Skip. ");
+  console.log("3: Skip (tokenUri can be updated after project deployment). ");
 
   const choice = await queryUser(prompter, "Select an option (default is option 3): ");
 
@@ -310,9 +311,12 @@ export async function getTokenUriCsv(rl: readline.Interface): Promise<string> {
     // Prompt user to either select a file by number or enter a custom CSV file path
     const input = await promptUserForCsvInput(rl);
 
-    // Determine if the input is a selection or a file path
+    // Determine if the input is a selection, the user pressed Enter, or a file path
     let filePath: string;
-    if (input.match(/^\d+$/)) {
+    if (input.trim() === "" && csvFiles.length > 0) {
+      // Default to the first CSV file if the user presses Enter
+      filePath = path.join(TASK_PARAMS_DIR, csvFiles[0]);
+    } else if (input.match(/^\d+$/)) {
       const fileIndex = parseInt(input) - 1;
       if (fileIndex >= 0 && fileIndex < csvFiles.length) {
         filePath = path.join(TASK_PARAMS_DIR, csvFiles[fileIndex]);
@@ -356,7 +360,7 @@ async function listCsvFilesInDirectory(directory: string): Promise<string[]> {
 
 async function promptUserForCsvInput(rl: readline.Interface): Promise<string> {
   return new Promise((resolve) => {
-    rl.question("Select a file by number or enter a CSV file name/path: ", (answer) => {
+    rl.question("Select a file by number or enter a CSV file name/path (default is option 1): ", (answer) => {
       resolve(answer.trim());
     });
   });

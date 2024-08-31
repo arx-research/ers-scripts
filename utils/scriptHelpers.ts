@@ -12,10 +12,11 @@ import * as readline from 'readline';
 
 import csv from 'csv-parser';
 
+
 import { ObjectManager } from "@filebase/sdk";
 
-const objectManager = new ObjectManager("E4CD6EF84A5448129CAF", "0AlYp2TRAw89PEgadZZGOkFjly38Z3AT7MZ0QUIb", {
-  bucket: "ers-scripts-demo"
+const objectManager = new ObjectManager("", "", {
+  bucket: ""
 });
 
 interface ChipData {
@@ -24,6 +25,9 @@ interface ChipData {
   description: string;
   media_uri: string;
   media_mime_type: string;
+  developerProof: string;
+  projectRegistrar: string;
+  edition: number;
 }
 
 import {
@@ -61,7 +65,7 @@ export async function getAllFiles(dirPath: string): Promise<{ path: string, cont
       if (file.isDirectory()) {
         await readDir(fullPath); // Recursively read the directory
       } else {
-        filesArray.push({ path: fullPath, content: fs.createReadStream(fullPath) });
+        filesArray.push({ path: "/" + file.name, content: fs.createReadStream(fullPath) });
       }
     }
   }
@@ -72,9 +76,8 @@ export async function getAllFiles(dirPath: string): Promise<{ path: string, cont
 
 export async function uploadDirectoryToIPFS(directoryPath: string, uploadName: string): Promise<any> {
   try {
-    // Ensure the path is absolute
     const absolutePath = path.resolve(directoryPath);
-    const filesArray = (await getAllFiles(absolutePath)).filter(file => path.extname(file.path) === '.json');
+    const filesArray = (await getAllFiles(absolutePath));
     const uploadedObject = await objectManager.upload(uploadName, filesArray, undefined, undefined);
     return uploadedObject;
   } catch (error) {
@@ -98,8 +101,6 @@ export async function uploadFileToIPFS(filePath: string): Promise<any> {
     throw error;
   }
 }
-
-// TODO: create an uploadFileToIPFS function that takes a file path and uploads it to IPFS
 
 export async function saveFilesLocally(directoryRoot: string, files: File[]): Promise<void> {
   fs.mkdirSync(`task_outputs/${directoryRoot}`, { recursive: true });
@@ -266,6 +267,9 @@ export async function parseTokenUriDataCSV(filePath: string): Promise<ChipData[]
           description: row.description,
           media_uri: row.media_uri,
           media_mime_type: row.media_mime_type,
+          developerProof: row.developerProof,
+          projectRegistrar: row.projectRegistrar,
+          edition: parseInt(row.edition)
         };
         chipDataList.push(chipData);
       })
@@ -277,13 +281,13 @@ export async function parseTokenUriDataCSV(filePath: string): Promise<ChipData[]
 }
 
 export async function validateCSVHeaders(filePath: string): Promise<void> {
-  const expectedHeaders: string[] = ['chipId', 'media_uri', 'media_mime_type', 'name', 'description'];
-  const optionalHeaders: string[] = ['notes', 'edition', 'developerProof', 'repeatMetadata'];
+  const expectedHeaders: string[] = ['edition', 'chipId', 'media_uri', 'media_mime_type', 'name', 'description', 'developerProof', 'projectRegistrar'];
+  const optionalHeaders: string[] = ['notes'];
 
   try {
     await fs.promises.access(filePath);
   } catch (error) {
-      console.error('Cannot locate or open file at:', filePath);
+    console.error('Cannot locate or open file at:', filePath);
   }
 
   return new Promise((resolve, reject) => {
@@ -303,14 +307,21 @@ export async function validateCSVHeaders(filePath: string): Promise<void> {
           reject(new Error(`CSV is missing the following headers: ${missingHeaders.join(', ')}`));
         } else if (extraHeaders.length > 0) {
           reject(new Error(`CSV contains unexpected headers: ${extraHeaders.join(', ')}`));
-        } else {
-          resolve();
         }
+      })
+      .on('data', (row) => {
+        // Ensure 'edition' is present and unique
+        // TODO: make more robust, this should be unique and a decimal number
+        if (!row.edition) {
+          reject(new Error(`Missing "edition" in row: ${JSON.stringify(row)}`));
+        }
+        // Additional checks for 'edition' can be added here
       })
       .on('end', () => {
         if (!headersValidated) {
           reject(new Error('CSV file appears to be empty or malformed.'));
         }
+        resolve();
       })
       .on('error', (err) => reject(new Error(`Error parsing CSV: ${err.message}`)));
   });
@@ -338,4 +349,3 @@ export async function renderImageInTerminal(imageUri: string, basePath: string =
       console.error(`Failed to render image: ${error}`);
   }
 }
-
