@@ -1,36 +1,157 @@
 import * as readline from 'readline';
 import { BigNumber } from "ethers";
+import * as fs from 'fs';
+import * as path from 'path';
 import {
   ADDRESS_ZERO,
   calculateLabelHash,
-  calculateSubnodeHash,
   DeveloperRegistrar,
   ERSRegistry,
 } from "@arx-research/ers-contracts/";
 
 import { queryUser } from "../scriptHelpers";
 
-export async function getUserDeveloperRegistrar(prompter: readline.ReadLine): Promise<string> {
-  const hasDeveloperRegistrar = await queryUser(
-    prompter,
-    "Are you registered as a developer in ERS and have deployed your own DeveloperRegistrar? (y/n) "
-  );
-
-  if (!["yes", "y", "no", "n"].includes(hasDeveloperRegistrar.toLowerCase())) {
-    console.log("I'm sorry we could not understand that response. Reply with a yes/y or no/n. ");
-    return getUserDeveloperRegistrar(prompter);
+function getTaskOutputs(taskName: string, currentChainId: string): { id: string, model: string }[] {
+  const outputDir = path.join(__dirname, `../../task_outputs/${taskName}`);
+  if (!fs.existsSync(outputDir)) {
+    return [];
   }
 
-  if (["no", "n"].includes(hasDeveloperRegistrar.toLowerCase())) {
-    return ADDRESS_ZERO;
-  }
+  const files = fs.readdirSync(outputDir);
+  return files
+    .filter(file => path.extname(file).toLowerCase() === '.json') // Only process .json files
+    .map((file) => {
+      try {
+        const content = JSON.parse(fs.readFileSync(path.join(outputDir, file), 'utf8'));
 
-  return queryUser(
-    prompter,
-    "What is the address of your DeveloperRegistrar? "
-  );
+        // Filter by chainId
+        if (content.chainId !== currentChainId) {
+          return null; // Skip non-matching chainId
+        }
+
+        switch (taskName) {
+          case 'createDeveloperRegistrar':
+            return {
+              id: content.developerRegistrar || 'Unknown',
+              model: `Name: ${content.name}`
+            };
+
+          case 'addManufacturerEnrollment':
+            const manufacturerName = lookupManufacturerName(content.manufacturerId);
+            return {
+              id: content.enrollmentId || 'Unknown',
+              model: `Manufacturer: ${manufacturerName || content.manufacturerId}`
+            };
+
+          case 'createService':
+            return {
+              id: content.serviceId || 'Unknown',
+              model: content.serviceName || 'Unknown'
+            };
+          
+          case 'createProject':
+            return {
+              id: content.projectRegistrar || 'Unknown',
+              model: content.name || 'Unknown'
+            };
+
+          default:
+            return null; // Return null for any unhandled cases
+        }
+      } catch (error) {
+        console.error(`Failed to process file ${file}:`, error);
+        return null;
+      }
+    })
+    .filter((output): output is { id: string, model: string } => output !== null); // Filter out null results and enforce correct typing
 }
 
+// Function to get project registrars from task outputs
+function getProjectRegistrars(currentChainId: string): { id: string, model: string }[] {
+  return getTaskOutputs('createProject', currentChainId);
+}
+
+// Prompt user for adding chips to existing project or creating a new one
+export async function promptProjectRegistrar(
+  prompter: readline.ReadLine,
+  chainId: string
+): Promise<{ id: string; isNew: boolean; artifactFound: boolean }> {
+  console.log("Would you like to add chips to an existing project or create a new one?");
+  console.log("1: Create a new project");
+  console.log("2: Add chips to an existing project");
+
+  const choice = await queryUser(prompter, "Select an option (default is option 1): ");
+
+  if (choice === '2') {
+    console.log("WARNING: if you add chips to an existing project, the project's tokenURI data will be overwritten using data from task_outputs. If previously added chips in the project are not in task_outputs, their metadata will be missing.");
+    const projectRegistrars = getProjectRegistrars(chainId);
+
+    if (projectRegistrars.length > 0) {
+      console.log("Available Projects:");
+      projectRegistrars.forEach((output, index) => {
+        console.log(`${index + 1}: ${output.model} (ID: ${output.id})`);
+      });
+      console.log(`${projectRegistrars.length + 1}: Enter custom project address`);
+
+      const projectChoice = await queryUser(prompter, "Select a project or enter a custom address (default is option 1): ");
+
+      if (!projectChoice || parseInt(projectChoice) <= 0 || parseInt(projectChoice) > projectRegistrars.length) {
+        return { id: projectRegistrars[0].id, isNew: false, artifactFound: true };
+      }
+
+      return { id: projectRegistrars[parseInt(projectChoice) - 1].id, isNew: false, artifactFound: true };
+    }
+    const projectChoice = await queryUser(prompter, "Enter existing project address: ");
+    return { id: projectChoice, isNew: false, artifactFound: false };
+
+  }
+
+  return { id: '', isNew: true, artifactFound: false };
+}
+
+
+// Function to lookup manufacturer name from addManufacturer task outputs
+function lookupManufacturerName(manufacturerId: string): string | null {
+  const outputDir = path.join(__dirname, `../../task_outputs/addManufacturer`);
+  if (!fs.existsSync(outputDir)) {
+    return null;
+  }
+
+  const files = fs.readdirSync(outputDir);
+  for (const file of files) {
+    const content = JSON.parse(fs.readFileSync(path.join(outputDir, file), 'utf8'));
+    if (content.manufacturerId === manufacturerId) {
+      return content.manufacturerName || null;
+    }
+  }
+
+  return null;
+}
+
+// Modified function to suggest DeveloperRegistrar
+export async function getUserDeveloperRegistrar(prompter: readline.ReadLine, chainId: string): Promise<string> {
+  const taskOutputs = getTaskOutputs('createDeveloperRegistrar', chainId);
+
+  if (taskOutputs.length > 0) {
+    console.log("Available DeveloperRegistrars:");
+    taskOutputs.forEach((output, index) => {
+      console.log(`${index + 1}: ${output.model} (ID: ${output.id})`);
+    });
+    console.log(`${taskOutputs.length + 1}: Enter custom DeveloperRegistrar address`);
+
+    const choice = await queryUser(prompter, "Select a DeveloperRegistrar or enter a custom address (default is option 1): ");
+
+    if (!choice || parseInt(choice) <= 0 || parseInt(choice) > taskOutputs.length) {
+      return taskOutputs[0].id;
+    }
+
+    return taskOutputs[parseInt(choice) - 1].id;
+  }
+
+  return queryUser(prompter, "What is the address of your DeveloperRegistrar? ");
+}
+
+// Original function for getting project name
 export async function getProjectName(
   prompter: readline.ReadLine,
   ersRegistry: ERSRegistry,
@@ -46,13 +167,10 @@ export async function getProjectName(
   }
 
   // Check that the namespace hasn't been taken
-  let labelOwner;
+  let labelOwner = ADDRESS_ZERO;
   if (developerRegistrar.address != ADDRESS_ZERO) {
     const developerRootnode = await developerRegistrar.rootNode();
     labelOwner = await ersRegistry.getSubnodeOwner(developerRootnode, calculateLabelHash(name));
-  } else {
-    const userSubnodeHash = calculateSubnodeHash(name + ".arxplayground.ers");
-    labelOwner = await ersRegistry.getOwner(userSubnodeHash);
   }
   if (labelOwner != ADDRESS_ZERO) {
     console.log(`The name ${name} has already been taken. Please choose a different name.`);
@@ -62,13 +180,39 @@ export async function getProjectName(
   return name;
 }
 
-export async function getServiceTimelock(prompter: readline.ReadLine): Promise<BigNumber> {
-  const rawTimelock = await queryUser(
+// Original function for getting project symbol
+export async function getProjectSymbol(prompter: readline.ReadLine): Promise<string> {
+  const tokenSymbol = await queryUser(
     prompter,
-    "How long do you want to lock-in the redirect URL for (in seconds)? After this time the chip holder can change the redirect URL, time period can be no longer than 2 years. "
+    `Which token symbol would you like to use for your project (e.g. $ERS)? `
   );
-  
-  const timelock = BigNumber.from(rawTimelock);
+
+  if (tokenSymbol.length == 0) {
+    throw Error(`Must define a project symbol`);
+  }
+
+  return tokenSymbol;
+}
+
+// Modified function for getting service timelock with default and fault tolerance
+export async function getServiceTimelock(prompter: readline.ReadLine): Promise<BigNumber> {
+  let rawTimelock = await queryUser(
+    prompter,
+    "How long do you want to lock-in the redirect URL for (in seconds)? (Default is 0): "
+  );
+
+  // Default to 0 if nothing is entered
+  if (!rawTimelock) {
+    rawTimelock = "0";
+  }
+
+  let timelock;
+  try {
+    timelock = BigNumber.from(rawTimelock);
+  } catch {
+    console.log("Invalid input. Defaulting to 0.");
+    timelock = BigNumber.from("0");
+  }
 
   const verifyInput = await queryUser(
     prompter,
@@ -90,77 +234,164 @@ export async function getServiceTimelock(prompter: readline.ReadLine): Promise<B
   return currentTimestamp.add(timelock);
 }
 
-export async function getServiceId(prompter: readline.ReadLine): Promise<string> {
-  const serviceId = await queryUser(
-    prompter,
-    `Which service ID would you like to set as primary service for your project enrollment? `
-  );
+// Modified function to suggest Service ID
+export async function getServiceId(prompter: readline.ReadLine, chainId: string): Promise<string> {
+  const taskOutputs = getTaskOutputs('createService', chainId);
+
+  if (taskOutputs.length > 0) {
+    console.log("Available Services:");
+    taskOutputs.forEach((output, index) => {
+      console.log(`${index + 1}: ${output.model} (ID: ${output.id})`);
+    });
+    console.log(`${taskOutputs.length + 1}: Enter custom Service ID`);
+
+    const choice = await queryUser(prompter, "Select a Service ID or enter a custom ID (default is option 1): ");
+
+    if (!choice || parseInt(choice) <= 0 || parseInt(choice) > taskOutputs.length) {
+      return taskOutputs[0].id;
+    }
+
+    return taskOutputs[parseInt(choice) - 1].id;
+  }
+
+  const serviceId = await queryUser(prompter, `Which service ID would you like to set as primary service for your project enrollment? `);
 
   if(serviceId.slice(0, 2) != '0x' || serviceId.length != 66) {
     console.log("Not a valid Service ID, service ID must be a bytes32 hash");
 
-    return await getServiceId(prompter);
+    return await getServiceId(prompter, chainId);
   }
 
   return serviceId;
 }
 
-export async function getChipDataLocation(prompter: readline.ReadLine): Promise<string> {
-  return await queryUser(
-    prompter,
-    `
-    Since you are using localhost you must provide a path to the chip data file.
-    What is the path to your chipData file? 
-    `
-  );
-}
+// Ask if the users wants to (1) generate tokenURI data from a CSV as they scan or (2) paste and existing tokrenURI they already generated
+export async function getTokenUriSource(prompter: readline.ReadLine): Promise<string> {
+  console.log("How would you like to add the tokenURI data? (chip metadata like name, image, descriptions, etc.) ");
+  console.log("1: Input a CSV file with tokenUri data and generate tokenUri data as you scan chips ");
+  console.log("2: Input a tokenUri that you have already generated ");
+  console.log("3: Skip (tokenUri can be updated after project deployment). ");
 
-export async function getManufacturerValidationLocation(prompter: readline.ReadLine): Promise<string> {
-  return await queryUser(
-    prompter,
-    `
-    Since you are using localhost you must provide a path to your manufacturer validation files.
-    What is the path to your manufacturer validation file? 
-    `
-  );
-}
+  const choice = await queryUser(prompter, "Select an option (default is option 3): ");
 
-export async function getProjectRegistrarType(prompter: readline.ReadLine): Promise<number> {
-  const projectRegistrarType = await queryUser(
-    prompter,
-    `What type of project registrar would you like to use?
-      1. Autheticity
-      2. Redirect `
-  );
-
-  if (!["1", "2"].includes(projectRegistrarType.toLowerCase())) {
-    console.log("I'm sorry we could not understand that response. Reply with 1 (Authenticity) or 2 (Redirect). ");
-    return getProjectRegistrarType(prompter);
+  if (choice === '1') {
+    return "csv";
+  } else if (choice === '2') {
+    return "uri";
   }
-
-  return parseInt(projectRegistrarType);
+  return '';
 }
 
-export async function getTokenURIData(prompter: readline.ReadLine): Promise<string> {
+
+// Original function for getting token URI data
+export async function getTokenUriData(prompter: readline.ReadLine): Promise<string> {
   const tokenURIRoot = await queryUser(
     prompter,
-    "What's the tokenUri root for chips in the project? All chip metadata should be bundled at the same root. "
+    "What's the tokenUri root for expected chips in the project? All chip metadata should be bundled at the same root. "
   );
 
   // lib-ers adds the slash when generating the tokenURI, so we need to remove it if it's there
   return tokenURIRoot[tokenURIRoot.length-1] == "/" ? tokenURIRoot.slice(0,-1) : tokenURIRoot;
 }
 
-export async function getPostToIpfs(prompter: readline.ReadLine): Promise<boolean> {
-  const postToIPFS = await queryUser(
-    prompter,
-    "Do you want to post your project files to IPFS (y/n)? "
-  );
+const TASK_PARAMS_DIR = path.join(__dirname, '../../task_params');
 
-  if (!["yes", "y", "no", "n"].includes(postToIPFS.toLowerCase())) {
-    console.log("I'm sorry we could not understand that response. Reply with a yes/y or no/n. ");
-    return getPostToIpfs(prompter);
+export async function getTokenUriCsv(rl: readline.Interface): Promise<string> {
+  while (true) {
+    // List all .csv files in the task_params directory
+    const csvFiles = await listCsvFilesInDirectory(TASK_PARAMS_DIR);
+
+    if (csvFiles.length > 0) {
+      console.log("Available CSV files in 'task_params' directory:");
+      csvFiles.forEach((file, index) => console.log(`${index + 1}: ${file}`));
+    } else {
+      console.log("No CSV files found in 'task_params' directory.");
+    }
+
+    // Prompt user to either select a file by number or enter a custom CSV file path
+    const input = await promptUserForCsvInput(rl);
+
+    // Determine if the input is a selection, the user pressed Enter, or a file path
+    let filePath: string;
+    if (input.trim() === "" && csvFiles.length > 0) {
+      // Default to the first CSV file if the user presses Enter
+      filePath = path.join(TASK_PARAMS_DIR, csvFiles[0]);
+    } else if (input.match(/^\d+$/)) {
+      const fileIndex = parseInt(input) - 1;
+      if (fileIndex >= 0 && fileIndex < csvFiles.length) {
+        filePath = path.join(TASK_PARAMS_DIR, csvFiles[fileIndex]);
+      } else {
+        console.error("Invalid selection. Please try again.");
+        continue;
+      }
+    } else if (input.toLowerCase().endsWith('.csv')) {
+      filePath = path.isAbsolute(input) ? input : path.resolve(input);
+    } else {
+      console.error("Invalid input. Please enter a valid CSV file name or path.");
+      continue;
+    }
+
+    try {
+      const stat = await fs.promises.stat(filePath);
+      if (stat.isDirectory()) {
+        console.error(`The path provided is a directory, not a file: ${filePath}`);
+        continue;
+      }
+
+      // Check if the file exists
+      await fs.promises.access(filePath, fs.constants.F_OK);
+      console.log(`File found at: ${filePath}`);
+      return filePath;
+    } catch (error) {
+      console.error(`Cannot locate or open file at: ${filePath}. Please try again.`);
+    }
+  }
+}
+
+async function listCsvFilesInDirectory(directory: string): Promise<string[]> {
+  try {
+    const files = await fs.promises.readdir(directory);
+    return files.filter(file => path.extname(file).toLowerCase() === '.csv');
+  } catch (error) {
+    console.error(`Error reading directory: ${directory}`, error);
+    return [];
+  }
+}
+
+async function promptUserForCsvInput(rl: readline.Interface): Promise<string> {
+  return new Promise((resolve) => {
+    rl.question("Select a file by number or enter a CSV file name/path (default is option 1): ", (answer) => {
+      resolve(answer.trim());
+    });
+  });
+}
+
+// Modified function to suggest Enrollment ID
+export async function getEnrollmentId(prompter: readline.ReadLine, chainId: string): Promise<string> {
+  const taskOutputs = getTaskOutputs('addManufacturerEnrollment', chainId);
+
+  if (taskOutputs.length > 0) {
+    console.log("Available Enrollment IDs:");
+    taskOutputs.forEach((output, index) => {
+      console.log(`${index + 1}: ${output.model} (ID: ${output.id})`);
+    });
+    console.log(`${taskOutputs.length + 1}: Enter custom Enrollment ID`);
+
+    const choice = await queryUser(prompter, "Select an Enrollment ID or enter a custom ID (default is option 1): ");
+
+    if (!choice || parseInt(choice) <= 0 || parseInt(choice) > taskOutputs.length) {
+      return taskOutputs[0].id;
+    }
+
+    return taskOutputs[parseInt(choice) - 1].id;
   }
 
-  return ["yes", "y"].includes(postToIPFS.toLowerCase());
+  const enrollmentId = await queryUser(prompter, `What is the enrollmentId for these chips (only required for localhost deployments)? `);
+
+  if (enrollmentId.slice(0, 2) != '0x' || enrollmentId.length != 66) {
+    console.log("Invalid enrollmentId. Please provide a valid address.");
+    return getEnrollmentId(prompter, chainId);
+  }
+
+  return enrollmentId;
 }

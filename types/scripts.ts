@@ -4,48 +4,35 @@ import mongoose from "mongoose";
 
 export interface AddManufacturerEnrollment {
   manufacturerId: string,
+  manufacturerSigner: Address,
   chipKeys: KeysFromChipScan[],
   authModel: Address,
+  enrollmentAuthModel: Address,
   bootloaderApp: string,
   chipModel: string,
   numberOfChips: BigNumber,
+  chainId: number
 }
 
 export interface ManufacturerEnrollmentIPFS {
   validationInfo: ManufacturerValidationInfo,
-  certificate: string,
   pk2: Address
 }
 
 export interface CreateProject {
   developerRegistrar: Address,
   name: string,
-  chipDataLocation: string,
+  tokenSymbol: string,
   tokenUriRoot: string,
   lockinPeriod: BigNumber,
   serviceId: string,
 }
 
-export interface ProjectEnrollmentIPFS {
+export interface ChipInfo {
+  chipId: Address,
+  nameHash: string,
   projectRegistrar: Address,
   enrollmentId: string,
-  developerMerkleInfo: DeveloperMerkleProofInfo,
-  developerCertificate: string,
-  custodyProof: string
-}
-
-export interface ClaimChip {
-  chipId: Address,
-  name: string,
-  projectEnrollment: ProjectEnrollmentIPFS,
-  manufacturerEnrollment: ManufacturerValidationInfo,
-}
-
-export interface UploadChipData {
-  primary_key_address: string
-  secondary_key_address: string
-  ipfs_cid: string,
-  manufacturerEnrollmentId: string
 }
 
 export interface ChipSchemaInterface extends Document {

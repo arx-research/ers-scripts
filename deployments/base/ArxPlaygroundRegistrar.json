@@ -1,5 +1,5 @@
 {
-  "address": "0xc098a32aa1425e86809a8e2D95A42d387C005Fd9",
+  "address": "0x6203f9A20907CF73834943AF75C93f4D4fc3d205",
   "abi": [
     {
       "inputs": [
@@ -19,8 +19,8 @@
           "type": "address"
         },
         {
-          "internalType": "contract ITSMRegistry",
-          "name": "_tsmRegistry",
+          "internalType": "contract IDeveloperRegistry",
+          "name": "_developerRegistry",
           "type": "address"
         }
       ],
@@ -131,7 +131,7 @@
         },
         {
           "internalType": "bytes",
-          "name": "_ownershipProof",
+          "name": "_projectOwnershipProof",
           "type": "bytes"
         },
         {
@@ -151,6 +151,19 @@
       "outputs": [
         {
           "internalType": "contract IChipRegistry",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "developerRegistry",
+      "outputs": [
+        {
+          "internalType": "contract IDeveloperRegistry",
           "name": "",
           "type": "address"
         }
@@ -274,20 +287,7 @@
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "tsmRegistry",
-      "outputs": [
-        {
-          "internalType": "contract ITSMRegistry",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
     }
   ],
-  "numDeployments": 2
+  "numDeployments": 1
 }

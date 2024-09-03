@@ -3,63 +3,100 @@ import { BigNumber } from "ethers";
 
 import { queryUser } from "../scriptHelpers";
 
-export async function getPostToIpfs(prompter: readline.ReadLine): Promise<boolean> {
-  const postToIPFS = await queryUser(
+export async function getChainId(prompter: readline.ReadLine): Promise<number> {
+  const chainId = await queryUser(
     prompter,
-    "Do you want to post your project files to IPFS (y/n)?"
+    `What chainId is the project being deployed on (optional: default is 31337 for localhost)? `
   );
 
-  if (!["yes", "y", "no", "n"].includes(postToIPFS.toLowerCase())) {
-    console.log("I'm sorry we could not understand that response. Reply with a yes/y or no/n. ");
-    return getPostToIpfs(prompter);
+  if (isNaN(parseInt(chainId))) {
+    console.log("No chainId provided. Defaulting to 31337 for localhost.");
+    return 31337;
   }
 
-  return ["yes", "y"].includes(postToIPFS.toLowerCase());
+  return parseInt(chainId);
 }
 
-export async function getChipData(prompter: readline.ReadLine): Promise<BigNumber> {
-  const preScanned = await checkPrescanChips(prompter);
+export async function getManufacturerSigner(prompter: readline.ReadLine): Promise<string> {
+  const manufacturerSigner = await queryUser(
+    prompter,
+    `What is the address of the manufacturer signer? `
+  );
 
-  if (preScanned) {
-    return BigNumber.from(0);
+  if (manufacturerSigner.slice(0, 2) != '0x' || manufacturerSigner.length != 42) {
+    console.log("Invalid manufacturer signer address. Please provide a valid address.");
+    return getManufacturerSigner(prompter);
   }
 
-  // If chips have not been prescanned, ask how many chips to scan
-  return getNumberOfChips(prompter);
+  return manufacturerSigner;
 }
 
-async function getNumberOfChips(prompter: readline.ReadLine): Promise<BigNumber> {
-  const rawNoChips = await queryUser(
+export async function getManufacturerId(prompter: readline.ReadLine): Promise<string> {
+  const manufacturerId = await queryUser(
     prompter,
-    `How many chips do you want to include in your enrollment?
-     If you have a JSON file with chip data, enter 0. `
-  );
-  
-  const noChips = BigNumber.from(rawNoChips);
-
-  const verifyInput = await queryUser(
-    prompter,
-    `Are you sure you want to scan ${noChips.toString()} chips? (y/n) `
+    `What is the manufacturerId? `
   );
 
-  if (verifyInput == 'n') {
-    return await getNumberOfChips(prompter);
+  if (manufacturerId.slice(0, 2) != '0x' || manufacturerId.length != 66) {
+    console.log("Invalid manufacturerId. Please provide a valid address.");
+    return getManufacturerId(prompter);
   }
 
-  return noChips;
+  return manufacturerId;
 }
 
-async function checkPrescanChips(prompter: readline.ReadLine): Promise<boolean> {
-  const preScanned = await queryUser(
+export async function getAuthModel(prompter: readline.ReadLine): Promise<string> {
+  const manufacturerAuthModel = await queryUser(
     prompter,
-    `Have you prescanned your chips and included them in the params file? (y/n) `
+    `What is the chip auth model? `
   );
-  
-  // Ask if chips have been prescanned, if so then return 0
-  if (!["yes", "y", "no", "n"].includes(preScanned.toLowerCase())) {
-    console.log("I'm sorry we could not understand that response. Reply with a yes/y or no/n. ");
-    return checkPrescanChips(prompter);
+
+  if (manufacturerAuthModel.slice(0, 2) != '0x' || manufacturerAuthModel.length != 42) {
+    console.log("Invalid manufacturer auth model. Please provide a valid address.");
+    return getAuthModel(prompter);
   }
-  
-  return ["yes", "y"].includes(preScanned.toLowerCase());
+
+  return manufacturerAuthModel;
+}
+
+export async function getEnrollmentAuthModel(prompter: readline.ReadLine): Promise<string> {
+  const manufacturerAuthModel = await queryUser(
+    prompter,
+    `What is the enrollment auth model? `
+  );
+
+  if (manufacturerAuthModel.slice(0, 2) != '0x' || manufacturerAuthModel.length != 42) {
+    console.log("Invalid manufacturer auth model. Please provide a valid address.");
+    return getEnrollmentAuthModel(prompter);
+  }
+
+  return manufacturerAuthModel;
+}
+
+export async function getBootloaderApp(prompter: readline.ReadLine): Promise<string> {
+  const bootloaderApp = await queryUser(
+    prompter,
+    `What is the bootloader app URI? `
+  );
+
+  if (bootloaderApp.length == 0) {
+    console.log("Invalid bootloader app. Please provide a valid URI.");
+    return getBootloaderApp(prompter);
+  }
+
+  return bootloaderApp;
+}
+
+export async function getChipModel(prompter: readline.ReadLine): Promise<string> {
+  const chipModel = await queryUser(
+    prompter,
+    `What is the chip model? `
+  );
+
+  if (chipModel.length == 0) {
+    console.log("Invalid chip model. Please provide a valid model.");
+    return getChipModel(prompter);
+  }
+
+  return chipModel;
 }

@@ -8,6 +8,7 @@ import {
   CHIP_REGISTRY_DEPLOY,
   MAX_BLOCK_WINDOW,
   MULTI_SIG_ADDRESSES,
+  NAME_COORDINATOR
 } from "../deployments/parameters"
 import { setNewOwner } from "../utils/helpers";
 import { NULL_NODE } from "../utils/constants";
@@ -29,9 +30,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     from: deployer,
     args: [
       manufacturerRegistryDeploy.address,
-      CHIP_REGISTRY_DEPLOY[network].gatewayUrls,
-      MAX_BLOCK_WINDOW[network],
-      CHIP_REGISTRY_DEPLOY[network].maxLockinPeriod
+      CHIP_REGISTRY_DEPLOY[network].maxLockinPeriod,
+      deployer
     ],
   });
   console.log("ChipRegistry deployed to:", chipRegistryDeploy.address);
@@ -46,11 +46,14 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     from: deployer,
     args: [developerRegistryDeploy.address, deployer],
   });
-  console.log("DeveloperNameGovernor deployed to:", developerRegistryDeploy.address);
+  console.log("DeveloperNameGovernor deployed to:", developerNameGovernor.address);
 
   const ersRegistryDeploy = await deploy("ERSRegistry", {
     from: deployer,
-    args: [chipRegistryDeploy.address, developerRegistryDeploy.address],
+    args: [
+      chipRegistryDeploy.address, 
+      developerRegistryDeploy.address
+    ],
   });
   console.log("ERSRegistry deployed to:", ersRegistryDeploy.address);
 
@@ -60,9 +63,20 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   });
   console.log("ServicesRegistry deployed to:", servicesRegistryDeploy.address);
 
+  const developerRegistrarImplDeploy = await deploy("DeveloperRegistrar", {
+    from: deployer,
+    args: [
+      chipRegistryDeploy.address, 
+      ersRegistryDeploy.address,
+      developerRegistryDeploy.address,
+      servicesRegistryDeploy.address
+    ],
+  });
+  console.log("DeveloperRegistrar implementation deployed to:", developerRegistrarImplDeploy.address);
+
   const developerRegistrarFactoryDeploy = await deploy("DeveloperRegistrarFactory", {
     from: deployer,
-    args: [chipRegistryDeploy.address, ersRegistryDeploy.address, developerRegistryDeploy.address],
+    args: [developerRegistrarImplDeploy.address, developerRegistryDeploy.address],
   });
   console.log("DeveloperRegistrarFactory deployed to:", developerRegistrarFactoryDeploy.address);
 
@@ -71,6 +85,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     args: [],
   });
   console.log("SECP256k1Model deployed to:", secp256AuthModelDeploy.address);
+
+  const enrollmentEIP191Model = await deploy("EnrollmentEIP191Model", {
+    from: deployer,
+    args: [],
+  });
+  console.log("EnrollmentEIP191Model deployed to:", enrollmentEIP191Model.address);
 
   const openTransferPolicyDeploy = await deploy("OpenTransferPolicy", {
     from: deployer,
@@ -94,7 +114,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   if(!await chipRegistry.initialized()) {
     await chipRegistry.initialize(
       ersRegistryDeploy.address,
-      servicesRegistryDeploy.address,
       developerRegistryDeploy.address
     );
   }

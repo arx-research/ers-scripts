@@ -1,9 +1,9 @@
 export default {
-  "name": "goerli",
-  "chainId": "5",
+  "name": "base",
+  "chainId": "8453",
   "contracts": {
     "ArxPlaygroundRegistrar": {
-      "address": "0x3d0E214C3EFB0a2DBb95A4cAd82DAEb77868984B",
+      "address": "0x6203f9A20907CF73834943AF75C93f4D4fc3d205",
       "abi": [
         {
           "inputs": [
@@ -23,8 +23,8 @@ export default {
               "type": "address"
             },
             {
-              "internalType": "contract ITSMRegistry",
-              "name": "_tsmRegistry",
+              "internalType": "contract IDeveloperRegistry",
+              "name": "_developerRegistry",
               "type": "address"
             }
           ],
@@ -135,7 +135,7 @@ export default {
             },
             {
               "internalType": "bytes",
-              "name": "_ownershipProof",
+              "name": "_projectOwnershipProof",
               "type": "bytes"
             },
             {
@@ -155,6 +155,19 @@ export default {
           "outputs": [
             {
               "internalType": "contract IChipRegistry",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "developerRegistry",
+          "outputs": [
+            {
+              "internalType": "contract IDeveloperRegistry",
               "name": "",
               "type": "address"
             }
@@ -278,24 +291,11 @@ export default {
           "outputs": [],
           "stateMutability": "nonpayable",
           "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "tsmRegistry",
-          "outputs": [
-            {
-              "internalType": "contract ITSMRegistry",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
         }
       ]
     },
     "ArxProjectEnrollmentManager": {
-      "address": "0xf98b04f8BBF51D6a833F5884bbEa71108f71a76c",
+      "address": "0xA231b97fcF845cB755E782695b6BD0E12a0b9Ec0",
       "abi": [
         {
           "inputs": [
@@ -305,8 +305,8 @@ export default {
               "type": "address"
             },
             {
-              "internalType": "contract ITSMRegistrar",
-              "name": "_tsmRegistrar",
+              "internalType": "contract IDeveloperRegistrar",
+              "name": "_developerRegistrar",
               "type": "address"
             },
             {
@@ -433,7 +433,7 @@ export default {
               "components": [
                 {
                   "internalType": "uint256",
-                  "name": "tsmIndex",
+                  "name": "developerIndex",
                   "type": "uint256"
                 },
                 {
@@ -453,12 +453,12 @@ export default {
                 },
                 {
                   "internalType": "bytes32[]",
-                  "name": "tsmProof",
+                  "name": "developerProof",
                   "type": "bytes32[]"
                 }
               ],
-              "internalType": "struct IChipRegistry.TSMMerkleInfo",
-              "name": "_tsmMerkleInfo",
+              "internalType": "struct IChipRegistry.DeveloperMerkleInfo",
+              "name": "_developerMerkleInfo",
               "type": "tuple"
             },
             {
@@ -505,6 +505,19 @@ export default {
           "outputs": [
             {
               "internalType": "contract IChipRegistry",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "developerRegistrar",
+          "outputs": [
+            {
+              "internalType": "contract IDeveloperRegistrar",
               "name": "",
               "type": "address"
             }
@@ -622,24 +635,11 @@ export default {
           ],
           "stateMutability": "view",
           "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "tsmRegistrar",
-          "outputs": [
-            {
-              "internalType": "contract ITSMRegistrar",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
         }
       ]
     },
     "ChipRegistry": {
-      "address": "0x9e4be58A53E179df2c82894765E83900D9eF0FE7",
+      "address": "0xf4276dAdd4d6CA059d9B5443B6Da34C4906FaA33",
       "abi": [
         {
           "inputs": [
@@ -905,7 +905,7 @@ export default {
             {
               "indexed": true,
               "internalType": "address",
-              "name": "tsmRegistrar",
+              "name": "developerRegistrar",
               "type": "address"
             },
             {
@@ -985,7 +985,7 @@ export default {
             {
               "indexed": false,
               "internalType": "address",
-              "name": "tsmRegistry",
+              "name": "developerRegistry",
               "type": "address"
             }
           ],
@@ -1038,7 +1038,7 @@ export default {
         },
         {
           "inputs": [],
-          "name": "CONTENT_APP_RECORDTYPE",
+          "name": "REDIRECT_URL_RECORDTYPE",
           "outputs": [
             {
               "internalType": "bytes32",
@@ -1099,7 +1099,7 @@ export default {
             },
             {
               "internalType": "bytes",
-              "name": "_ownershipProof",
+              "name": "_projectOwnershipProof",
               "type": "bytes"
             },
             {
@@ -1207,7 +1207,7 @@ export default {
                   "components": [
                     {
                       "internalType": "uint256",
-                      "name": "tsmIndex",
+                      "name": "developerIndex",
                       "type": "uint256"
                     },
                     {
@@ -1227,12 +1227,12 @@ export default {
                     },
                     {
                       "internalType": "bytes32[]",
-                      "name": "tsmProof",
+                      "name": "developerProof",
                       "type": "bytes32[]"
                     }
                   ],
-                  "internalType": "struct IChipRegistry.TSMMerkleInfo",
-                  "name": "tsmMerkleInfo",
+                  "internalType": "struct IChipRegistry.DeveloperMerkleInfo",
+                  "name": "developerMerkleInfo",
                   "type": "tuple"
                 }
               ],
@@ -1264,18 +1264,31 @@ export default {
             },
             {
               "internalType": "bytes",
-              "name": "_tsmCertificate",
+              "name": "_developerInclusionProof",
               "type": "bytes"
             },
             {
               "internalType": "bytes",
-              "name": "_custodyProof",
+              "name": "_developerCustodyProof",
               "type": "bytes"
             }
           ],
           "name": "claimChip",
           "outputs": [],
           "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "developerRegistry",
+          "outputs": [
+            {
+              "internalType": "contract IDeveloperRegistry",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
           "type": "function"
         },
         {
@@ -1336,8 +1349,8 @@ export default {
               "type": "address"
             },
             {
-              "internalType": "contract ITSMRegistry",
-              "name": "_tsmRegistry",
+              "internalType": "contract IDeveloperRegistry",
+              "name": "_developerRegistry",
               "type": "address"
             }
           ],
@@ -1998,19 +2011,6 @@ export default {
           "type": "function"
         },
         {
-          "inputs": [],
-          "name": "tsmRegistry",
-          "outputs": [
-            {
-              "internalType": "contract ITSMRegistry",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
           "inputs": [
             {
               "internalType": "uint256",
@@ -2048,8 +2048,164 @@ export default {
         }
       ]
     },
-    "ERSRegistry": {
-      "address": "0xFAb4E4b26fCFfc3943b423B7129cA8F05A423B85",
+    "DeveloperNameGovernor": {
+      "address": "0x313C0231D5A00551d41E47729Bf5C1deFd25a82C",
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "contract IDeveloperRegistry",
+              "name": "_developerRegistry",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "_nameCoordinator",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "constructor"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "newNameCoordinator",
+              "type": "address"
+            }
+          ],
+          "name": "NameCoordinatorUpdated",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "previousOwner",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "newOwner",
+              "type": "address"
+            }
+          ],
+          "name": "OwnershipTransferred",
+          "type": "event"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "_developerName",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes",
+              "name": "_nameApprovalProof",
+              "type": "bytes"
+            }
+          ],
+          "name": "claimName",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "developerRegistry",
+          "outputs": [
+            {
+              "internalType": "contract IDeveloperRegistry",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "nameCoordinator",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "owner",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_developerOwner",
+              "type": "address"
+            }
+          ],
+          "name": "removeNameClaim",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "renounceOwnership",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "newOwner",
+              "type": "address"
+            }
+          ],
+          "name": "transferOwnership",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_newNameCoordinator",
+              "type": "address"
+            }
+          ],
+          "name": "updateNameCoordinator",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        }
+      ]
+    },
+    "DeveloperRegistrarFactory": {
+      "address": "0x66e33c53Bd5BF80FC6fe36f597d4b7e20E93AbFf",
       "abi": [
         {
           "inputs": [
@@ -2059,8 +2215,539 @@ export default {
               "type": "address"
             },
             {
-              "internalType": "contract ITSMRegistry",
-              "name": "_tsmRegistry",
+              "internalType": "contract IERS",
+              "name": "_ers",
+              "type": "address"
+            },
+            {
+              "internalType": "contract IDeveloperRegistry",
+              "name": "_developerRegistry",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "constructor"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "developerRegistrar",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            }
+          ],
+          "name": "DeveloperRegistrarDeployed",
+          "type": "event"
+        },
+        {
+          "inputs": [],
+          "name": "chipRegistry",
+          "outputs": [
+            {
+              "internalType": "contract IChipRegistry",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_owner",
+              "type": "address"
+            }
+          ],
+          "name": "deployRegistrar",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "developerRegistry",
+          "outputs": [
+            {
+              "internalType": "contract IDeveloperRegistry",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "ers",
+          "outputs": [
+            {
+              "internalType": "contract IERS",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        }
+      ]
+    },
+    "DeveloperRegistry": {
+      "address": "0x15F490909EB5d9c240d2a3236710569290AFA8ce",
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_governance",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "constructor"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "developerOwner",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "bytes32",
+              "name": "nameHash",
+              "type": "bytes32"
+            }
+          ],
+          "name": "DeveloperAllowed",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "developerOwner",
+              "type": "address"
+            }
+          ],
+          "name": "DeveloperDisallowed",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "developerRegistrar",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "bytes32",
+              "name": "rootNode",
+              "type": "bytes32"
+            }
+          ],
+          "name": "DeveloperRegistrarAdded",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "developerRegistrar",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "bytes32",
+              "name": "subnode",
+              "type": "bytes32"
+            },
+            {
+              "indexed": false,
+              "internalType": "bytes32",
+              "name": "_nameHash",
+              "type": "bytes32"
+            }
+          ],
+          "name": "DeveloperRegistrarRevoked",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "previousOwner",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "newOwner",
+              "type": "address"
+            }
+          ],
+          "name": "OwnershipTransferred",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "factory",
+              "type": "address"
+            }
+          ],
+          "name": "RegistrarFactoryAdded",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "factory",
+              "type": "address"
+            }
+          ],
+          "name": "RegistrarFactoryRemoved",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "ers",
+              "type": "address"
+            }
+          ],
+          "name": "RegistryInitialized",
+          "type": "event"
+        },
+        {
+          "inputs": [],
+          "name": "ROOT_NODE",
+          "outputs": [
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_developerOwner",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "_nameHash",
+              "type": "bytes32"
+            }
+          ],
+          "name": "addAllowedDeveloper",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "contract IDeveloperRegistrarFactory",
+              "name": "_factory",
+              "type": "address"
+            }
+          ],
+          "name": "addRegistrarFactory",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "contract IDeveloperRegistrarFactory",
+              "name": "_factory",
+              "type": "address"
+            }
+          ],
+          "name": "createNewDeveloperRegistrar",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "ersRegistry",
+          "outputs": [
+            {
+              "internalType": "contract IERS",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "getDeveloperRegistrars",
+          "outputs": [
+            {
+              "internalType": "address[]",
+              "name": "",
+              "type": "address[]"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "contract IERS",
+              "name": "_ers",
+              "type": "address"
+            },
+            {
+              "internalType": "contract IDeveloperRegistrarFactory[]",
+              "name": "_factories",
+              "type": "address[]"
+            },
+            {
+              "internalType": "address",
+              "name": "_nameGovernor",
+              "type": "address"
+            }
+          ],
+          "name": "initialize",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "initialized",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "name": "isDeveloperRegistrar",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "nameGovernor",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "owner",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "name": "pendingDevelopers",
+          "outputs": [
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "contract IDeveloperRegistrarFactory",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "name": "registrarFactories",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_developerOwner",
+              "type": "address"
+            }
+          ],
+          "name": "removeAllowedDeveloper",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "contract IDeveloperRegistrarFactory",
+              "name": "_factory",
+              "type": "address"
+            }
+          ],
+          "name": "removeRegistrarFactory",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "renounceOwnership",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_developerRegistrar",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "_nameHash",
+              "type": "bytes32"
+            }
+          ],
+          "name": "revokeDeveloperRegistrar",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "newOwner",
+              "type": "address"
+            }
+          ],
+          "name": "transferOwnership",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        }
+      ]
+    },
+    "ERSRegistry": {
+      "address": "0x82eD77dE858CC867E26844A6D04A8027D68a6E94",
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "contract IChipRegistry",
+              "name": "_chipRegistry",
+              "type": "address"
+            },
+            {
+              "internalType": "contract IDeveloperRegistry",
+              "name": "_developerRegistry",
               "type": "address"
             }
           ],
@@ -2199,6 +2886,19 @@ export default {
           "name": "deleteSubnodeRecord",
           "outputs": [],
           "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "developerRegistry",
+          "outputs": [
+            {
+              "internalType": "contract IDeveloperRegistry",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
           "type": "function"
         },
         {
@@ -2376,24 +3076,11 @@ export default {
           "outputs": [],
           "stateMutability": "nonpayable",
           "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "tsmRegistry",
-          "outputs": [
-            {
-              "internalType": "contract ITSMRegistry",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
         }
       ]
     },
     "ManufacturerRegistry": {
-      "address": "0xD592a669F7d8D9F60B412DA6596088B140E98F6f",
+      "address": "0xCc5F5e32dfDC72025663b3e682FF811B0314F55a",
       "abi": [
         {
           "inputs": [
@@ -2814,8 +3501,51 @@ export default {
         }
       ]
     },
+    "OpenTransferPolicy": {
+      "address": "0x57e3cDeF93A058772CEe1f0Df3D434e405168eA9",
+      "abi": [
+        {
+          "inputs": [],
+          "stateMutability": "nonpayable",
+          "type": "constructor"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bytes",
+              "name": "",
+              "type": "bytes"
+            }
+          ],
+          "name": "authorizeTransfer",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        }
+      ]
+    },
     "SECP256k1Model": {
-      "address": "0x31AD013E91e28724C6abbd973A0dD28bFdA657eF",
+      "address": "0x2b42B7966629ba467A49970b916f776aA97eC50B",
       "abi": [
         {
           "inputs": [
@@ -2849,7 +3579,7 @@ export default {
       ]
     },
     "ServicesRegistry": {
-      "address": "0xe6ACA2d69C7F450332404eDb5c32863Af25aF415",
+      "address": "0x4406b55CacC77194C97EE46960C86A7191711211",
       "abi": [
         {
           "inputs": [
@@ -3662,519 +4392,6 @@ export default {
             }
           ],
           "name": "setServiceOwner",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        }
-      ]
-    },
-    "TSMRegistrarFactory": {
-      "address": "0xc84C7CA3fa2d9801eC8B3Db235d52A52a4eaB6d3",
-      "abi": [
-        {
-          "inputs": [
-            {
-              "internalType": "contract IChipRegistry",
-              "name": "_chipRegistry",
-              "type": "address"
-            },
-            {
-              "internalType": "contract IERS",
-              "name": "_ers",
-              "type": "address"
-            },
-            {
-              "internalType": "contract ITSMRegistry",
-              "name": "_tsmRegistry",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "nonpayable",
-          "type": "constructor"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "tsmRegistrar",
-              "type": "address"
-            },
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "owner",
-              "type": "address"
-            }
-          ],
-          "name": "TSMRegistrarDeployed",
-          "type": "event"
-        },
-        {
-          "inputs": [],
-          "name": "chipRegistry",
-          "outputs": [
-            {
-              "internalType": "contract IChipRegistry",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_owner",
-              "type": "address"
-            }
-          ],
-          "name": "deployRegistrar",
-          "outputs": [
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "ers",
-          "outputs": [
-            {
-              "internalType": "contract IERS",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "tsmRegistry",
-          "outputs": [
-            {
-              "internalType": "contract ITSMRegistry",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        }
-      ]
-    },
-    "TSMRegistry": {
-      "address": "0x0E189E52ab089C48Ab41E7947d01Ac7EFD38460e",
-      "abi": [
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_governance",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "nonpayable",
-          "type": "constructor"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "previousOwner",
-              "type": "address"
-            },
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "newOwner",
-              "type": "address"
-            }
-          ],
-          "name": "OwnershipTransferred",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "factory",
-              "type": "address"
-            }
-          ],
-          "name": "RegistrarFactoryAdded",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "factory",
-              "type": "address"
-            }
-          ],
-          "name": "RegistrarFactoryRemoved",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "ers",
-              "type": "address"
-            }
-          ],
-          "name": "RegistryInitialized",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "tsmOwner",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "bytes32",
-              "name": "nameHash",
-              "type": "bytes32"
-            }
-          ],
-          "name": "TSMAllowed",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "tsmOwner",
-              "type": "address"
-            }
-          ],
-          "name": "TSMDisallowed",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "tsmRegistrar",
-              "type": "address"
-            },
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "owner",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "bytes32",
-              "name": "rootNode",
-              "type": "bytes32"
-            }
-          ],
-          "name": "TSMRegistrarAdded",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "tsmRegistrar",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "bytes32",
-              "name": "subnode",
-              "type": "bytes32"
-            },
-            {
-              "indexed": false,
-              "internalType": "bytes32",
-              "name": "_nameHash",
-              "type": "bytes32"
-            }
-          ],
-          "name": "TSMRegistrarRevoked",
-          "type": "event"
-        },
-        {
-          "inputs": [],
-          "name": "ROOT_NODE",
-          "outputs": [
-            {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_tsmOwner",
-              "type": "address"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "_nameHash",
-              "type": "bytes32"
-            }
-          ],
-          "name": "addAllowedTSM",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "contract ITSMRegistrarFactory",
-              "name": "_factory",
-              "type": "address"
-            }
-          ],
-          "name": "addRegistrarFactory",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "contract ITSMRegistrarFactory",
-              "name": "_factory",
-              "type": "address"
-            }
-          ],
-          "name": "createNewTSMRegistrar",
-          "outputs": [
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "ersRegistry",
-          "outputs": [
-            {
-              "internalType": "contract IERS",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "getTSMRegistrars",
-          "outputs": [
-            {
-              "internalType": "address[]",
-              "name": "",
-              "type": "address[]"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "contract IERS",
-              "name": "_ers",
-              "type": "address"
-            },
-            {
-              "internalType": "contract ITSMRegistrarFactory[]",
-              "name": "_factories",
-              "type": "address[]"
-            }
-          ],
-          "name": "initialize",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "initialized",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "name": "isTSMRegistrar",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "owner",
-          "outputs": [
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "name": "pendingTSMs",
-          "outputs": [
-            {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "contract ITSMRegistrarFactory",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "name": "registrarFactories",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_tsmOwner",
-              "type": "address"
-            }
-          ],
-          "name": "removeAllowedTSM",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "contract ITSMRegistrarFactory",
-              "name": "_factory",
-              "type": "address"
-            }
-          ],
-          "name": "removeRegistrarFactory",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "renounceOwnership",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_tsmRegistrar",
-              "type": "address"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "_nameHash",
-              "type": "bytes32"
-            }
-          ],
-          "name": "revokeTSMRegistrar",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "newOwner",
-              "type": "address"
-            }
-          ],
-          "name": "transferOwnership",
           "outputs": [],
           "stateMutability": "nonpayable",
           "type": "function"
