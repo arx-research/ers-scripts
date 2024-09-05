@@ -1,6 +1,6 @@
 {
   "name": "@arx-research/ers-scripts",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Scripts for deploying and interacting with the ERS protocol from the command line",
   "main": "index.js",
   "scripts": {
@@ -20,7 +20,6 @@
     "deploy:base": "npx hardhat deploy --network base --no-compile && npx hardhat export --network base --export ./deployments/outputs/baseContracts.ts",
     "deploy:sepolia": "npx hardhat deploy --network sepolia --no-compile && npx hardhat export --network sepolia --export ./deployments/outputs/sepoliaContracts.ts",
     "etherscan:base": "yarn hardhat --network base etherscan-verify --license MIT --solc-input",
-    "etherscan:goerli": "yarn hardhat --network goerli etherscan-verify --license MIT --solc-input",
     "etherscan:sepolia": "yarn hardhat --network sepolia etherscan-verify --license MIT --solc-input",
     "transferToken": "npx hardhat transferToken",
     "transferToken:localhost": "npx hardhat transferToken --network localhost",
@@ -33,7 +32,6 @@
     "createService": "npx hardhat createService",
     "createService:localhost": "npx hardhat createService --network localhost",
     "createService:sepolia": "npx hardhat createService --network sepolia",
-    "getArxManufacturerEnrollments": "npx hardhat getArxManufacturerEnrollments",
     "scanChips": "npx hardhat scanChips",
     "test": "npx hardhat test",
     "test:deploy": "yarn test:fast ./test/deploys.spec.ts",

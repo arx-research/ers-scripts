@@ -38,7 +38,6 @@ const config: HardhatUserConfig = {
       accounts: [
         `0x${process.env.TESTNET_DEPLOY_PRIVATE_KEY}`,
         `0x${process.env.TESTNET_MANUFACTURER_PRIVATE_KEY}`,
-        `0x${process.env.TESTNET_MANUFACTURER_SIGNER_PRIVATE_KEY}`,
         `0x${process.env.TESTNET_SERVICE_CREATOR_PRIVATE_KEY}`,
         `0x${process.env.TESTNET_PROJECT_OWNER_PRIVATE_KEY}`,
         `0x${process.env.TESTNET_PROJECT_PUBLIC_PRIVATE_KEY}`,
@@ -56,7 +55,6 @@ const config: HardhatUserConfig = {
       accounts: [
         `0x${process.env.BASE_DEPLOY_PRIVATE_KEY}`,
         `0x${process.env.BASE_MANUFACTURER_PRIVATE_KEY}`,
-        `0x${process.env.BASE_MANUFACTURER_SIGNER_PRIVATE_KEY}`,
         `0x${process.env.BASE_SERVICE_CREATOR_PRIVATE_KEY}`,
         `0x${process.env.BASE_PROJECT_OWNER_PRIVATE_KEY}`,
         `0x${process.env.BASE_PROJECT_PUBLIC_PRIVATE_KEY}`,
@@ -73,49 +71,36 @@ const config: HardhatUserConfig = {
   namedAccounts: {
     deployer: {
       localhost: 0,
-      goerli: `privatekey://0x${process.env.TESTNET_DEPLOY_PRIVATE_KEY}`,
       sepolia: `privatekey://0x${process.env.TESTNET_DEPLOY_PRIVATE_KEY}`,
       base: `privatekey://0x${process.env.BASE_DEPLOY_PRIVATE_KEY}`,
     },
     defaultManufacturer: {
       localhost: 1,
-      goerli: `privatekey://0x${process.env.TESTNET_MANUFACTURER_PRIVATE_KEY}`,
       sepolia: `privatekey://0x${process.env.TESTNET_MANUFACTURER_PRIVATE_KEY}`,
       base: `privatekey://0x${process.env.BASE_MANUFACTURER_PRIVATE_KEY}`,
     },
-    defaultManufacturerSigner: { // Note: we may remove this as it's now out of bounds from ers-scripts
-      localhost: 2,
-      goerli: `privatekey://0x${process.env.TESTNET_MANUFACTURER_SIGNER_PRIVATE_KEY}`,
-      sepolia: `privatekey://0x${process.env.TESTNET_MANUFACTURER_SIGNER_PRIVATE_KEY}`,
-      base: `privatekey://0x${process.env.BASE_MANUFACTURER_SIGNER_PRIVATE_KEY}`,
-    },
     developerOwner: {
-      localhost: 3,
-      goerli: `privatekey://0x${process.env.TESTNET_DEVELOPER_OWNER_PRIVATE_KEY}`,
+      localhost: 2,
       sepolia: `privatekey://0x${process.env.TESTNET_DEVELOPER_OWNER_PRIVATE_KEY}`,
       base: `privatekey://0x${process.env.BASE_DEVELOPER_OWNER_PRIVATE_KEY}`,
     },
     serviceCreator: {
-      localhost: 4,
-      goerli: `privatekey://0x${process.env.TESTNET_SERVICE_CREATOR_PRIVATE_KEY}`,
+      localhost: 3,
       sepolia: `privatekey://0x${process.env.TESTNET_SERVICE_CREATOR_PRIVATE_KEY}`,
       base: `privatekey://0x${process.env.BASE_SERVICE_CREATOR_PRIVATE_KEY}`,
     },
     projectOwner: {
-      localhost: 5,
-      goerli: `privatekey://0x${process.env.TESTNET_PROJECT_OWNER_PRIVATE_KEY}`,
+      localhost: 4,
       sepolia: `privatekey://0x${process.env.TESTNET_PROJECT_OWNER_PRIVATE_KEY}`,
       base: `privatekey://0x${process.env.BASE_PROJECT_OWNER_PRIVATE_KEY}`,
     },
     projectPublicKey: {
-      localhost: 6,
-      goerli: `privatekey://0x${process.env.TESTNET_PROJECT_PUBLIC_PRIVATE_KEY}`,
+      localhost: 5,
       sepolia: `privatekey://0x${process.env.TESTNET_PROJECT_PUBLIC_PRIVATE_KEY}`,
       base: `privatekey://0x${process.env.BASE_PROJECT_PUBLIC_PRIVATE_KEY}`,
     },
     chipOwner: {
-      localhost: 7,
-      goerli: `privatekey://0x${process.env.TESTNET_CHIP_OWNER_PRIVATE_KEY}`,
+      localhost: 6,
       sepolia: `privatekey://0x${process.env.TESTNET_CHIP_OWNER_PRIVATE_KEY}`,
       base: `privatekey://0x${process.env.BASE_CHIP_OWNER_PRIVATE_KEY}`,
     }

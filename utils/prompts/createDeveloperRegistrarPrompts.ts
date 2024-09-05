@@ -7,6 +7,7 @@ import { BigNumberish } from 'ethers';
 
 export async function getDeveloperNameApproval(prompter: readline.ReadLine, developerOwner: Address, chainId: BigNumberish, verifyingContract: Address): Promise<[string, string, string, string]> {
   console.log(`Note: ${process.env.NAME_APPROVER_ENDPOINT} is set as the name approver endpoint.`)
+  const chainIdString = chainId.toString(); 
   const name = await queryUser(
     prompter,
     "What name would you like to register as a developer? In ERS this will create a subnode with the path [name].ers. "
@@ -20,7 +21,7 @@ export async function getDeveloperNameApproval(prompter: readline.ReadLine, deve
   try {
     res = await axios.post(
       `${process.env.NAME_APPROVER_ENDPOINT}/sign-message`,
-      {developerOwner, name, chainId, verifyingContract},
+      {developerOwner, name, chainId: chainIdString, verifyingContract},
       {headers: {'Content-Type': 'application/json',}}
     );
   } catch (e) {
