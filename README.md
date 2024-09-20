@@ -16,8 +16,7 @@ cp .env.default .env
 Note that this script antif
 
 ## Deployments
-### Sepolia
-See the Sepolia deployment artifacts in `deployments/sepolia`.
+See the deployment artifacts in `deployments/$CHAIN_ID`.
 
 ### Local
 For local testing, instantiate your local chain (e.g. `yarn chain`) and run:
@@ -99,6 +98,8 @@ yarn createProject --network [network]
 ```
 
 Note: If you are creating `tokenUri` data from a formatted CSV, make sure that you backup `task_outputs`. When chips are added to an existing project, `task_outputs` will be used to ensure that metadata from previously added chips is included in the final `tokenUri` data. If this data is missing, metadata with previously enrollment chips will be overwritten and their `tokenUri` will not resolve when looked up. 
+
+See `example/tokenUriExample.csv` for an example of how the CSV should be formatted. Note that in the example the minimum required fields have been completed; other fields will be dynamically added. Notes is for reference purposes and is not included when the `tokenUri` data is generated.
 
 ### transferToken
 This script [claims ownership of a chip](https://docs.ers.to/overview/concepts/chip-claim) that has been enrolled in a project by transfering it to a new owner.
