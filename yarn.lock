@@ -7,15 +7,15 @@
   resolved "https://registry.yarnpkg.com/@adraffy/ens-normalize/-/ens-normalize-1.10.0.tgz#d2a39395c587e092d77cbbc80acf956a54f38bf7"
   integrity sha512-nA9XHtlAkYfJxY7bce8DcN7eKxWWCWkU+1GR9d+U6MbNpfwQp8TI7vqOsBsMcHoT4mBu2kypKoSKnghEzOOq5Q==
 
-"@arx-research/ers-contracts@^2.0.2":
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/@arx-research/ers-contracts/-/ers-contracts-2.0.2.tgz#510be5f4b6f9edff5deeb4ab7c7608f5d1a4054f"
-  integrity sha512-hBJEmXOtFulCf56hoN3d2P8Yr1qrzl6YIefV762Xna1D/UfCTwtjFKWSEd5ZdIXrXrR40sIT2HYtyFIaqDer7A==
+"@arx-research/ers-contracts@^2.0.4":
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/@arx-research/ers-contracts/-/ers-contracts-2.0.4.tgz#10c88ad2b198a4b510b638a2ce850070d0a222c8"
+  integrity sha512-JUROgb954XG8de3wPpdk3vSd931c+7wbAdw3Rop0yQN/vM79KH2tiPa+Novp9dJCEhijp4WCQ7GjrPLpidWRcQ==
   dependencies:
     "@nomicfoundation/hardhat-network-helpers" "^1.0.11"
     "@openzeppelin/contracts" "^4.9.2"
     "@typechain/ethers-v5" "^11.1.2"
-    "@typechain/hardhat" "^8.0.0"
+    "@typechain/hardhat" "^7.0.0"
     dotenv "^16.3.1"
     hardhat-gas-reporter "^2.0.2"
     npm "^10.8.1"
@@ -3067,13 +3067,6 @@
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/@typechain/hardhat/-/hardhat-7.0.0.tgz#ffa7465328150e793007fee616ae7b76ed20784d"
   integrity sha512-XB79i5ewg9Met7gMVGfgVkmypicbnI25T5clJBEooMoW2161p4zvKFpoS2O+lBppQyMrPIZkdvl2M3LMDayVcA==
-  dependencies:
-    fs-extra "^9.1.0"
-
-"@typechain/hardhat@^8.0.0":
-  version "8.0.3"
-  resolved "https://registry.yarnpkg.com/@typechain/hardhat/-/hardhat-8.0.3.tgz#a114825f130405bbb8e535314003733b7ce3f91c"
-  integrity sha512-MytSmJJn+gs7Mqrpt/gWkTCOpOQ6ZDfRrRT2gtZL0rfGe4QrU4x9ZdW15fFbVM/XTa+5EsKiOMYXhRABibNeng==
   dependencies:
     fs-extra "^9.1.0"
 

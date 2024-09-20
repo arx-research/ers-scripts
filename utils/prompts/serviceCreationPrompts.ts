@@ -19,6 +19,7 @@ export async function getServiceId(prompter: readline.ReadLine, servicesRegistry
   return [serviceId, serviceName];
 }
 
+// TODO: validate that it's a http or https or ipfs URI, prompt again if not
 export async function getRedirectContent(prompter:readline.ReadLine): Promise<string> {
   const content = await queryUser(prompter, "What root URL or URI would you like to redirect chips enrolled in this service to? ");
 

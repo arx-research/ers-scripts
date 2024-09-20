@@ -16,5 +16,5 @@ yarn-error.log
 /dist
 
 # Don't commit task param files other than defaults
-/task_params/
+/task_params/*
 /task_outputs/

@@ -7,13 +7,11 @@ Scripts for deploying and interacting with the Ethereum Reality Service ("ERS") 
 ```bash
 cp .env.default .env
 ```
-3. Fill out the resulting fields in the `.env` file with the appropriate values. 
+3. Fill out the resulting fields in the `.env` file with the appropriate values.
 4. You will need a `SUPABASE_ANON_KEY` in order to access Arx manufacturer enrollments, a Filebase account in order to create project data and an Infura account to carry out RPC commands.
+5. Run `yarn build` to create local `artifacts` that will be necessary for certain tasks like `createProject`
 5. If you are deploying against a non-local blockchain network, add the private keys for the accounts that you wish to use (e.g. `TESTNET_SERVICE_CREATOR_PRIVATE_KEY`).
 6. In order to deploy or run scripts there needs to be a valid node to interact with. If you are testing and planning on running locally you can start the `localhost` network by running `yarn chain`, this opens up a local node at the default port `8545`.
-
-### .env vars
-Note that this script antif
 
 ## Deployments
 See the deployment artifacts in `deployments/$CHAIN_ID`.

@@ -185,7 +185,7 @@ export async function getProjectName(
 export async function getProjectSymbol(prompter: readline.ReadLine): Promise<string> {
   const tokenSymbol = await queryUser(
     prompter,
-    `Which token symbol would you like to use for your project (e.g. $ERS)? `
+    `Which token symbol would you like to use for your project (e.g. ERS or USDC)? `
   );
 
   if (tokenSymbol.length == 0) {
@@ -269,15 +269,18 @@ export async function getServiceId(prompter: readline.ReadLine, chainId: string,
 // Ask if the users wants to (1) generate tokenURI data from a CSV as they scan or (2) paste and existing tokrenURI they already generated
 export async function getTokenUriSource(prompter: readline.ReadLine): Promise<string> {
   console.log("How would you like to add the tokenURI data? (chip metadata like name, image, descriptions, etc.) ");
-  console.log("1: Input a CSV file with tokenUri data and generate tokenUri data as you scan chips ");
-  console.log("2: Input a tokenUri that you have already generated ");
-  console.log("3: Skip (tokenUri can be updated after project deployment). ");
+  console.log("1: Skip (tokenUri can be updated after project deployment). ");
+  console.log("2: Input a CSV file with tokenUri data and generate tokenUri data as you scan chips ");
+  console.log("3: Input a tokenUri that you have already generated ");
 
-  const choice = await queryUser(prompter, "Select an option (default is option 3): ");
+
+  const choice = await queryUser(prompter, "Select an option (default is option 1): ");
 
   if (choice === '1') {
-    return "csv";
+    return '';
   } else if (choice === '2') {
+    return "csv";
+  } else if (choice === '3') {
     return "uri";
   }
   return '';

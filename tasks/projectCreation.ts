@@ -221,7 +221,7 @@ task("createProject", "Create a new project")
         ],
       });
     
-      console.log(`New ProjectRegistrar deployed at ${projectRegistrarDeploy.address}`);
+      console.log(`New ProjectRegistrar deployed at ${projectRegistrarDeploy.address}, adding project to the DeveloperRegistrar, this might take a moment...`);
     
       // Add the new project to the DeveloperRegistrar
       const developerRegistrar = new DeveloperRegistrar__factory(await hre.ethers.getSigner(developerOwner)).attach(params.developerRegistrar);

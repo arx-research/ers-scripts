@@ -22,6 +22,7 @@ task("createDeveloperRegistrar", "Create developer registrar")
 
     const developerRegistry = await getDeveloperRegistry(hre, developerOwner);
 
+    console.log(`Claiming name ${name} with name hash ${nameHash}, this might take a moment...`);
     await rawTx({
       from: developerOwner,
       to: developerNameGovernor.address,
@@ -31,6 +32,7 @@ task("createDeveloperRegistrar", "Create developer registrar")
       )
     });
 
+    console.log(`Creating developer registrar for name ${name}, this might take a moment...`);
     const receipt = await rawTx({
       from: developerOwner,
       to: developerRegistry.address,
