@@ -2,9 +2,9 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { ethers } from "hardhat";
 
-import { Address, ADDRESS_ZERO, calculateLabelHash, DeveloperNameGovernor, DeveloperRegistrar__factory } from "@arx-research/ers-contracts";
+import { DeveloperNameGovernor } from "@arx-research/ers-contracts";
 
-import { getDeployedContractAddress, saveFactoryDeploy, setNewOwner } from "../utils/helpers";
+import { getDeployedContractAddress, setNewOwner } from "../utils/helpers";
 import {
   MAX_BLOCK_WINDOW,
   MULTI_SIG_ADDRESSES,

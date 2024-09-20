@@ -11,8 +11,8 @@ import {
 
 import { queryUser } from "../scriptHelpers";
 
-function getTaskOutputs(taskName: string, currentChainId: string): { id: string, model: string }[] {
-  const outputDir = path.join(__dirname, `../../task_outputs/${taskName}`);
+function getTaskOutputs(taskName: string, currentChainId: string, currentNetworkName: string): { id: string, model: string }[] {
+  const outputDir = path.join(__dirname, `../../task_outputs/${currentNetworkName}/${taskName}`);
   if (!fs.existsSync(outputDir)) {
     return [];
   }
@@ -37,7 +37,7 @@ function getTaskOutputs(taskName: string, currentChainId: string): { id: string,
             };
 
           case 'addManufacturerEnrollment':
-            const manufacturerName = lookupManufacturerName(content.manufacturerId);
+            const manufacturerName = lookupManufacturerName(content.manufacturerId, currentNetworkName);
             return {
               id: content.enrollmentId || 'Unknown',
               model: `Manufacturer: ${manufacturerName || content.manufacturerId}`
@@ -67,14 +67,15 @@ function getTaskOutputs(taskName: string, currentChainId: string): { id: string,
 }
 
 // Function to get project registrars from task outputs
-function getProjectRegistrars(currentChainId: string): { id: string, model: string }[] {
-  return getTaskOutputs('createProject', currentChainId);
+function getProjectRegistrars(currentChainId: string, currentNetworkName: string): { id: string, model: string }[] {
+  return getTaskOutputs('createProject', currentChainId, currentNetworkName);
 }
 
 // Prompt user for adding chips to existing project or creating a new one
 export async function promptProjectRegistrar(
   prompter: readline.ReadLine,
-  chainId: string
+  chainId: string,
+  networkName: string
 ): Promise<{ id: string; isNew: boolean; artifactFound: boolean }> {
   console.log("Would you like to add chips to an existing project or create a new one?");
   console.log("1: Create a new project");
@@ -84,7 +85,7 @@ export async function promptProjectRegistrar(
 
   if (choice === '2') {
     console.log("WARNING: if you add chips to an existing project, the project's tokenURI data will be overwritten using data from task_outputs. If previously added chips in the project are not in task_outputs, their metadata will be missing.");
-    const projectRegistrars = getProjectRegistrars(chainId);
+    const projectRegistrars = getProjectRegistrars(chainId, networkName);
 
     if (projectRegistrars.length > 0) {
       console.log("Available Projects:");
@@ -111,8 +112,8 @@ export async function promptProjectRegistrar(
 
 
 // Function to lookup manufacturer name from addManufacturer task outputs
-function lookupManufacturerName(manufacturerId: string): string | null {
-  const outputDir = path.join(__dirname, `../../task_outputs/addManufacturer`);
+function lookupManufacturerName(manufacturerId: string, networkName: string): string | null {
+  const outputDir = path.join(__dirname, `../../task_outputs/${networkName}/addManufacturer`);
   if (!fs.existsSync(outputDir)) {
     return null;
   }
@@ -129,8 +130,8 @@ function lookupManufacturerName(manufacturerId: string): string | null {
 }
 
 // Modified function to suggest DeveloperRegistrar
-export async function getUserDeveloperRegistrar(prompter: readline.ReadLine, chainId: string): Promise<string> {
-  const taskOutputs = getTaskOutputs('createDeveloperRegistrar', chainId);
+export async function getUserDeveloperRegistrar(prompter: readline.ReadLine, chainId: string, networkName: string): Promise<string> {
+  const taskOutputs = getTaskOutputs('createDeveloperRegistrar', chainId, networkName);
 
   if (taskOutputs.length > 0) {
     console.log("Available DeveloperRegistrars:");
@@ -235,8 +236,8 @@ export async function getServiceTimelock(prompter: readline.ReadLine): Promise<B
 }
 
 // Modified function to suggest Service ID
-export async function getServiceId(prompter: readline.ReadLine, chainId: string): Promise<string> {
-  const taskOutputs = getTaskOutputs('createService', chainId);
+export async function getServiceId(prompter: readline.ReadLine, chainId: string, networkName: string): Promise<string> {
+  const taskOutputs = getTaskOutputs('createService', chainId, networkName);
 
   if (taskOutputs.length > 0) {
     console.log("Available Services:");
@@ -259,7 +260,7 @@ export async function getServiceId(prompter: readline.ReadLine, chainId: string)
   if(serviceId.slice(0, 2) != '0x' || serviceId.length != 66) {
     console.log("Not a valid Service ID, service ID must be a bytes32 hash");
 
-    return await getServiceId(prompter, chainId);
+    return await getServiceId(prompter, chainId, networkName);
   }
 
   return serviceId;
@@ -366,9 +367,8 @@ async function promptUserForCsvInput(rl: readline.Interface): Promise<string> {
   });
 }
 
-// Modified function to suggest Enrollment ID
-export async function getEnrollmentId(prompter: readline.ReadLine, chainId: string): Promise<string> {
-  const taskOutputs = getTaskOutputs('addManufacturerEnrollment', chainId);
+export async function getEnrollmentId(prompter: readline.ReadLine, chainId: string, networkName: string): Promise<string> {
+  const taskOutputs = getTaskOutputs('addManufacturerEnrollment', chainId, networkName);
 
   if (taskOutputs.length > 0) {
     console.log("Available Enrollment IDs:");
@@ -390,8 +390,13 @@ export async function getEnrollmentId(prompter: readline.ReadLine, chainId: stri
 
   if (enrollmentId.slice(0, 2) != '0x' || enrollmentId.length != 66) {
     console.log("Invalid enrollmentId. Please provide a valid address.");
-    return getEnrollmentId(prompter, chainId);
+    return getEnrollmentId(prompter, chainId, networkName);
   }
 
   return enrollmentId;
+}
+
+export async function promptContinueScanning(prompter: readline.ReadLine): Promise<boolean> {
+  const answer = await queryUser(prompter, 'Do you want to scan another chip? (y/n): ');
+  return answer.toLowerCase() === 'y' || answer.toLowerCase() === 'yes';
 }

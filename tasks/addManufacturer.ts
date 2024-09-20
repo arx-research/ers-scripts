@@ -13,11 +13,28 @@ task("addManufacturer", "Add a manufacturer to the ManufacturerRegistry")
   .setAction(async (taskArgs, hre: HRE) => {
     const { rawTx } = hre.deployments;
     const chainId = await hre.getChainId();
+    const networkName = hre.network.name;
 
     const { manufacturerName, manufacturer } = taskArgs;
     const { deployer, defaultManufacturer } = await hre.getNamedAccounts();
 
-    const multiSig = MULTI_SIG_ADDRESSES[hre.network.name] ? MULTI_SIG_ADDRESSES[hre.network.name] : deployer;
+    // Determine if a multisig address exists for the current network
+    const multiSig = MULTI_SIG_ADDRESSES[hre.network.name];
+
+    if (multiSig && multiSig !== deployer) {
+      // If a multisig exists and it's not the deployer, exit and instruct the user
+      console.error(
+        `A multisig address (${multiSig}) exists for the network "${hre.network.name}".\n` +
+        `Please generate the transaction data using https://abi.ninja/ and execute the transaction from the multisig.\n` +
+        `\nTransaction Details:\n` +
+        `Contract Address: ${getDeployedContractAddress(hre.network.name, "ManufacturerRegistry")}\n` +
+        `Function: addManufacturer\n` +
+        `Parameters:\n` +
+        `- _manufacturerId (bytes32): ${ethers.utils.formatBytes32String(manufacturerName)}\n` +
+        `- _owner (address): ${manufacturer || defaultManufacturer}\n`
+      );
+      process.exit(1);
+    }
 
     const manufacturerAddress = manufacturer ? manufacturer : defaultManufacturer;
 
@@ -26,17 +43,17 @@ task("addManufacturer", "Add a manufacturer to the ManufacturerRegistry")
     const manufacturerRegistryAddress = getDeployedContractAddress(hre.network.name, "ManufacturerRegistry");
     const manufacturerRegistry = new ManufacturerRegistry__factory().attach(manufacturerRegistryAddress);
 
-    // If the manufacturer is already registered, do nothing if the multiSig isn't an EOA then skip
+    // Proceed with the transaction if no multisig exists or it's the deployer
     await rawTx({
-      from: multiSig,
+      from: deployer,
       to: manufacturerRegistry.address,
-      data: manufacturerRegistry.interface.encodeFunctionData("addManufacturer", [manufacturerId, manufacturerAddress])
+      data: manufacturerRegistry.interface.encodeFunctionData("addManufacturer", [manufacturerId, manufacturerAddress]),
     });
 
-    console.log(`Manufacturer ${manufacturerName} added to ManufacturerRegistry with following id: ${manufacturerId}`);
+    console.log(`Manufacturer "${manufacturerName}" added to ManufacturerRegistry with ID: ${manufacturerId}`);
 
     // Save the data to a JSON file
-    const outputDir = path.join(__dirname, "../task_outputs/addManufacturer");
+    const outputDir = path.join(__dirname, `../task_outputs/${networkName}/addManufacturer`);
     const outputFilePath = path.join(outputDir, `${manufacturerId}.json`);
 
     // Ensure the output directory exists

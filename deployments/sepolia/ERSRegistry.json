@@ -1,0 +1,392 @@
+{
+  "address": "0x51d2c9c145b5D4330E5FA8837E330F51Ff43465B",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "contract IChipRegistry",
+          "name": "_chipRegistry",
+          "type": "address"
+        },
+        {
+          "internalType": "contract IDeveloperRegistry",
+          "name": "_developerRegistry",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "node",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "subnode",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "nameHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "NewOwner",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "node",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "resolver",
+          "type": "address"
+        }
+      ],
+      "name": "NewResolver",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "node",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "Transfer",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "chipRegistry",
+      "outputs": [
+        {
+          "internalType": "contract IChipRegistry",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_node",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_nameHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "_owner",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_resolver",
+          "type": "address"
+        }
+      ],
+      "name": "createChipRegistrySubnodeRecord",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_node",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_nameHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "_owner",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_resolver",
+          "type": "address"
+        }
+      ],
+      "name": "createSubnodeRecord",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_node",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_nameHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "deleteChipRegistrySubnodeRecord",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_node",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_nameHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "deleteSubnodeRecord",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "developerRegistry",
+      "outputs": [
+        {
+          "internalType": "contract IDeveloperRegistry",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_node",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getOwner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_node",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getResolver",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_node",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_nameHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getSubnodeHash",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_node",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_nameHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getSubnodeOwner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_node",
+          "type": "bytes32"
+        }
+      ],
+      "name": "recordExists",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "records",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "resolver",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_node",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "_newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "setNodeOwner",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x0874cc1404322ad662c0d51f30a39b2127e37406065e338baaa014fdf70d19b0",
+  "receipt": {
+    "to": null,
+    "from": "0x914Cce99BB910e073e5507fb127469f6FB7B5490",
+    "contractAddress": "0x51d2c9c145b5D4330E5FA8837E330F51Ff43465B",
+    "transactionIndex": 149,
+    "gasUsed": "682900",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x36d0003df5b9f3166a76826a0e65232efb56eb11372bb1ca6c6a41673dea19d9",
+    "transactionHash": "0x0874cc1404322ad662c0d51f30a39b2127e37406065e338baaa014fdf70d19b0",
+    "logs": [],
+    "blockNumber": 6638474,
+    "cumulativeGasUsed": "17951088",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0x4EED142581c111860f6323168dC60c3eFCa3af24",
+    "0x0FCb2A0df07b00f84e651a9a68c9B38543560590"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "506b2add1b56cef4fbe0ce691febffd1",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.24+commit.e11b9ed9\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"contract IChipRegistry\",\"name\":\"_chipRegistry\",\"type\":\"address\"},{\"internalType\":\"contract IDeveloperRegistry\",\"name\":\"_developerRegistry\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"node\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"subnode\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"nameHash\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"NewOwner\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"node\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"resolver\",\"type\":\"address\"}],\"name\":\"NewResolver\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"node\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"chipRegistry\",\"outputs\":[{\"internalType\":\"contract IChipRegistry\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"_node\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"_nameHash\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_resolver\",\"type\":\"address\"}],\"name\":\"createChipRegistrySubnodeRecord\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"_node\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"_nameHash\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_resolver\",\"type\":\"address\"}],\"name\":\"createSubnodeRecord\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"_node\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"_nameHash\",\"type\":\"bytes32\"}],\"name\":\"deleteChipRegistrySubnodeRecord\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"_node\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"_nameHash\",\"type\":\"bytes32\"}],\"name\":\"deleteSubnodeRecord\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"developerRegistry\",\"outputs\":[{\"internalType\":\"contract IDeveloperRegistry\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"_node\",\"type\":\"bytes32\"}],\"name\":\"getOwner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"_node\",\"type\":\"bytes32\"}],\"name\":\"getResolver\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"_node\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"_nameHash\",\"type\":\"bytes32\"}],\"name\":\"getSubnodeHash\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"_node\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"_nameHash\",\"type\":\"bytes32\"}],\"name\":\"getSubnodeOwner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"_node\",\"type\":\"bytes32\"}],\"name\":\"recordExists\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"records\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"resolver\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"_node\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"_newOwner\",\"type\":\"address\"}],\"name\":\"setNodeOwner\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"Arx\",\"kind\":\"dev\",\"methods\":{\"constructor\":{\"details\":\"Constructs a new ERS registry.\"},\"createChipRegistrySubnodeRecord(bytes32,bytes32,address,address)\":{\"details\":\"ONLY CHIP REGISTRY: Sets the record on behalf of a new chip or project subnode. Note that ChipRegistry is not the node owner.\",\"params\":{\"_nameHash\":\"The hash of the nameHash specifying the subnode.\",\"_node\":\"The parent node.\",\"_owner\":\"The address of the new owner.\",\"_resolver\":\"The address that the new nameHash resolves to.\"},\"returns\":{\"_0\":\"The newly created subnode hash\"}},\"createSubnodeRecord(bytes32,bytes32,address,address)\":{\"details\":\"ONLY DEPLOYER, DEVELOPER REGISTRY or DEVELOPER REGISTRAR: Sets the record for a new subnode. May only be called by owner of node (checked in _setSubnodeOwner).\",\"params\":{\"_nameHash\":\"The hash of the nameHash specifying the subnode.\",\"_node\":\"The parent node.\",\"_owner\":\"The address of the new owner.\",\"_resolver\":\"The address that the new nameHash resolves to.\"},\"returns\":{\"_0\":\"The newly created subnode hash\"}},\"deleteChipRegistrySubnodeRecord(bytes32,bytes32)\":{\"details\":\"ONLY CHIP REGISTRY: Delete the record for a project subnode. Note that ChipRegistry is not the node owner.\",\"params\":{\"_nameHash\":\"The hash of the nameHash specifying the subnode.\",\"_node\":\"The parent node.\"}},\"deleteSubnodeRecord(bytes32,bytes32)\":{\"details\":\"ONLY Developer REGISTRY: Deletes the record for an already created subnode. Developer Registry must be the owner of the node so as to not accidentally delete a non DeveloperRegistrar subnode.\",\"params\":{\"_nameHash\":\"The hash of the nameHash specifying the subnode.\",\"_node\":\"The parent node.\"}},\"getOwner(bytes32)\":{\"details\":\"Returns the address that owns the specified node.\",\"params\":{\"_node\":\"The specified node.\"},\"returns\":{\"_0\":\"address of the owner.\"}},\"getResolver(bytes32)\":{\"details\":\"Returns the address of the resolver for the specified node.\",\"params\":{\"_node\":\"The specified node.\"},\"returns\":{\"_0\":\"address of the resolver.\"}},\"getSubnodeHash(bytes32,bytes32)\":{\"details\":\"Returns the subnode hash of node + nameHash. This is the keccak256 hash of `node` + `nameHash`.\",\"params\":{\"_nameHash\":\"The specified nameHash.\",\"_node\":\"The specified node.\"}},\"getSubnodeOwner(bytes32,bytes32)\":{\"details\":\"Returns the address that owns the specified subnode.\",\"params\":{\"_nameHash\":\"The specified nameHash.\",\"_node\":\"The specified node.\"},\"returns\":{\"_0\":\"address of the owner.\"}},\"recordExists(bytes32)\":{\"details\":\"Returns whether a record has been written to the registry for that node.\",\"params\":{\"_node\":\"The specified node.\"},\"returns\":{\"_0\":\"Bool if record exists\"}},\"setNodeOwner(bytes32,address)\":{\"details\":\"ONLY CHIP REGISTRY: Transfers ownership of a node to a new address. Owner cannot directly call (unless root node), ChipRegistry must manage ownership changes for chips in order to keep state consistent between ChipRegistry and ERS.\",\"params\":{\"_newOwner\":\"The address of the new owner.\",\"_node\":\"The node to transfer ownership of.\"}}},\"title\":\"ERSRegistry\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"Fork of ENSRegistry with adapted data structures and accessiblity logic in order to conform to needs of ERS. Node owners can create any subnode. A node tracks the owner of the node and the address the node resolves to. Within the context of ERS a resolver represents either a smart contract OR a chip. The owner has the ability to create any subnodes of its choosing, however only the DeveloperRegistry is able to change both the owner and the resolver for a given node once created. The ChipRegistry is able to change the owner of a node (signifying a transfer of a chip) but is not able to  change the resolver. These permissions are put in place in order to maintain a track record of authenticity for chips while allowing the DeveloperRegistry to re-assign sub-domains to new DeveloperRegistrars. Note that if a DeveloperRegistry's subnode is reassigned to a new DeveloperRegistrar the new DeveloperRegistrar CANNOT overwrite the nodes created by the previous node owner.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/ERSRegistry.sol\":\"ERSRegistry\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[],\"viaIR\":true},\"sources\":{\"contracts/ERSRegistry.sol\":{\"keccak256\":\"0x0195b62997f7200c66c591edb84e30358f8e78dcce7802aeee178a14ac8460da\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://0a678a9605bf5f1cd9ebe215d2e17ac0e79b74785ae3bac7269d049a948bb1d2\",\"dweb:/ipfs/QmY5YaSzLYLa5AzrsFji4xvPoNcV7wjj1P2eh1VJuSFbs4\"]},\"contracts/interfaces/IChipRegistry.sol\":{\"keccak256\":\"0xda647f2094927e8ca017dcdcaf4fe184d97e0c8aaee87664a2d453de1f8eaa72\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://5905b09dc5eb6af23eb8e36e36743f168f8591c9d73fccfe598425971c2cb47a\",\"dweb:/ipfs/QmQfgBfZL7VHsEoSVQsR5YiSYnHRoeVq4Ko9YgnTzbwKAv\"]},\"contracts/interfaces/IDeveloperRegistry.sol\":{\"keccak256\":\"0x50764e879fff9331e6120a78c9d77af213e82cb1437ff9e8c5f98e9b0ce66c7c\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://2f32ad9f1f024111b5231b60a8f8d8a63ddaff098ebd8aabb3f365a217b8905e\",\"dweb:/ipfs/QmWtqczEfmMVHpSDrdrecDBtaAX1oR4Zgbh6Wkc74z8rLh\"]},\"contracts/interfaces/IProjectRegistrar.sol\":{\"keccak256\":\"0xf3cd3eed6250f83c459cdb98a179658225bd72de208c4d2fe43a50bcf07b23da\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://cbdc98405f9799c0bfb1304cb753a234ada2e2d8f2dcd591be418c2dd532acff\",\"dweb:/ipfs/QmYG6RsCLtYcaQsM2xKbU2nHEGUQQ8UBrLy18uJP5p9do7\"]},\"contracts/interfaces/IServicesRegistry.sol\":{\"keccak256\":\"0xea6c01ed4d3e19108eaaee95c65c8818120ac2ee8a05c8ff868435f58e94677f\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://ecb1482b95f9dcf55718caecb59d7433b1167ae52677e0d781f665a173e72de5\",\"dweb:/ipfs/QmVEe4t8JY2SDYxkrwZeMytXhTQCz8pFLvdebsDNrKsPnX\"]}},\"version\":1}",
+  "bytecode": "0x60c0346100e857601f610bf738819003918201601f19168301916001600160401b038311848410176100ed5780849260409485528339810103126100e85780516001600160a01b039182821682036100e8576020015191821682036100e85760805260a05260008080526020527fad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb580546001600160a01b03191633179055604051610af3908161010482396080518181816103fe01528181610465015281816106450152610683015260a0518181816102f20152818161039b015281816106c701526107280152f35b600080fd5b634e487b7160e01b600052604160045260246000fdfe608060408181526004918236101561001657600080fd5b600090813560e01c90816301e64725146107ad57508063098cd9d3146106f6578063107d0be1146106b257806311e6575b1461066e5780637161ad19146104fe578063830e98e21461044d5780639ccda3a714610430578063b943a819146103c2578063ca6410c0146101ad578063d9dfb90a1461016f578063deb931a21461012b578063ea6ec3de146100f35763f79fe538146100b357600080fd5b346100f05760203660031901126100f057506100e760209235600052600060205260018060a01b0360406000205416151590565b90519015158152f35b80fd5b509134610127576020366003190112610127573582526020828152918190206001015490516001600160a01b039091168152f35b8280fd5b50346100f05760203660031901126100f0575061015e60209235600052600060205260018060a01b036040600020541690565b90516001600160a01b039091168152f35b5090346101a95760209061015e61018e610188366107ea565b906109a0565b6000908152602081905260409020546001600160a01b031690565b5080fd5b50919034610127576101be36610805565b958381949293945260209681885260018060a01b03966101e4888885205416331461083e565b82805282895287878420541633148015610397575b80156102d9575b156102815750600080516020610a9e8339815191529161027589928861022689886109a0565b9a8b9816936102368515156108c4565b600089815260208190526040902054610258906001600160a01b03161561095b565b8881528086522080546001600160a01b0319168417905586610a3e565b8651908152a451908152f35b865162461bcd60e51b8152908101899052602c60248201527f43616c6c6572206d757374206265204465706c6f796572206f7220446576656c60448201526b6f706572526567697374727960a01b6064820152608490fd5b508651633c2b31b160e11b8152338282015289816024817f00000000000000000000000000000000000000000000000000000000000000008d165afa90811561038d578491610329575b50610200565b9050893d8b11610386575b601f8101601f1916820167ffffffffffffffff811183821017610373578b9183918b528101031261036f5751801515810361036f5738610323565b8380fd5b634e487b7160e01b865260418452602486fd5b503d610334565b88513d86823e3d90fd5b50877f00000000000000000000000000000000000000000000000000000000000000001633146101f9565b5090346101a957600080516020610a9e83398151915290602080936103e636610805565b6001600160a01b0397929591949061027590610425337f00000000000000000000000000000000000000000000000000000000000000008c161461090f565b8861022689886109a0565b5090346101a957602090610446610188366107ea565b9051908152f35b5090346101a95761045d366107ea565b9190610493337f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03161461090f565b600080516020610a9e83398151915260206104ae85846109a0565b936104d66104d186600052600060205260018060a01b0360406000205416151590565b61087f565b84875286825280872080546001600160a01b03191690556104f6856109eb565b51868152a480f35b5091346101275781600319360112610127578035916024356001600160a01b03818116939184900361066a578461064257848652856020528083872054165b1633036105eb5761054f8315156108c4565b6000848152602081905260409020546001600160a01b0316156105b35750828452602084815281852080546001600160a01b0319168417905590519182527fd4735d920b0f87494915f556dd9b54c8f309026070caea5c737245152564d26691a280f35b6020606492519162461bcd60e51b83528201526013602482015272139bd91948191bd95cc81b9bdd08195e1a5cdd606a1b6044820152fd5b6020608492519162461bcd60e51b8352820152602c60248201527f43616c6c6572206d75737420626520436869705265676973747279206f72206f60448201526b776e6572206f66206e6f646560a01b6064820152fd5b807f00000000000000000000000000000000000000000000000000000000000000001661053d565b8580fd5b5090346101a957816003193601126101a957517f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b5090346101a957816003193601126101a957517f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b5091903461012757610707366107ea565b928185528460205260018060a01b03610726818588205416331461083e565b7f000000000000000000000000000000000000000000000000000000000000000016330361076a5750600080516020610a9e83398151915260206104ae85846109a0565b606490602084519162461bcd60e51b8352820152602060248201527f43616c6c6572206d75737420626520446576656c6f70657252656769737472796044820152fd5b92939050346101a95760203660031901126101a95735815260208181529083902080546001909101546001600160a01b0391821684521690820152f35b6040906003190112610800576004359060243590565b600080fd5b60809060031901126108005760043590602435906001600160a01b03906044358281168103610800579160643590811681036108005790565b1561084557565b60405162461bcd60e51b815260206004820152601260248201527126bab9ba103132903737b2329037bbb732b960711b6044820152606490fd5b1561088657565b60405162461bcd60e51b815260206004820152601660248201527514dd589b9bd91948191bd95cc81b9bdd08195e1a5cdd60521b6044820152606490fd5b156108cb57565b606460405162461bcd60e51b815260206004820152602060248201527f4e6577206f776e65722063616e6e6f74206265206e756c6c20616464726573736044820152fd5b1561091657565b60405162461bcd60e51b815260206004820152601b60248201527f43616c6c6572206d7573742062652043686970526567697374727900000000006044820152606490fd5b1561096257565b60405162461bcd60e51b81526020600482015260166024820152755375626e6f646520616c72656164792065786973747360501b6044820152606490fd5b9060405190602082019283526040820152604081526060810181811067ffffffffffffffff8211176109d55760405251902090565b634e487b7160e01b600052604160045260246000fd5b80600052600060205260016040600020016bffffffffffffffffffffffff60a01b81541690557f335721b01866dc23fbee8b6b2c7b1e14d6f05c28cd35a2c934239f94095602a0602060405160008152a2565b9060207f335721b01866dc23fbee8b6b2c7b1e14d6f05c28cd35a2c934239f94095602a091836000526000825260016040600020019060018060a01b031690816bffffffffffffffffffffffff60a01b825416179055604051908152a256fe3d599ae2b88b8766d9da5fd15cdbadf1de6d483307edf94b58ce54d88946124ea2646970667358221220db50926090ddf519bd690b883c97edcbe40655a13c7c4ca6146c8186e8e35a3364736f6c63430008180033",
+  "deployedBytecode": "0x608060408181526004918236101561001657600080fd5b600090813560e01c90816301e64725146107ad57508063098cd9d3146106f6578063107d0be1146106b257806311e6575b1461066e5780637161ad19146104fe578063830e98e21461044d5780639ccda3a714610430578063b943a819146103c2578063ca6410c0146101ad578063d9dfb90a1461016f578063deb931a21461012b578063ea6ec3de146100f35763f79fe538146100b357600080fd5b346100f05760203660031901126100f057506100e760209235600052600060205260018060a01b0360406000205416151590565b90519015158152f35b80fd5b509134610127576020366003190112610127573582526020828152918190206001015490516001600160a01b039091168152f35b8280fd5b50346100f05760203660031901126100f0575061015e60209235600052600060205260018060a01b036040600020541690565b90516001600160a01b039091168152f35b5090346101a95760209061015e61018e610188366107ea565b906109a0565b6000908152602081905260409020546001600160a01b031690565b5080fd5b50919034610127576101be36610805565b958381949293945260209681885260018060a01b03966101e4888885205416331461083e565b82805282895287878420541633148015610397575b80156102d9575b156102815750600080516020610a9e8339815191529161027589928861022689886109a0565b9a8b9816936102368515156108c4565b600089815260208190526040902054610258906001600160a01b03161561095b565b8881528086522080546001600160a01b0319168417905586610a3e565b8651908152a451908152f35b865162461bcd60e51b8152908101899052602c60248201527f43616c6c6572206d757374206265204465706c6f796572206f7220446576656c60448201526b6f706572526567697374727960a01b6064820152608490fd5b508651633c2b31b160e11b8152338282015289816024817f00000000000000000000000000000000000000000000000000000000000000008d165afa90811561038d578491610329575b50610200565b9050893d8b11610386575b601f8101601f1916820167ffffffffffffffff811183821017610373578b9183918b528101031261036f5751801515810361036f5738610323565b8380fd5b634e487b7160e01b865260418452602486fd5b503d610334565b88513d86823e3d90fd5b50877f00000000000000000000000000000000000000000000000000000000000000001633146101f9565b5090346101a957600080516020610a9e83398151915290602080936103e636610805565b6001600160a01b0397929591949061027590610425337f00000000000000000000000000000000000000000000000000000000000000008c161461090f565b8861022689886109a0565b5090346101a957602090610446610188366107ea565b9051908152f35b5090346101a95761045d366107ea565b9190610493337f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03161461090f565b600080516020610a9e83398151915260206104ae85846109a0565b936104d66104d186600052600060205260018060a01b0360406000205416151590565b61087f565b84875286825280872080546001600160a01b03191690556104f6856109eb565b51868152a480f35b5091346101275781600319360112610127578035916024356001600160a01b03818116939184900361066a578461064257848652856020528083872054165b1633036105eb5761054f8315156108c4565b6000848152602081905260409020546001600160a01b0316156105b35750828452602084815281852080546001600160a01b0319168417905590519182527fd4735d920b0f87494915f556dd9b54c8f309026070caea5c737245152564d26691a280f35b6020606492519162461bcd60e51b83528201526013602482015272139bd91948191bd95cc81b9bdd08195e1a5cdd606a1b6044820152fd5b6020608492519162461bcd60e51b8352820152602c60248201527f43616c6c6572206d75737420626520436869705265676973747279206f72206f60448201526b776e6572206f66206e6f646560a01b6064820152fd5b807f00000000000000000000000000000000000000000000000000000000000000001661053d565b8580fd5b5090346101a957816003193601126101a957517f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b5090346101a957816003193601126101a957517f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b5091903461012757610707366107ea565b928185528460205260018060a01b03610726818588205416331461083e565b7f000000000000000000000000000000000000000000000000000000000000000016330361076a5750600080516020610a9e83398151915260206104ae85846109a0565b606490602084519162461bcd60e51b8352820152602060248201527f43616c6c6572206d75737420626520446576656c6f70657252656769737472796044820152fd5b92939050346101a95760203660031901126101a95735815260208181529083902080546001909101546001600160a01b0391821684521690820152f35b6040906003190112610800576004359060243590565b600080fd5b60809060031901126108005760043590602435906001600160a01b03906044358281168103610800579160643590811681036108005790565b1561084557565b60405162461bcd60e51b815260206004820152601260248201527126bab9ba103132903737b2329037bbb732b960711b6044820152606490fd5b1561088657565b60405162461bcd60e51b815260206004820152601660248201527514dd589b9bd91948191bd95cc81b9bdd08195e1a5cdd60521b6044820152606490fd5b156108cb57565b606460405162461bcd60e51b815260206004820152602060248201527f4e6577206f776e65722063616e6e6f74206265206e756c6c20616464726573736044820152fd5b1561091657565b60405162461bcd60e51b815260206004820152601b60248201527f43616c6c6572206d7573742062652043686970526567697374727900000000006044820152606490fd5b1561096257565b60405162461bcd60e51b81526020600482015260166024820152755375626e6f646520616c72656164792065786973747360501b6044820152606490fd5b9060405190602082019283526040820152604081526060810181811067ffffffffffffffff8211176109d55760405251902090565b634e487b7160e01b600052604160045260246000fd5b80600052600060205260016040600020016bffffffffffffffffffffffff60a01b81541690557f335721b01866dc23fbee8b6b2c7b1e14d6f05c28cd35a2c934239f94095602a0602060405160008152a2565b9060207f335721b01866dc23fbee8b6b2c7b1e14d6f05c28cd35a2c934239f94095602a091836000526000825260016040600020019060018060a01b031690816bffffffffffffffffffffffff60a01b825416179055604051908152a256fe3d599ae2b88b8766d9da5fd15cdbadf1de6d483307edf94b58ce54d88946124ea2646970667358221220db50926090ddf519bd690b883c97edcbe40655a13c7c4ca6146c8186e8e35a3364736f6c63430008180033"
+}

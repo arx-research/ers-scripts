@@ -1,0 +1,378 @@
+{
+  "address": "0xD57A993Eda1fACFb87f3b7Ce735Ae853F89244E1",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "contract IChipRegistry",
+          "name": "_chipRegistry",
+          "type": "address"
+        },
+        {
+          "internalType": "contract IERS",
+          "name": "_ers",
+          "type": "address"
+        },
+        {
+          "internalType": "contract IDeveloperRegistry",
+          "name": "_developerRegistry",
+          "type": "address"
+        },
+        {
+          "internalType": "contract IServicesRegistry",
+          "name": "_servicesRegistry",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferStarted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "projectRegistrar",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "projectRootNode",
+          "type": "bytes32"
+        }
+      ],
+      "name": "ProjectAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "projectRegistrar",
+          "type": "address"
+        }
+      ],
+      "name": "ProjectRemoved",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "rootNode",
+          "type": "bytes32"
+        }
+      ],
+      "name": "RegistrarInitialized",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "acceptOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract IProjectRegistrar",
+          "name": "_projectRegistrar",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_nameHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_serviceId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_lockinPeriod",
+          "type": "uint256"
+        }
+      ],
+      "name": "addProject",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "chipRegistry",
+      "outputs": [
+        {
+          "internalType": "contract IChipRegistry",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "developerRegistry",
+      "outputs": [
+        {
+          "internalType": "contract IDeveloperRegistry",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "ers",
+      "outputs": [
+        {
+          "internalType": "contract IERS",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getProjects",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "",
+          "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_owner",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_rootNode",
+          "type": "bytes32"
+        }
+      ],
+      "name": "initialize",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "initialized",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pendingOwner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "projects",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract IProjectRegistrar",
+          "name": "_projectRegistrar",
+          "type": "address"
+        }
+      ],
+      "name": "removeProject",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "rootNode",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "servicesRegistry",
+      "outputs": [
+        {
+          "internalType": "contract IServicesRegistry",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x1f4fb12ee0b490f49fb519ead02c96416a4ecb3e3721b4f31217adebe6ea90e9",
+  "receipt": {
+    "to": null,
+    "from": "0x914Cce99BB910e073e5507fb127469f6FB7B5490",
+    "contractAddress": "0xD57A993Eda1fACFb87f3b7Ce735Ae853F89244E1",
+    "transactionIndex": 72,
+    "gasUsed": "801511",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000900000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000001000000000000000000010000000100000000020000000000000000000800000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000420000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0xb9aa1ecdcc09095e84ea98c81f908d9a183e166b702e56ca5d0a832fce437ddc",
+    "transactionHash": "0x1f4fb12ee0b490f49fb519ead02c96416a4ecb3e3721b4f31217adebe6ea90e9",
+    "logs": [
+      {
+        "transactionIndex": 72,
+        "blockNumber": 6638476,
+        "transactionHash": "0x1f4fb12ee0b490f49fb519ead02c96416a4ecb3e3721b4f31217adebe6ea90e9",
+        "address": "0xD57A993Eda1fACFb87f3b7Ce735Ae853F89244E1",
+        "topics": [
+          "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x000000000000000000000000914cce99bb910e073e5507fb127469f6fb7b5490"
+        ],
+        "data": "0x",
+        "logIndex": 114,
+        "blockHash": "0xb9aa1ecdcc09095e84ea98c81f908d9a183e166b702e56ca5d0a832fce437ddc"
+      }
+    ],
+    "blockNumber": 6638476,
+    "cumulativeGasUsed": "8666327",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0x4EED142581c111860f6323168dC60c3eFCa3af24",
+    "0x51d2c9c145b5D4330E5FA8837E330F51Ff43465B",
+    "0x0FCb2A0df07b00f84e651a9a68c9B38543560590",
+    "0x7d483293BB2BB9E98987980015d8C753B32C4d7B"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "506b2add1b56cef4fbe0ce691febffd1",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.24+commit.e11b9ed9\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"contract IChipRegistry\",\"name\":\"_chipRegistry\",\"type\":\"address\"},{\"internalType\":\"contract IERS\",\"name\":\"_ers\",\"type\":\"address\"},{\"internalType\":\"contract IDeveloperRegistry\",\"name\":\"_developerRegistry\",\"type\":\"address\"},{\"internalType\":\"contract IServicesRegistry\",\"name\":\"_servicesRegistry\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferStarted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"projectRegistrar\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"projectRootNode\",\"type\":\"bytes32\"}],\"name\":\"ProjectAdded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"projectRegistrar\",\"type\":\"address\"}],\"name\":\"ProjectRemoved\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"rootNode\",\"type\":\"bytes32\"}],\"name\":\"RegistrarInitialized\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"acceptOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract IProjectRegistrar\",\"name\":\"_projectRegistrar\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"_nameHash\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"_serviceId\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"_lockinPeriod\",\"type\":\"uint256\"}],\"name\":\"addProject\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"chipRegistry\",\"outputs\":[{\"internalType\":\"contract IChipRegistry\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"developerRegistry\",\"outputs\":[{\"internalType\":\"contract IDeveloperRegistry\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"ers\",\"outputs\":[{\"internalType\":\"contract IERS\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getProjects\",\"outputs\":[{\"internalType\":\"address[]\",\"name\":\"\",\"type\":\"address[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"_rootNode\",\"type\":\"bytes32\"}],\"name\":\"initialize\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"initialized\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"pendingOwner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"projects\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract IProjectRegistrar\",\"name\":\"_projectRegistrar\",\"type\":\"address\"}],\"name\":\"removeProject\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"rootNode\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"servicesRegistry\",\"outputs\":[{\"internalType\":\"contract IServicesRegistry\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"Arx\",\"kind\":\"dev\",\"methods\":{\"acceptOwnership()\":{\"details\":\"The new owner accepts the ownership transfer.\"},\"addProject(address,bytes32,bytes32,uint256)\":{\"params\":{\"_lockinPeriod\":\"Lockin period of the project\",\"_nameHash\":\"Namehash of the project\",\"_projectRegistrar\":\"ProjectRegistrar contract\",\"_serviceId\":\"Service ID of the project\"}},\"constructor\":{\"params\":{\"_chipRegistry\":\"ChipRegistry contract\",\"_developerRegistry\":\"DeveloperRegistry contract\",\"_ers\":\"ERS registry\",\"_servicesRegistry\":\"ServicesRegistry contract used by all Projects deployed by this Registrar\"}},\"initialize(address,bytes32)\":{\"params\":{\"_rootNode\":\"Root node of the Developer\"}},\"owner()\":{\"details\":\"Returns the address of the current owner.\"},\"pendingOwner()\":{\"details\":\"Returns the address of the pending owner.\"},\"removeProject(address)\":{\"params\":{\"_projectRegistrar\":\"ProjectRegistrar contract\"}},\"renounceOwnership()\":{\"details\":\"Leaves the contract without owner. It will not be possible to call `onlyOwner` functions. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby disabling any functionality that is only available to the owner.\"},\"transferOwnership(address)\":{\"details\":\"Starts the ownership transfer of the contract to a new account. Replaces the pending transfer if there is one. Can only be called by the current owner.\"}},\"title\":\"DeveloperRegistrar\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"addProject(address,bytes32,bytes32,uint256)\":{\"notice\":\"ONLY OWNER: Add a new project to the Developer. Creates a new subnode in the ENS registry and adds the project to the ChipRegistry. DeveloperRegistrar's DO NOT have the ability to overwrite their subnodes in ERS, hence if a _nameHash is already taken, this function will revert. Ownership proof is checked in the ChipRegistry.\"},\"constructor\":{\"notice\":\"Constructor for DeveloperRegistrar. Sets the owner and ChipRegistry.\"},\"initialize(address,bytes32)\":{\"notice\":\"ONLY Developer REGISTRY: Initialize DeveloperRegistrar contract with root node. Required due to order of operations during deploy.\"},\"removeProject(address)\":{\"notice\":\"ONLY OWNER: Remove a project from the Developer. Removes the project from the ChipRegistry. Only works if no chips have been added.\"}},\"notice\":\"Contract that coordinates adding a new project for a Developer. Each Developer has their own DeveloperRegistrar which is associated with a .ers subnode in the ERS registry ([developer].ers). When adding a new project a subnode under the developer.ers sub- domain is added ([projectName].developer.ers) and the project is enrolled in the ChipRegistry.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/DeveloperRegistrar.sol\":\"DeveloperRegistrar\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[],\"viaIR\":true},\"sources\":{\"@openzeppelin/contracts/access/Ownable.sol\":{\"keccak256\":\"0xba43b97fba0d32eb4254f6a5a297b39a19a247082a02d6e69349e071e2946218\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://fc980984badf3984b6303b377711220e067722bbd6a135b24669ff5069ef9f32\",\"dweb:/ipfs/QmPHXMSXj99XjSVM21YsY6aNtLLjLVXDbyN76J5HQYvvrz\"]},\"@openzeppelin/contracts/access/Ownable2Step.sol\":{\"keccak256\":\"0xde231558366826d7cb61725af8147965a61c53b77a352cc8c9af38fc5a92ac3c\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://1fd55624076bf61d44af5ff351919e32dda748567acfbdd6ba3d6c7be61c758e\",\"dweb:/ipfs/QmSki4dTrf4GPm7MTpG3fk8mC7rnjwd2zMomLp6jLuF63Q\"]},\"@openzeppelin/contracts/utils/Context.sol\":{\"keccak256\":\"0xa92e4fa126feb6907daa0513ddd816b2eb91f30a808de54f63c17d0e162c3439\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://a367861093b74443b137564d3f3c472f70bcf114739e62059c939f25e315706c\",\"dweb:/ipfs/Qmd7JMpcxD9RuQjK3uM3EzJUgSqdN8vzp8eytEiuwxQJ6h\"]},\"contracts/DeveloperRegistrar.sol\":{\"keccak256\":\"0x05f3183acac4a40d0f7d1b5f67837b2b79e57d3eb830b623496a32fa36fd7cab\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://f3b8459d9ca54bee7d0fb29253b4701695f27e94ad906e87f6e313912cec9e5c\",\"dweb:/ipfs/QmRZDJcE3sLPRxyiwL2YKteTnLbKGK4fmEGLwjBaVd8Qzf\"]},\"contracts/interfaces/IChipRegistry.sol\":{\"keccak256\":\"0xda647f2094927e8ca017dcdcaf4fe184d97e0c8aaee87664a2d453de1f8eaa72\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://5905b09dc5eb6af23eb8e36e36743f168f8591c9d73fccfe598425971c2cb47a\",\"dweb:/ipfs/QmQfgBfZL7VHsEoSVQsR5YiSYnHRoeVq4Ko9YgnTzbwKAv\"]},\"contracts/interfaces/IDeveloperRegistry.sol\":{\"keccak256\":\"0x50764e879fff9331e6120a78c9d77af213e82cb1437ff9e8c5f98e9b0ce66c7c\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://2f32ad9f1f024111b5231b60a8f8d8a63ddaff098ebd8aabb3f365a217b8905e\",\"dweb:/ipfs/QmWtqczEfmMVHpSDrdrecDBtaAX1oR4Zgbh6Wkc74z8rLh\"]},\"contracts/interfaces/IERS.sol\":{\"keccak256\":\"0x1b96e31a0615d097bb5b54445ede330ed9b0b8b15d67d5a8437ac2a7a1bc4461\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://82e85aacdb84ad4288b8dfae91517cc02888f33643256ae15deb3cea0b2671b6\",\"dweb:/ipfs/QmWYckHw3ek6SLfBf6am3Hm5exz6T2eWH4HsQ4Aiivv5Gm\"]},\"contracts/interfaces/IProjectRegistrar.sol\":{\"keccak256\":\"0xf3cd3eed6250f83c459cdb98a179658225bd72de208c4d2fe43a50bcf07b23da\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://cbdc98405f9799c0bfb1304cb753a234ada2e2d8f2dcd591be418c2dd532acff\",\"dweb:/ipfs/QmYG6RsCLtYcaQsM2xKbU2nHEGUQQ8UBrLy18uJP5p9do7\"]},\"contracts/interfaces/IServicesRegistry.sol\":{\"keccak256\":\"0xea6c01ed4d3e19108eaaee95c65c8818120ac2ee8a05c8ff868435f58e94677f\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://ecb1482b95f9dcf55718caecb59d7433b1167ae52677e0d781f665a173e72de5\",\"dweb:/ipfs/QmVEe4t8JY2SDYxkrwZeMytXhTQCz8pFLvdebsDNrKsPnX\"]}},\"version\":1}",
+  "bytecode": "0x6101003461012557601f610e4138819003918201601f19168301916001600160401b0383118484101761012a578084926080946040528339810103126101255780516001600160a01b03918282168203610125576020810151838116810361012557604082015191848316830361012557606001519284841684036101255760018060a01b03198060015416600155600054903390821617600055604051953391167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0600080a360805260a05260c05260e052610d00908161014182396080518181816102ac0152818161084201526109b7015260a0518181816101e601526106a4015260c0518181816105570152610886015260e0518181816102f701526107d70152f35b600080fd5b634e487b7160e01b600052604160045260246000fdfe6040608081526004908136101561001557600080fd5b600091823560e01c9081630c0ad299146108f6578163107046bd146108b5578163107d0be11461087157816311e6575b1461082d578163158ef93e1461080657816366afc9c1146107c2578163715018a61461075c57816379ba5097146106d35781637ac9d7381461068f5781638da5cb5b14610667578163be13f47c14610536578163dcc6012814610471578163e30c397814610448578163e779677c1461016457508063f2fde38b146100f45763faff50a8146100d357600080fd5b346100f057816003193601126100f0576020906002549051908152f35b5080fd5b82346101615760203660031901126101615761010e610b12565b610116610c1c565b600180546001600160a01b0319166001600160a01b0392831690811790915582549091167f38d16b8cac22d99fc7c124b9cd0de2d3fa1faef420bfe791d8c362d765e227008380a380f35b80fd5b9190503461044457608036600319011261044457610180610b12565b9160249283359361018f610c1c565b6001600160a01b03918216946101a6861515610b7a565b8587526020938085528588205461040a5760025493865194630329904360e61b865282860152828486015287604486015287606486015285856084818c857f0000000000000000000000000000000000000000000000000000000000000000165af19485156104005789956103d1575b50873b156103c357865163d20ab1d760e01b8152828101869052899081818781838e5af180156103c7576103af575b50506003546801000000000000000081101561039d578861026f82600161028d9401600355610b2d565b90919060018060a01b038084549260031b9316831b921b1916179055565b600354600019810190811161038b57888a52828752878a2055889392917f000000000000000000000000000000000000000000000000000000000000000082169190823b1561038757858a9360a49382968c51988997889663b5a762ad60e01b88528701528501527f0000000000000000000000000000000000000000000000000000000000000000166044840152604435606484015260643560848401525af1801561037d57610365575b50507f941c0ed997ad8fba9d0a05e609a968cc17a6f16adbc268558086c9463f703ed79251908152a280f35b61036e90610bd0565b610379578438610339565b8480fd5b85513d84823e3d90fd5b8580fd5b634e487b7160e01b8a5260118352848afd5b634e487b7160e01b8a5260418352848afd5b6103b890610bd0565b6103c3578838610245565b8880fd5b89513d84823e3d90fd5b9094508581813d83116103f9575b6103e98183610bfa565b810103126103c357519338610216565b503d6103df565b87513d8b823e3d90fd5b855162461bcd60e51b815290810185905260158184015274141c9bda9958dd08185b1c9958591e481859191959605a1b6044820152606490fd5b8280fd5b5050346100f057816003193601126100f05760015490516001600160a01b039091168152602090f35b8284346101615780600319360112610161579080519182906003549182855260208095018093600384527fc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f85b90845b81811061051957505050816104d5910382610bfa565b83519485948186019282875251809352850193925b8281106104f957505050500390f35b83516001600160a01b0316855286955093810193928101926001016104ea565b82546001600160a01b0316845292880192600192830192016104bf565b91905034610444578060031936011261044457610551610b12565b602435927f00000000000000000000000000000000000000000000000000000000000000006001600160a01b031633036106245760ff60015460a01c166105e15750916020916105c17fa9161ba05fc38fbc84f29ec8bb9d98ca7025005e651bcdfb8b0541691e01961694610c74565b60028290556001805460ff60a01b1916600160a01b17905551908152a180f35b606490602084519162461bcd60e51b8352820152601c60248201527f436f6e747261637420616c726561647920696e697469616c697a6564000000006044820152fd5b606490602084519162461bcd60e51b8352820152602060248201527f43616c6c6572206d75737420626520446576656c6f70657252656769737472796044820152fd5b5050346100f057816003193601126100f057905490516001600160a01b039091168152602090f35b5050346100f057816003193601126100f057517f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b91905034610444578260031936011261044457600154336001600160a01b0390911603610707578261070433610c74565b80f35b906020608492519162461bcd60e51b8352820152602960248201527f4f776e61626c6532537465703a2063616c6c6572206973206e6f7420746865206044820152683732bb9037bbb732b960b91b6064820152fd5b8334610161578060031936011261016157610775610c1c565b600180546001600160a01b0319908116909155600080549182168155906001600160a01b03167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e08280a380f35b5050346100f057816003193601126100f057517f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b5050346100f057816003193601126100f05760209060ff60015460a01c1690519015158152f35b5050346100f057816003193601126100f057517f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b5050346100f057816003193601126100f057517f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b90503461044457602036600319011261044457359160035483101561016157506108e0602092610b2d565b60018060a01b0391549060031b1c169051908152f35b839150346100f05760203660031901126100f057610912610b12565b9261091b610c1c565b6001600160a01b0393841693610932851515610b7a565b84845282602052818420548015801590610ac7575b15610a73576003546000199190828101908111610a60576109688491610b2d565b90549060031b1c1661097d8161026f84610b2d565b865284602052838620556003548015610a4d570161099a81610b2d565b8382549160031b1b191690556003558484528260205283828120557f00000000000000000000000000000000000000000000000000000000000000001691823b15610a4957846024859283855196879485936390327a3960e01b85528401525af1908115610a405750610a31575b50907f6c2a7bedc1e997c07f41aff265f8b77df645943615e2b039fb2b1f2be37b67da8280a280f35b610a3a90610bd0565b82610a08565b513d84823e3d90fd5b8380fd5b634e487b7160e01b865260318552602486fd5b634e487b7160e01b875260118652602487fd5b825162461bcd60e51b8152602081860152602860248201527f446576656c6f7065725265676973747261723a2050726f6a656374206e6f7420604482015267195b9c9bdb1b195960c21b6064820152608490fd5b5060035415610aff576003855285827fc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f85b541614610947565b634e487b7160e01b855260328452602485fd5b600435906001600160a01b0382168203610b2857565b600080fd5b600354811015610b645760036000527fc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f85b0190600090565b634e487b7160e01b600052603260045260246000fd5b15610b8157565b60405162461bcd60e51b815260206004820152602160248201527f496e76616c69642070726f6a65637420726567697374726172206164647265736044820152607360f81b6064820152608490fd5b67ffffffffffffffff8111610be457604052565b634e487b7160e01b600052604160045260246000fd5b90601f8019910116810190811067ffffffffffffffff821117610be457604052565b6000546001600160a01b03163303610c3057565b606460405162461bcd60e51b815260206004820152602060248201527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e65726044820152fd5b6bffffffffffffffffffffffff60a01b90816001541660015560005460018060a01b038092168093821617600055167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0600080a356fea264697066735822122054723a1a57fe1f44bb0d73eb001c1eca406c022a5746d8a3883a6b181b586ac864736f6c63430008180033",
+  "deployedBytecode": "0x6040608081526004908136101561001557600080fd5b600091823560e01c9081630c0ad299146108f6578163107046bd146108b5578163107d0be11461087157816311e6575b1461082d578163158ef93e1461080657816366afc9c1146107c2578163715018a61461075c57816379ba5097146106d35781637ac9d7381461068f5781638da5cb5b14610667578163be13f47c14610536578163dcc6012814610471578163e30c397814610448578163e779677c1461016457508063f2fde38b146100f45763faff50a8146100d357600080fd5b346100f057816003193601126100f0576020906002549051908152f35b5080fd5b82346101615760203660031901126101615761010e610b12565b610116610c1c565b600180546001600160a01b0319166001600160a01b0392831690811790915582549091167f38d16b8cac22d99fc7c124b9cd0de2d3fa1faef420bfe791d8c362d765e227008380a380f35b80fd5b9190503461044457608036600319011261044457610180610b12565b9160249283359361018f610c1c565b6001600160a01b03918216946101a6861515610b7a565b8587526020938085528588205461040a5760025493865194630329904360e61b865282860152828486015287604486015287606486015285856084818c857f0000000000000000000000000000000000000000000000000000000000000000165af19485156104005789956103d1575b50873b156103c357865163d20ab1d760e01b8152828101869052899081818781838e5af180156103c7576103af575b50506003546801000000000000000081101561039d578861026f82600161028d9401600355610b2d565b90919060018060a01b038084549260031b9316831b921b1916179055565b600354600019810190811161038b57888a52828752878a2055889392917f000000000000000000000000000000000000000000000000000000000000000082169190823b1561038757858a9360a49382968c51988997889663b5a762ad60e01b88528701528501527f0000000000000000000000000000000000000000000000000000000000000000166044840152604435606484015260643560848401525af1801561037d57610365575b50507f941c0ed997ad8fba9d0a05e609a968cc17a6f16adbc268558086c9463f703ed79251908152a280f35b61036e90610bd0565b610379578438610339565b8480fd5b85513d84823e3d90fd5b8580fd5b634e487b7160e01b8a5260118352848afd5b634e487b7160e01b8a5260418352848afd5b6103b890610bd0565b6103c3578838610245565b8880fd5b89513d84823e3d90fd5b9094508581813d83116103f9575b6103e98183610bfa565b810103126103c357519338610216565b503d6103df565b87513d8b823e3d90fd5b855162461bcd60e51b815290810185905260158184015274141c9bda9958dd08185b1c9958591e481859191959605a1b6044820152606490fd5b8280fd5b5050346100f057816003193601126100f05760015490516001600160a01b039091168152602090f35b8284346101615780600319360112610161579080519182906003549182855260208095018093600384527fc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f85b90845b81811061051957505050816104d5910382610bfa565b83519485948186019282875251809352850193925b8281106104f957505050500390f35b83516001600160a01b0316855286955093810193928101926001016104ea565b82546001600160a01b0316845292880192600192830192016104bf565b91905034610444578060031936011261044457610551610b12565b602435927f00000000000000000000000000000000000000000000000000000000000000006001600160a01b031633036106245760ff60015460a01c166105e15750916020916105c17fa9161ba05fc38fbc84f29ec8bb9d98ca7025005e651bcdfb8b0541691e01961694610c74565b60028290556001805460ff60a01b1916600160a01b17905551908152a180f35b606490602084519162461bcd60e51b8352820152601c60248201527f436f6e747261637420616c726561647920696e697469616c697a6564000000006044820152fd5b606490602084519162461bcd60e51b8352820152602060248201527f43616c6c6572206d75737420626520446576656c6f70657252656769737472796044820152fd5b5050346100f057816003193601126100f057905490516001600160a01b039091168152602090f35b5050346100f057816003193601126100f057517f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b91905034610444578260031936011261044457600154336001600160a01b0390911603610707578261070433610c74565b80f35b906020608492519162461bcd60e51b8352820152602960248201527f4f776e61626c6532537465703a2063616c6c6572206973206e6f7420746865206044820152683732bb9037bbb732b960b91b6064820152fd5b8334610161578060031936011261016157610775610c1c565b600180546001600160a01b0319908116909155600080549182168155906001600160a01b03167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e08280a380f35b5050346100f057816003193601126100f057517f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b5050346100f057816003193601126100f05760209060ff60015460a01c1690519015158152f35b5050346100f057816003193601126100f057517f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b5050346100f057816003193601126100f057517f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b90503461044457602036600319011261044457359160035483101561016157506108e0602092610b2d565b60018060a01b0391549060031b1c169051908152f35b839150346100f05760203660031901126100f057610912610b12565b9261091b610c1c565b6001600160a01b0393841693610932851515610b7a565b84845282602052818420548015801590610ac7575b15610a73576003546000199190828101908111610a60576109688491610b2d565b90549060031b1c1661097d8161026f84610b2d565b865284602052838620556003548015610a4d570161099a81610b2d565b8382549160031b1b191690556003558484528260205283828120557f00000000000000000000000000000000000000000000000000000000000000001691823b15610a4957846024859283855196879485936390327a3960e01b85528401525af1908115610a405750610a31575b50907f6c2a7bedc1e997c07f41aff265f8b77df645943615e2b039fb2b1f2be37b67da8280a280f35b610a3a90610bd0565b82610a08565b513d84823e3d90fd5b8380fd5b634e487b7160e01b865260318552602486fd5b634e487b7160e01b875260118652602487fd5b825162461bcd60e51b8152602081860152602860248201527f446576656c6f7065725265676973747261723a2050726f6a656374206e6f7420604482015267195b9c9bdb1b195960c21b6064820152608490fd5b5060035415610aff576003855285827fc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f85b541614610947565b634e487b7160e01b855260328452602485fd5b600435906001600160a01b0382168203610b2857565b600080fd5b600354811015610b645760036000527fc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f85b0190600090565b634e487b7160e01b600052603260045260246000fd5b15610b8157565b60405162461bcd60e51b815260206004820152602160248201527f496e76616c69642070726f6a65637420726567697374726172206164647265736044820152607360f81b6064820152608490fd5b67ffffffffffffffff8111610be457604052565b634e487b7160e01b600052604160045260246000fd5b90601f8019910116810190811067ffffffffffffffff821117610be457604052565b6000546001600160a01b03163303610c3057565b606460405162461bcd60e51b815260206004820152602060248201527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e65726044820152fd5b6bffffffffffffffffffffffff60a01b90816001541660015560005460018060a01b038092168093821617600055167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0600080a356fea264697066735822122054723a1a57fe1f44bb0d73eb001c1eca406c022a5746d8a3883a6b181b586ac864736f6c63430008180033"
+}

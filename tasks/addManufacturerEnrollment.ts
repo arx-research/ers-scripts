@@ -13,8 +13,7 @@ import {
   getManufacturerRegistry,
   rl,
 } from "../utils/scriptHelpers";
-import { 
-  getChainId,
+import {
   getManufacturerSigner,
   getManufacturerId,
   getAuthModel,
@@ -28,6 +27,7 @@ task("addManufacturerEnrollment", "Add a new enrollment to the ManufacturerRegis
   .setAction(async (taskArgs, hre: HRE) => {
     const { rawTx } = hre.deployments;
     const chainId = await hre.getChainId();
+    const networkName = hre.network.name;
 
     let params: AddManufacturerEnrollment = await getAndValidateParams();
     const { deployer, defaultManufacturer } = await hre.getNamedAccounts();
@@ -61,7 +61,7 @@ task("addManufacturerEnrollment", "Add a new enrollment to the ManufacturerRegis
     console.log(`Manufacturer ${params.manufacturerId} added chip enrollment. Enrollment ID is ${expectedEnrollmentId}`);
 
     // Save the enrollment data to a JSON file
-    const outputDir = path.join(__dirname, "../task_outputs/addManufacturerEnrollment");
+    const outputDir = path.join(__dirname, `../task_outputs/${networkName}/addManufacturerEnrollment`);
     const outputFilePath = path.join(outputDir, `${expectedEnrollmentId}.json`);
 
     // Ensure the output directory exists
@@ -88,20 +88,17 @@ task("addManufacturerEnrollment", "Add a new enrollment to the ManufacturerRegis
     async function getAndValidateParams(): Promise<AddManufacturerEnrollment> {
       let params: AddManufacturerEnrollment = {} as AddManufacturerEnrollment;
 
-      // Set the default chain ID if not provided
-      params.chainId = await getChainId(rl);
-
       // Set the manufacturer signer
       params.manufacturerSigner = await getManufacturerSigner(rl);
 
       // Set the manufacturer Id
       params.manufacturerId = await getManufacturerId(rl);
 
-      // Set the auth model
-      params.authModel = await getAuthModel(rl);
+      // Set the auth model, passing chainId
+      params.authModel = await getAuthModel(rl, networkName);
 
-      // Set the enrollment auth model
-      params.enrollmentAuthModel = await getEnrollmentAuthModel(rl);
+      // Set the enrollment auth model, passing chainId
+      params.enrollmentAuthModel = await getEnrollmentAuthModel(rl, networkName);
 
       // Set the bootloader app
       params.bootloaderApp = await getBootloaderApp(rl);

@@ -6,9 +6,9 @@ export const MULTI_SIG_ADDRESSES: any = {
 }
 
 export const NAME_COORDINATOR: any = {
-  "localhost": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-  "sepolia": "0x2764b37E4d74EEb5961429B034CBa75A93BF5199",
-  "base": "0xE06Acb2a102aD36dEbC27C93cFD5b6c38f3099bC",
+  "localhost": "0x834DBDA1e8059b77A8e0Ac05b4f2143d2F787552",
+  "sepolia": "0x834DBDA1e8059b77A8e0Ac05b4f2143d2F787552",
+  "base": "0x834DBDA1e8059b77A8e0Ac05b4f2143d2F787552",
 }
 
 export const CHIP_REGISTRY_DEPLOY: any = {

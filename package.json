@@ -44,7 +44,7 @@
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.0",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.0",
-    "@nomicfoundation/hardhat-verify": "^1.0.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.10",
     "@nomiclabs/hardhat-ethers": "^2.2.2",
     "@typechain/ethers-v5": "^11.1.2",
     "@typechain/hardhat": "^7.0.0",
@@ -65,9 +65,8 @@
   "dependencies": {
     "@arx-research/ers-contracts": "^2.0.2",
     "@arx-research/libhalo": "1.2.33",
-    "@filebase/sdk": "^1.0.4",
+    "@filebase/sdk": "^1.0.5",
     "@nomicfoundation/hardhat-viem": "^1.0.1",
-    "@nomiclabs/hardhat-etherscan": "^3.1.7",
     "@supabase/supabase-js": "^2.45.0",
     "@types/cli-progress": "^3.11.5",
     "@types/tar": "^6.1.9",

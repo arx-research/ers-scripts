@@ -8,23 +8,16 @@ Scripts for deploying and interacting with the Ethereum Reality Service ("ERS") 
 cp .env.default .env
 ```
 3. Fill out the resulting fields in the `.env` file with the appropriate values. 
-4. You will need a `SUPABASE_ANON_KEY` in order to access Arx manufacturer enrollments and a  
+4. You will need a `SUPABASE_ANON_KEY` in order to access Arx manufacturer enrollments, a Filebase account in order to create project data and an Infura account to carry out RPC commands.
 5. If you are deploying against a non-local blockchain network, add the private keys for the accounts that you wish to use (e.g. `TESTNET_SERVICE_CREATOR_PRIVATE_KEY`).
 6. In order to deploy or run scripts there needs to be a valid node to interact with. If you are testing and planning on running locally you can start the `localhost` network by running `yarn chain`, this opens up a local node at the default port `8545`.
 
+### .env vars
+Note that this script antif
+
 ## Deployments
 ### Sepolia
-The Sepolia ERS contracts are deployed at:
-
-```
-CHIP_REGISTRY=TBD
-SERVICE_REGISTRY=TBD
-ENROLLMENT_MANAGER_ADDRESS=TBD
-ERS_REGISTRY=TBD
-SM_REGISTRAR=TBD
-```
-
-You can find the deployment artifacts in `deployments/$CHAIN_NAME`.
+See the Sepolia deployment artifacts in `deployments/sepolia`.
 
 ### Local
 For local testing, instantiate your local chain (e.g. `yarn chain`) and run:

@@ -15,6 +15,7 @@ task("createDeveloperRegistrar", "Create developer registrar")
     const { developerOwner } = await hre.getNamedAccounts();
 
     const chainId = BigNumber.from(await hre.getChainId());
+    const networkName = hre.network.name;
     const developerNameGovernor = await getDeveloperNameGovernor(hre, developerOwner);
 
     const [approvalProof, proofTimestamp, nameHash, name] = await getDeveloperNameApproval(rl, developerOwner, chainId, developerNameGovernor.address);
@@ -45,7 +46,7 @@ task("createDeveloperRegistrar", "Create developer registrar")
     console.log(`Developer registrar created at ${developerRegistrarAddress}`);
 
     // Save the developer registrar data to a JSON file
-    const outputDir = path.join(__dirname, "../task_outputs/createDeveloperRegistrar");
+    const outputDir = path.join(__dirname, `../task_outputs/${networkName}/createDeveloperRegistrar`);
     const outputFilePath = path.join(outputDir, `${developerRegistrarAddress}.json`);
 
     // Ensure the output directory exists

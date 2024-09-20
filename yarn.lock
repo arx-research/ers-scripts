@@ -1172,10 +1172,10 @@
   resolved "https://registry.yarnpkg.com/@fastify/busboy/-/busboy-2.1.1.tgz#b9da6a878a371829a0502c9b6c1c143ef6663f4d"
   integrity sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==
 
-"@filebase/sdk@^1.0.4":
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/@filebase/sdk/-/sdk-1.0.4.tgz#c3874914354d7fbe390c9a76f7e9e5e0514edcb6"
-  integrity sha512-wPJOkZku9F8ODIurP8N6WHI3X/cIOwgGwBpxJ2p0tvJSSkqg9aipYp69AYBou3srtJkD3TWulCdb7FfxhnDdbA==
+"@filebase/sdk@^1.0.5":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@filebase/sdk/-/sdk-1.0.5.tgz#5a686f106526b2a384537c19d8946177f68a12c1"
+  integrity sha512-d0jCpTMBV49y5gk80npWV4XLqXVlCVEWWOQJe5FDEapvPCZLfTyx8m4SqvyESlcimdzbY6v0aujWzV4DKvmbug==
   dependencies:
     "@aws-sdk/client-s3" "3.478.0"
     "@aws-sdk/lib-storage" "3.478.0"
@@ -1184,6 +1184,7 @@
     "@helia/unixfs" "1.4.3"
     "@ipld/car" "5.2.4"
     axios "1.6.2"
+    blockstore-core "4.4.1"
     blockstore-fs "1.1.10"
     datastore-core "9.2.9"
     p-queue "8.0.1"
@@ -1944,10 +1945,10 @@
   dependencies:
     ethereumjs-util "^7.1.4"
 
-"@nomicfoundation/hardhat-verify@^1.0.0":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@nomicfoundation/hardhat-verify/-/hardhat-verify-1.1.1.tgz#6a433d777ce0172d1f0edf7f2d3e1df14b3ecfc1"
-  integrity sha512-9QsTYD7pcZaQFEA3tBb/D/oCStYDiEVDN7Dxeo/4SCyHRSm86APypxxdOMEPlGmXsAvd+p1j/dTODcpxb8aztA==
+"@nomicfoundation/hardhat-verify@^2.0.10":
+  version "2.0.10"
+  resolved "https://registry.yarnpkg.com/@nomicfoundation/hardhat-verify/-/hardhat-verify-2.0.10.tgz#e9bae0949c17d5cc77bb5f97c273263048c69550"
+  integrity sha512-3zoTZGQhpeOm6piJDdsGb6euzZAd7N5Tk0zPQvGnfKQ0+AoxKz/7i4if12goi8IDTuUGElAUuZyQB8PMQoXA5g==
   dependencies:
     "@ethersproject/abi" "^5.1.2"
     "@ethersproject/address" "^5.0.2"
@@ -2019,22 +2020,6 @@
   version "2.2.3"
   resolved "https://registry.yarnpkg.com/@nomiclabs/hardhat-ethers/-/hardhat-ethers-2.2.3.tgz#b41053e360c31a32c2640c9a45ee981a7e603fe0"
   integrity sha512-YhzPdzb612X591FOe68q+qXVXGG2ANZRvDo0RRUtimev85rCrAlv/TLMEZw5c+kq9AbzocLTVX/h2jVIFPL9Xg==
-
-"@nomiclabs/hardhat-etherscan@^3.1.7":
-  version "3.1.8"
-  resolved "https://registry.yarnpkg.com/@nomiclabs/hardhat-etherscan/-/hardhat-etherscan-3.1.8.tgz#3c12ee90b3733e0775e05111146ef9418d4f5a38"
-  integrity sha512-v5F6IzQhrsjHh6kQz4uNrym49brK9K5bYCq2zQZ729RYRaifI9hHbtmK+KkIVevfhut7huQFEQ77JLRMAzWYjQ==
-  dependencies:
-    "@ethersproject/abi" "^5.1.2"
-    "@ethersproject/address" "^5.0.2"
-    cbor "^8.1.0"
-    chalk "^2.4.2"
-    debug "^4.1.1"
-    fs-extra "^7.0.1"
-    lodash "^4.17.11"
-    semver "^6.3.0"
-    table "^6.8.0"
-    undici "^5.14.0"
 
 "@npmcli/agent@^2.0.0":
   version "2.2.2"
@@ -4381,7 +4366,7 @@ blakejs@^1.1.0:
   resolved "https://registry.yarnpkg.com/blakejs/-/blakejs-1.2.1.tgz#5057e4206eadb4a97f7c0b6e197a505042fc3814"
   integrity sha512-QXUSXI3QVc/gJME0dBpXrag1kbzOqCjCX8/b54ntNyW6sjtoqxqRk3LTmXzaJoh71zMsDCjM+47jS7XiwN/+fQ==
 
-blockstore-core@^4.0.0:
+blockstore-core@4.4.1, blockstore-core@^4.0.0:
   version "4.4.1"
   resolved "https://registry.yarnpkg.com/blockstore-core/-/blockstore-core-4.4.1.tgz#0804c8a00f096c43e1b679b1711a66157a421c5e"
   integrity sha512-peXfL9ZLx1cb84QALocMjhT8CsQ4JsreI/AitlN1inipSdC/G+jcYVJCqeCD5ecSTv/0LMpg8NlAPH/eBYZLjA==

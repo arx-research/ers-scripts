@@ -12,12 +12,7 @@ import * as readline from 'readline';
 
 import csv from 'csv-parser';
 
-
 import { ObjectManager } from "@filebase/sdk";
-
-const objectManager = new ObjectManager(process.env.FILEBASE_API_KEY, process.env.FILEBASE_SECRET, {
-  bucket: process.env.FILEBASE_BUCKET,
-});
 
 interface ChipData {
   chipId?: string;
@@ -53,6 +48,10 @@ import { getDeployedContractAddress } from "./helpers";
 import { KeysFromChipScan } from "../types/scripts";
 
 dotenv.config();
+
+const objectManager = new ObjectManager(process.env.FILEBASE_API_KEY, process.env.FILEBASE_SECRET, {
+  bucket: process.env.FILEBASE_BUCKET,
+});
 
 export async function getAllFiles(dirPath: string): Promise<{ path: string, content: fs.ReadStream }[]> {
   const filesArray: { path: string, content: fs.ReadStream }[] = [];
@@ -99,15 +98,6 @@ export async function uploadFileToIPFS(filePath: string): Promise<any> {
   } catch (error) {
     console.error("Error uploading file:", error);
     throw error;
-  }
-}
-
-export async function saveFilesLocally(directoryRoot: string, files: File[]): Promise<void> {
-  fs.mkdirSync(`task_outputs/${directoryRoot}`, { recursive: true });
-
-  for (let i = 0; i < files.length; i++) {
-    const filePath = `task_outputs/${directoryRoot}/${files[i].name}`;
-    fs.writeFileSync(filePath, await files[i].text(), { flag: 'w' });
   }
 }
 

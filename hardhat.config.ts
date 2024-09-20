@@ -2,7 +2,7 @@ import { HardhatUserConfig } from "hardhat/config";
 
 import '@nomiclabs/hardhat-ethers';
 import 'hardhat-deploy';
-import '@nomiclabs/hardhat-etherscan';
+import '@nomicfoundation/hardhat-verify';
 import '@nomicfoundation/hardhat-viem';
 import './tasks';
 
@@ -40,13 +40,12 @@ const config: HardhatUserConfig = {
         `0x${process.env.TESTNET_MANUFACTURER_PRIVATE_KEY}`,
         `0x${process.env.TESTNET_SERVICE_CREATOR_PRIVATE_KEY}`,
         `0x${process.env.TESTNET_PROJECT_OWNER_PRIVATE_KEY}`,
-        `0x${process.env.TESTNET_PROJECT_PUBLIC_PRIVATE_KEY}`,
         `0x${process.env.TESTNET_CHIP_OWNER_PRIVATE_KEY}`,
       ],
       verify: {
         etherscan: {
           apiKey: process.env.ETHERSCAN_KEY
-        }
+        },
       },
     },
     base: {
@@ -57,7 +56,6 @@ const config: HardhatUserConfig = {
         `0x${process.env.BASE_MANUFACTURER_PRIVATE_KEY}`,
         `0x${process.env.BASE_SERVICE_CREATOR_PRIVATE_KEY}`,
         `0x${process.env.BASE_PROJECT_OWNER_PRIVATE_KEY}`,
-        `0x${process.env.BASE_PROJECT_PUBLIC_PRIVATE_KEY}`,
         `0x${process.env.BASE_CHIP_OWNER_PRIVATE_KEY}`,
       ],
       verify: {
@@ -67,6 +65,11 @@ const config: HardhatUserConfig = {
         }
       },
     },
+  },
+  sourcify: {
+    // Disabled by default
+    // Doesn't need an API key
+    enabled: true
   },
   namedAccounts: {
     deployer: {
@@ -93,11 +96,6 @@ const config: HardhatUserConfig = {
       localhost: 4,
       sepolia: `privatekey://0x${process.env.TESTNET_PROJECT_OWNER_PRIVATE_KEY}`,
       base: `privatekey://0x${process.env.BASE_PROJECT_OWNER_PRIVATE_KEY}`,
-    },
-    projectPublicKey: {
-      localhost: 5,
-      sepolia: `privatekey://0x${process.env.TESTNET_PROJECT_PUBLIC_PRIVATE_KEY}`,
-      base: `privatekey://0x${process.env.BASE_PROJECT_PUBLIC_PRIVATE_KEY}`,
     },
     chipOwner: {
       localhost: 6,

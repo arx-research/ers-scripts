@@ -13,6 +13,7 @@ task("createService", "Create a new service on the ServiceRegistry")
   .setAction(async (taskArgs, hre: HRE) => {
     const { rawTx } = hre.deployments;
     const chainId = await hre.getChainId();
+    const networkName = hre.network.name;
 
     const { serviceCreator } = await hre.getNamedAccounts();
     const [serviceId, serviceName] = await getServiceId(rl, await getServicesRegistry());
@@ -43,7 +44,7 @@ task("createService", "Create a new service on the ServiceRegistry")
     console.log(`Service ${serviceName} created on ServiceRegistry with following id: ${serviceId}`);
 
     // Save the service creation data to a JSON file
-    const outputDir = path.join(__dirname, "../task_outputs/createService");
+    const outputDir = path.join(__dirname, `../task_outputs/${networkName}/createService`);
     const outputFilePath = path.join(outputDir, `${serviceId}.json`);
 
     // Ensure the output directory exists

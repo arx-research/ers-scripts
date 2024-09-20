@@ -1,26 +1,14 @@
+import * as fs from 'fs';
+import * as path from 'path';
 import * as readline from 'readline';
 import { BigNumber } from "ethers";
 
 import { queryUser } from "../scriptHelpers";
 
-export async function getChainId(prompter: readline.ReadLine): Promise<number> {
-  const chainId = await queryUser(
-    prompter,
-    `What chainId is the project being deployed on (optional: default is 31337 for localhost)? `
-  );
-
-  if (isNaN(parseInt(chainId))) {
-    console.log("No chainId provided. Defaulting to 31337 for localhost.");
-    return 31337;
-  }
-
-  return parseInt(chainId);
-}
-
 export async function getManufacturerSigner(prompter: readline.ReadLine): Promise<string> {
   const manufacturerSigner = await queryUser(
     prompter,
-    `What is the address of the manufacturer signer? `
+    `What is the address of the manufacturer signer for this enrollment? `
   );
 
   if (manufacturerSigner.slice(0, 2) != '0x' || manufacturerSigner.length != 42) {
@@ -38,39 +26,67 @@ export async function getManufacturerId(prompter: readline.ReadLine): Promise<st
   );
 
   if (manufacturerId.slice(0, 2) != '0x' || manufacturerId.length != 66) {
-    console.log("Invalid manufacturerId. Please provide a valid address.");
+    console.log("Invalid manufacturerId. Please provide a valid bytes32 hex string.");
     return getManufacturerId(prompter);
   }
 
   return manufacturerId;
 }
 
-export async function getAuthModel(prompter: readline.ReadLine): Promise<string> {
-  const manufacturerAuthModel = await queryUser(
-    prompter,
-    `What is the chip auth model? `
-  );
+// TODO: update this given that the $chainId folder is the correpsonding chain name -- perhaps we can get this from hardhat.config.ts
+export async function getAuthModel(prompter: readline.ReadLine, networkName: string): Promise<string> {
+  let defaultAuthModel = '';
+  const deploymentFilePath = path.join(__dirname, `../../deployments/${networkName}/SECP256k1Model.json`);
+
+  if (fs.existsSync(deploymentFilePath)) {
+    const deploymentData = JSON.parse(fs.readFileSync(deploymentFilePath, 'utf8'));
+    defaultAuthModel = deploymentData.address;
+  }
+
+  const promptMessage = defaultAuthModel
+    ? `What is the chip auth model? (default for ${networkName}: ${defaultAuthModel}) `
+    : `What is the chip auth model? `;
+
+  let manufacturerAuthModel = await queryUser(prompter, promptMessage);
+
+  if (!manufacturerAuthModel && defaultAuthModel) {
+    manufacturerAuthModel = defaultAuthModel;
+  }
 
   if (manufacturerAuthModel.slice(0, 2) != '0x' || manufacturerAuthModel.length != 42) {
     console.log("Invalid manufacturer auth model. Please provide a valid address.");
-    return getAuthModel(prompter);
+    return getAuthModel(prompter, networkName);
   }
 
   return manufacturerAuthModel;
 }
 
-export async function getEnrollmentAuthModel(prompter: readline.ReadLine): Promise<string> {
-  const manufacturerAuthModel = await queryUser(
-    prompter,
-    `What is the enrollment auth model? `
-  );
+// TODO: update this given that the $chainId folder is the correpsonding chain name -- perhaps we can get this from hardhat.config.ts
+export async function getEnrollmentAuthModel(prompter: readline.ReadLine, networkName: string): Promise<string> {
+  let defaultEnrollmentAuthModel = '';
+  const deploymentFilePath = path.join(__dirname, `../../deployments/${networkName}/EnrollmentEIP191Model.json`);
 
-  if (manufacturerAuthModel.slice(0, 2) != '0x' || manufacturerAuthModel.length != 42) {
-    console.log("Invalid manufacturer auth model. Please provide a valid address.");
-    return getEnrollmentAuthModel(prompter);
+  if (fs.existsSync(deploymentFilePath)) {
+    const deploymentData = JSON.parse(fs.readFileSync(deploymentFilePath, 'utf8'));
+    defaultEnrollmentAuthModel = deploymentData.address;
   }
 
-  return manufacturerAuthModel;
+  const promptMessage = defaultEnrollmentAuthModel
+    ? `What is the enrollment auth model? (default for ${networkName}: ${defaultEnrollmentAuthModel}) `
+    : `What is the enrollment auth model? `;
+
+  let enrollmentAuthModel = await queryUser(prompter, promptMessage);
+
+  if (!enrollmentAuthModel && defaultEnrollmentAuthModel) {
+    enrollmentAuthModel = defaultEnrollmentAuthModel;
+  }
+
+  if (enrollmentAuthModel.slice(0, 2) != '0x' || enrollmentAuthModel.length != 42) {
+    console.log("Invalid enrollment auth model. Please provide a valid address.");
+    return getEnrollmentAuthModel(prompter, networkName);
+  }
+
+  return enrollmentAuthModel;
 }
 
 export async function getBootloaderApp(prompter: readline.ReadLine): Promise<string> {
