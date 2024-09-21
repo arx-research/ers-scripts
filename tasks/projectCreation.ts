@@ -473,27 +473,46 @@ task("createProject", "Create a new project")
               continue;
             }
           }
-    
-          if (chipData) {
-            console.log('\nPlease scan the following chip...\n');
-            // Attempt to render the media if it's a JPEG or PNG image
-            if (chipData.media_mime_type === 'image/jpg' || chipData.media_mime_type === 'image/jpeg' || chipData.media_mime_type === 'image/png') {
-              try {
-                await renderImageInTerminal(chipData.media_uri);
-              } catch (error) {
-                console.log(`Unable to render image from URI: ${chipData.media_uri}. Error: ${error}`);
-              }
-            }
-            console.log(`Name: ${chipData.name}`);
-            console.log(`Description: ${chipData.description}`);
-            console.log(`Media URI: ${chipData.media_uri}`);
-            console.log(`Media MIME Type: ${chipData.media_mime_type}`);
-            console.log(`Chip ID: ${chipData.chipId || "Not Provided"}`);
+
+          // If all the chip information is provided, we don't need to scan the chip. Useful for when developer proofs have already been captured.
+          let signResponse: any;
+          if (chipData.projectRegistrar && 
+              chipData.developerProof && 
+              chipData.chipId && 
+              chipData.edition && 
+              chipData.name && 
+              chipData.description && 
+              chipData.media_uri && 
+              chipData.media_mime_type
+            ) {
+            signResponse = {
+              etherAddress: chipData.chipId,
+              signature: { ether: chipData.developerProof },
+            };
+            console.warn(`Complete chip data found. Skipping scan.`);
           } else {
-            console.log("Please scan the next chip.");
+            if (chipData) {
+              console.log('\nPlease scan the following chip...\n');
+              // Attempt to render the media if it's a JPEG or PNG image
+              if (chipData.media_mime_type === 'image/jpg' || chipData.media_mime_type === 'image/jpeg' || chipData.media_mime_type === 'image/png') {
+                try {
+                  await renderImageInTerminal(chipData.media_uri);
+                } catch (error) {
+                  console.log(`Unable to render image from URI: ${chipData.media_uri}. Error: ${error}`);
+                }
+              }
+              console.log(`Edition: ${chipData.edition}`);
+              console.log(`Name: ${chipData.name}`);
+              console.log(`Description: ${chipData.description}`);
+              console.log(`Media URI: ${chipData.media_uri}`);
+              console.log(`Media MIME Type: ${chipData.media_mime_type}`);
+              console.log(`Chip ID: ${chipData.chipId || "Not Provided"}`);
+            } else {
+              console.log("Please scan the next chip.");
+            }
+
+            signResponse = await getChipTypedSigWithGateway(gate, { domain, types, value });
           }
-    
-          const signResponse = await getChipTypedSigWithGateway(gate, { domain, types, value });
     
           if (chipData && chipData.chipId && chipData.chipId !== signResponse.etherAddress) {
             console.error(`Scanned chip ID does not match expected chip ID for ${chipData.name}. Please scan the correct chip.`);
@@ -508,7 +527,7 @@ task("createProject", "Create a new project")
             i++;
             continue;
           }
-    
+            
           // Upload chip media to IPFS, if needed
           if (
             !chipData.media_uri.startsWith('ipfs://') &&
@@ -520,7 +539,7 @@ task("createProject", "Create a new project")
               chipData.media_uri = `ipfs://${uploadedMedia.cid}`;  // Assuming the CID is returned in the format `{ cid: '...' }`
             } catch (error) {
               console.error(`Failed to upload media to IPFS: ${error}`);
-              chipData.media_uri = '';
+              process.exit(1);
             }
           }
     
