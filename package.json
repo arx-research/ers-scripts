@@ -1,6 +1,6 @@
 {
   "name": "@arx-research/ers-scripts",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "Scripts for deploying and interacting with the ERS protocol from the command line",
   "main": "index.js",
   "scripts": {
@@ -63,7 +63,7 @@
     "typescript": ">=4.5.0"
   },
   "dependencies": {
-    "@arx-research/ers-contracts": "^2.0.4",
+    "@arx-research/ers-contracts": "^2.1.0",
     "@arx-research/libhalo": "1.2.33",
     "@filebase/sdk": "^1.0.5",
     "@nomicfoundation/hardhat-viem": "^1.0.1",

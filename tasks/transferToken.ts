@@ -1,5 +1,4 @@
 import { BigNumber, ethers } from "ethers";
-import * as fs from 'fs';
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment as HRE, HardhatRuntimeEnvironment } from "hardhat/types";
 import {
@@ -58,6 +57,7 @@ task("transferToken", "Transfer a chip PBT enrolled in an ERS project")
       data: projectRegistrar.interface.encodeFunctionData(
         "transferToken",
         [
+          chipOwner,
           params.chipId,
           chipOwnershipProof,
           commitBlock.number,

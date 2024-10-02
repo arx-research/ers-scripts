@@ -180,7 +180,6 @@ task("createProject", "Create a new project")
         }
         
         console.log(`Calling addChips, this might take a moment...`);
-
         await rawTx({
           from: developerOwner,
           to: projectRegistrarAddress,
@@ -295,11 +294,19 @@ task("createProject", "Create a new project")
     async function getEnrollmentData(chipId: string, chainId: string): Promise<ManufacturerValidationInfo | null> {
       const networkName = hre.network.name;
       const columnName = `${networkName}EnrollmentId`;
+      let selectColumns: string;
     
       // Construct the select columns safely
-      const selectColumns = ['manufacturerCertificate', 'payload', columnName]
+      if (enrollmentIdLocal) {
+        selectColumns = ['manufacturerCertificate', 'payload']
         .map(col => `"${col}"`)
         .join(', ');
+      } else {
+        selectColumns = ['manufacturerCertificate', 'payload', columnName]
+        .map(col => `"${col}"`)
+        .join(', ');
+      }
+
     
       // Perform the query without specifying type parameters
       const { data, error } = await supabase
@@ -322,10 +329,15 @@ task("createProject", "Create a new project")
       const dataRecord = data as Record<string, any>;
     
       // Access the enrollmentId dynamically
-      const enrollmentId = dataRecord[columnName] as string | undefined;
+      let enrollmentId: string | undefined;
+      if (enrollmentIdLocal) {
+        enrollmentId = enrollmentIdLocal;
+      } else {
+        enrollmentId = dataRecord[columnName]
+      }
     
       // Use local enrollmentId if in localhost deployment, otherwise use Supabase data
-      if (chainId === process.env.LOCALHOST_CHAIN_ID && enrollmentIdLocal) {
+      if (enrollmentIdLocal) {
         dataRecord[columnName] = enrollmentIdLocal;
       } else if (!enrollmentId) {
         throw new Error(`No enrollmentId found for chipId ${chipId} in column ${columnName}`);
