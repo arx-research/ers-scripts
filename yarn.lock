@@ -7,10 +7,10 @@
   resolved "https://registry.yarnpkg.com/@adraffy/ens-normalize/-/ens-normalize-1.10.0.tgz#d2a39395c587e092d77cbbc80acf956a54f38bf7"
   integrity sha512-nA9XHtlAkYfJxY7bce8DcN7eKxWWCWkU+1GR9d+U6MbNpfwQp8TI7vqOsBsMcHoT4mBu2kypKoSKnghEzOOq5Q==
 
-"@arx-research/ers-contracts@^2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@arx-research/ers-contracts/-/ers-contracts-2.1.1.tgz#4e84709b0832a8a8937b8e1c5b7cf5b1bd741e6a"
-  integrity sha512-srvxPXK2SzJn2phf8sP/y9HIKfaNUf+r8JLHd00jBSIvCwgc7gOYAVnD6TMaUsdfr0OgFqdvL8/5Q/7XA31yIg==
+"@arx-research/ers-contracts@^2.1.2":
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/@arx-research/ers-contracts/-/ers-contracts-2.1.2.tgz#90e495bfeb122735c74a1500faf792add9a40331"
+  integrity sha512-5dnTCAgyaU3diOIcIQj06mFEVU232iP+FChhWVQjECJAw7JyMQtJi5vpuD3n2mk1IUmdwUKIpsK7jM0cooz6zQ==
   dependencies:
     "@nomicfoundation/hardhat-network-helpers" "^1.0.11"
     "@openzeppelin/contracts" "^4.9.2"
@@ -13820,6 +13820,7 @@ workerpool@^6.5.1:
   integrity sha512-Fs4dNYcsdpYSAfVxhnl1L5zTksjvOJxtC5hzMNl+1t9B8hTJTdKDyZ5ju7ztgPy+ft9tBFXoOlDNiOT9WUXZlA==
 
 "wrap-ansi-cjs@npm:wrap-ansi@^7.0.0", wrap-ansi@^7.0.0:
+  name wrap-ansi-cjs
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/wrap-ansi/-/wrap-ansi-7.0.0.tgz#67e145cff510a6a6984bdf1152911d69d2eb9e43"
   integrity sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==
