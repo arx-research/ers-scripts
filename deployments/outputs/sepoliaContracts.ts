@@ -3,7 +3,7 @@ export default {
   "chainId": "11155111",
   "contracts": {
     "ChipRegistry": {
-      "address": "0x4EED142581c111860f6323168dC60c3eFCa3af24",
+      "address": "0xEE9766c21E798031990b9917c3CC256a00cAC3fB",
       "abi": [
         {
           "inputs": [
@@ -774,7 +774,7 @@ export default {
       ]
     },
     "DeveloperNameGovernor": {
-      "address": "0x1e3F1C5B5bC5a77CD5d57ce591DAf60772233dA7",
+      "address": "0x736621066314Ddd344F602e6F0685816651Fe41D",
       "abi": [
         {
           "inputs": [
@@ -1065,7 +1065,7 @@ export default {
       ]
     },
     "DeveloperRegistrar": {
-      "address": "0xD57A993Eda1fACFb87f3b7Ce735Ae853F89244E1",
+      "address": "0xe3A9ef540dBF15542C8285BdAcfF0007F4C86454",
       "abi": [
         {
           "inputs": [
@@ -1401,7 +1401,7 @@ export default {
       ]
     },
     "DeveloperRegistrarFactory": {
-      "address": "0x656281faB5DeB3D8964BD48410859fb0d9995e0E",
+      "address": "0x274Eb212F85e6FbE81176c0C137A0E27C1Fa92Fe",
       "abi": [
         {
           "inputs": [
@@ -1474,7 +1474,7 @@ export default {
       ]
     },
     "DeveloperRegistry": {
-      "address": "0x0FCb2A0df07b00f84e651a9a68c9B38543560590",
+      "address": "0xA5e2abF386F6FB55F24A5EB9F4Df05358fEc5220",
       "abi": [
         {
           "inputs": [
@@ -1941,7 +1941,7 @@ export default {
       ]
     },
     "ERSRegistry": {
-      "address": "0x51d2c9c145b5D4330E5FA8837E330F51Ff43465B",
+      "address": "0x8e4CdB198796590105b8b7aFd4320554209Bc6c1",
       "abi": [
         {
           "inputs": [
@@ -2308,7 +2308,7 @@ export default {
       ]
     },
     "EnrollmentEIP191Model": {
-      "address": "0xaE72D74B55823fe1a1029bd81e56f0bC840E9bC6",
+      "address": "0x4AB5c1D728849f51890ABE53eC97A8cd685f4d85",
       "abi": [
         {
           "inputs": [],
@@ -2352,7 +2352,7 @@ export default {
       ]
     },
     "ManufacturerRegistry": {
-      "address": "0x02fc9a856a22048a5c24cA69536a61feD0627645",
+      "address": "0x12BE4038086C4e6E076442e1b2f64cfAd20E2FAa",
       "abi": [
         {
           "inputs": [
@@ -2860,7 +2860,7 @@ export default {
       ]
     },
     "OpenTransferPolicy": {
-      "address": "0x72921933c5448A253f6Fa8b90f6b4Be43b1AFaa3",
+      "address": "0xF0fBE6233Bfc8d7FD571F179C591A1F5fF276D77",
       "abi": [
         {
           "inputs": [],
@@ -2869,6 +2869,11 @@ export default {
         },
         {
           "inputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            },
             {
               "internalType": "address",
               "name": "",
@@ -2903,7 +2908,7 @@ export default {
       ]
     },
     "SECP256k1Model": {
-      "address": "0x05B7F7F555C0289d8135c60C5b138930750eDC8b",
+      "address": "0x38DB104cF8aFBd5e23Eec35c67330d8623605E71",
       "abi": [
         {
           "inputs": [
@@ -2937,7 +2942,7 @@ export default {
       ]
     },
     "ServicesRegistry": {
-      "address": "0x7d483293BB2BB9E98987980015d8C753B32C4d7B",
+      "address": "0x1023796D2AB8524b1643763c88f8D0c39277ECb0",
       "abi": [
         {
           "inputs": [

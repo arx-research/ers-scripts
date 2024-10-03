@@ -19,7 +19,7 @@ export const CHIP_REGISTRY_DEPLOY: any = {
     "maxLockinPeriod": BigNumber.from(10)
   },
   "base": {
-    "maxLockinPeriod": BigNumber.from(63072000) // 2 years at 365 days in a year
+    "maxLockinPeriod": BigNumber.from(315360000) // 5 years at 365 days in a year, previously 63072000 or 2 years
   },
 }
 
@@ -27,6 +27,6 @@ export const MAX_BLOCK_WINDOW: any = {
   "localhost": BigNumber.from(5),
   "hardhat": BigNumber.from(5),
   "sepolia": BigNumber.from(5),
-  "base": BigNumber.from(100),
-  "mainnet": BigNumber.from(5),
+  "base": BigNumber.from(256),
+  "mainnet": BigNumber.from(256),
 }

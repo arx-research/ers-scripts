@@ -43,6 +43,6 @@ Additionally there is a specific `localhost` version of this script that can be 
 yarn addManufacturerEnrollment:localhost
 ```
 
-Note that this script requires that there is a valid manufacturer in the environment you are deploying to (see previous section for information on this). For `localhost` deployments you can still use the associated Arx Supabase instance to look up chip manufacturer certificates as long as you enter the correct `manufacturerSigner`; `bootloaderApp` and `chipModel` won't matter in this instance.
+Note that this script requires that there is a valid manufacturer in the environment you are deploying to (see previous section for information on this). For `localhost` deployments you can still use the associated Arx Supabase instance to look up chip manufacturer certificates as long as you enter the correct `manufacturerSigner`; `bootloaderApp` and `chipModel` won't matter in this instance. Use the Supabase instance to obtain the correct `manufacturerSigner`.
 
 **Outputs:** This script will output artifacts to `task_outputs/${networkName}/addManufacturerEnrollment/`. Those artifacts will be used to suggest enrollments to subsequent scripts.
