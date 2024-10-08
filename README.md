@@ -6,12 +6,12 @@ ERS scripts can be used by all parties in ERS including Manufactures, Developers
 
 Developers who wish to enroll chips in order to redirect them -- with or without the addition of contents -- should first create a Developer Registrar, then a Service and finally a Project. Depending on the type of Project you wish to create as a Developer, you may need to generate a custom CSV that maps metadata -- like images, names and descriptions -- to chips. If you are simply looking to redirect chips that are already mapped to ERS, you can probably skip this.
 
+The primary ERS deployment lives on Base. See [the ERS docs](https://docs.ers.to/) for more information on ERS. See also [ers-contracts](https://github.com/arx-research/ers-contracts) for the latest ERS contracts.
+
 ## Concepts
 1. Developers create a registrar in order to establish their place in the ERS namespace; for instance, Arx Research owns the `arx.ers` namespace and can deploy Projects within that namespace through their developer registrar.
 2. Services are typically a web app or URI; the URI is updatable, however, once a chip is bound to its primary service only a user can change that primary service to another one (and only then after the lock in period expires). Most developers will deploy their own Service, but some may choose to redirect their chips to a pre-existing service managed by another Service Creator.
 3. Projects bind chips to Developers and Services. They exist within a developer namespace, for instance `tshirt.arx.ers`. They allow rich content to be tied to chips in conjunction with a Service, and also will set the initial owner of a chip upon creation (by default ERS sets this to the Developer embedding a chip).
-
-The primary ERS deployment lives on Base. See [the ERS docs](https://docs.ers.to/) for more information on ERS.
 
 ## Setup
 1. Install all dependencies by running `yarn install` in the root directory.
@@ -26,7 +26,7 @@ cp .env.default .env
 6. In order to deploy or run scripts there needs to be a valid node to interact with. If you are testing and planning on running locally you can start the `localhost` network by running `yarn chain`, this opens up a local node at the default port `8545`.
 
 ## Deployments
-See the deployment artifacts in `deployments/$CHAIN_ID`.
+See deployment artifacts in `deployments/$CHAIN_ID`. Sepolia is currently the primary testnet deployment and Base the primary production deployment.
 
 ### Local Setup
 For local testing, instantiate your local chain (e.g. `yarn chain`) and run:
