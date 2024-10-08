@@ -11,7 +11,7 @@ Developers who wish to enroll chips in order to redirect them -- with or without
 2. Services are typically a web app or URI; the URI is updatable, however, once a chip is bound to its primary service only a user can change that primary service to another one (and only then after the lock in period expires). Most developers will deploy their own Service, but some may choose to redirect their chips to a pre-existing service managed by another Service Creator.
 3. Projects bind chips to Developers and Services. They exist within a developer namespace, for instance `tshirt.arx.ers`. They allow rich content to be tied to chips in conjunction with a Service, and also will set the initial owner of a chip upon creation (by default ERS sets this to the Developer embedding a chip).
 
-See [the ERS docs](https://docs.ers.to/) for more information on ERS.
+The primary ERS deployment lives on Base. See [the ERS docs](https://docs.ers.to/) for more information on ERS.
 
 ## Setup
 1. Install all dependencies by running `yarn install` in the root directory.
@@ -59,8 +59,9 @@ Note: If you are working with locally modified `ers-contracts` you may need to l
 
 0. If using `ers-scripts` for localhost testing, see `ManufacturerUsage.md` for more details on creating a mock manufacturer and enrollment.
 1. Create a service: `createService` with the options indicated below. A service is the `contentApp` that you want to redirect a chip to (e.g. a decentralized app hosted on IPFS, a centralized app hosted at a URL).
-2. Create a project: `createProject` maps chips to a `serviceId` and adds associated `tokenUriData` (recommended, but optional).  Once enrolled, the chip should redirect when tapped to the `contentApp` provided. Some content apps may be designed to render the `tokenUriData`.
-3. Claim a chip: `transferToken` allows the end user of a chip to claim ownership of the associated chip [PBT](https://eips.ethereum.org/EIPS/eip-5791), which may or may not be necessary depending on the end use case.
+2. Create a developer registrar: `createDeveloperRegistrar` claims a name (if available) and deploys an associated developer registrar through which projects can be deployed and chips added.
+3. Create a project: `createProject` maps chips to a `serviceId` and adds associated `tokenUriData` (recommended, but optional).  Once enrolled, the chip should redirect when tapped to the `contentApp` provided. Some content apps may be designed to render the `tokenUriData`.
+4. Claim a chip: `transferToken` allows the end user of a chip to claim ownership of the associated chip [PBT](https://eips.ethereum.org/EIPS/eip-5791), which may or may not be necessary depending on the end use case.
 
 In order to use scripts, first ensure that there are valid deployments in the environment you are deploying to (see `Deployments` above). It is worth noting that these scripts build on each other, each step creating artifacts in `task_outputs` that can be easily selected for use in the subsequent steps. You may wish to backup `task_outputs` periodically as some artifacts, such as those used for building `tokenUri` data, may be difficult to rebuild from scratch if removed.
 
