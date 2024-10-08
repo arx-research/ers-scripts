@@ -1,0 +1,70 @@
+{
+  "address": "0x267D60501B88512c69C1e7E40bFe5E79F11Ad0f4",
+  "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        }
+      ],
+      "name": "authorizeTransfer",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x5a355bce3995000811dc7568082828850159337ff5562792522018cefb5fb07e",
+  "receipt": {
+    "to": null,
+    "from": "0x137287d5c3A2A5b0718ACEba486727F201491f92",
+    "contractAddress": "0x267D60501B88512c69C1e7E40bFe5E79F11Ad0f4",
+    "transactionIndex": 65,
+    "gasUsed": "112211",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x6367f7ca743d71677a1e8db51887da0ffa4971a6ebdce14dc8651e8a26f4be4e",
+    "transactionHash": "0x5a355bce3995000811dc7568082828850159337ff5562792522018cefb5fb07e",
+    "logs": [],
+    "blockNumber": 20599246,
+    "cumulativeGasUsed": "11178869",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "e447b785d12f2f17f3136e5a46204389",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.24+commit.e11b9ed9\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"authorizeTransfer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"This transfer policy performs no checks and creates parity with the PBT standard transferToken function. TransferPolicy is necessary because the ChipRegistry does not support transferToken so that transferToken cannot be overridden.\",\"kind\":\"dev\",\"methods\":{},\"title\":\"OpenTransferPolicy\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"authorizeTransfer(address,address,address,address,bytes,bytes)\":{\"notice\":\"This function enforces no additional checks and allows the transfer to proceed for parity with transferToken function in PBT standard.\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/token/transfer-policies/OpenTransferPolicy.sol\":\"OpenTransferPolicy\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[],\"viaIR\":true},\"sources\":{\"contracts/interfaces/ITransferPolicy.sol\":{\"keccak256\":\"0xc74984c0edac5f5c3019eda16907490014e256438e12ad9606fbde1467f89424\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://aac306926d31c97e0a3e2fb6cadcbefebe33ca292d8977b697ad2ee087353cfe\",\"dweb:/ipfs/QmYzik9tWiz5yQjqKYKUCWKgYyEcZLj84gdEFTd3Prt3fH\"]},\"contracts/token/transfer-policies/OpenTransferPolicy.sol\":{\"keccak256\":\"0xb74f2932b44a577ab4bc148d88067165825dd83efc5a4a6670c0139d5469fb08\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://56ee4b78e3766203282db7b6deb2ddf9b8546d18310d6b218c40ed0fc96d5c25\",\"dweb:/ipfs/QmSXbMriAdyQa8yUFqJaX7Lp4EhwsYE6kGxqp23fdDdbd1\"]}},\"version\":1}",
+  "bytecode": "0x6080806040523461001657610110908161001c8239f35b600080fdfe60806040526004361015601157600080fd5b6000803560e01c63f041198b14602657600080fd5b3460a75760c036600319011260a7576001600160a01b0360043581811603609f5760243581811603609f5760443581811603609f576064359081160360a75767ffffffffffffffff60843581811160a357608390369060040160aa565b505060a435908111609f57609a90369060040160aa565b505080f35b5080fd5b8280fd5b80fd5b9181601f8401121560d55782359167ffffffffffffffff831160d5576020838186019501011160d557565b600080fdfea2646970667358221220a1cc1eb60c65040be40042dc9f3dfdc5331b38828ebb0feae1b6c5c949239de064736f6c63430008180033",
+  "deployedBytecode": "0x60806040526004361015601157600080fd5b6000803560e01c63f041198b14602657600080fd5b3460a75760c036600319011260a7576001600160a01b0360043581811603609f5760243581811603609f5760443581811603609f576064359081160360a75767ffffffffffffffff60843581811160a357608390369060040160aa565b505060a435908111609f57609a90369060040160aa565b505080f35b5080fd5b8280fd5b80fd5b9181601f8401121560d55782359167ffffffffffffffff831160d5576020838186019501011160d557565b600080fdfea2646970667358221220a1cc1eb60c65040be40042dc9f3dfdc5331b38828ebb0feae1b6c5c949239de064736f6c63430008180033"
+}

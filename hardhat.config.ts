@@ -39,7 +39,6 @@ const config: HardhatUserConfig = {
         `0x${process.env.TESTNET_DEPLOY_PRIVATE_KEY}`,
         `0x${process.env.TESTNET_MANUFACTURER_PRIVATE_KEY}`,
         `0x${process.env.TESTNET_SERVICE_CREATOR_PRIVATE_KEY}`,
-        `0x${process.env.TESTNET_PROJECT_OWNER_PRIVATE_KEY}`,
         `0x${process.env.TESTNET_CHIP_OWNER_PRIVATE_KEY}`,
       ],
       verify: {
@@ -55,7 +54,6 @@ const config: HardhatUserConfig = {
         `0x${process.env.BASE_DEPLOY_PRIVATE_KEY}`,
         `0x${process.env.BASE_MANUFACTURER_PRIVATE_KEY}`,
         `0x${process.env.BASE_SERVICE_CREATOR_PRIVATE_KEY}`,
-        `0x${process.env.BASE_PROJECT_OWNER_PRIVATE_KEY}`,
         `0x${process.env.BASE_CHIP_OWNER_PRIVATE_KEY}`,
       ],
       verify: {
@@ -91,11 +89,6 @@ const config: HardhatUserConfig = {
       localhost: 3,
       sepolia: `privatekey://0x${process.env.TESTNET_SERVICE_CREATOR_PRIVATE_KEY}`,
       base: `privatekey://0x${process.env.BASE_SERVICE_CREATOR_PRIVATE_KEY}`,
-    },
-    projectOwner: {
-      localhost: 4,
-      sepolia: `privatekey://0x${process.env.TESTNET_PROJECT_OWNER_PRIVATE_KEY}`,
-      base: `privatekey://0x${process.env.BASE_PROJECT_OWNER_PRIVATE_KEY}`,
     },
     chipOwner: {
       localhost: 6,

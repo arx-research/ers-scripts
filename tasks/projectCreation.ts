@@ -411,6 +411,7 @@ task("createProject", "Create a new project")
           console.log('\nPlease scan the next chip...\n');
     
           const signResponse = await getChipTypedSigWithGateway(gate, { domain, types, value });
+          console.log(JSON.stringify(signResponse))
     
           // Check if chip already exists in the chip registry
           const existingChipInfo = await chipRegistry.chipEnrollments(signResponse.etherAddress);

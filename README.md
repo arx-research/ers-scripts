@@ -1,5 +1,17 @@
 # ers-scripts
-Scripts for deploying and interacting with the Ethereum Reality Service ("ERS") from the command line. See [the ERS docs](https://docs.ers.to/) for more information on ERS.
+Scripts for deploying and interacting with the Ethereum Reality Service ("ERS") from the command line. 
+
+## Introduction
+ERS scripts can be used by all parties in ERS including Manufactures, Developers, Service Creators and End Users wishing to transfer associated chip PBTs. 
+
+Developers who wish to enroll chips in order to redirect them -- with or without the addition of contents -- should first create a Developer Registrar, then a Service and finally a Project. Depending on the type of Project you wish to create as a Developer, you may need to generate a custom CSV that maps metadata -- like images, names and descriptions -- to chips. If you are simply looking to redirect chips that are already mapped to ERS, you can probably skip this.
+
+## Concepts
+1. Developers create a registrar in order to establish their place in the ERS namespace; for instance, Arx Research owns the `arx.ers` namespace and can deploy Projects within that namespace through their developer registrar.
+2. Services are typically a web app or URI; the URI is updatable, however, once a chip is bound to its primary service only a user can change that primary service to another one (and only then after the lock in period expires). Most developers will deploy their own Service, but some may choose to redirect their chips to a pre-existing service managed by another Service Creator.
+3. Projects bind chips to Developers and Services. They exist within a developer namespace, for instance `tshirt.arx.ers`. They allow rich content to be tied to chips in conjunction with a Service, and also will set the initial owner of a chip upon creation (by default ERS sets this to the Developer embedding a chip).
+
+See [the ERS docs](https://docs.ers.to/) for more information on ERS.
 
 ## Setup
 1. Install all dependencies by running `yarn install` in the root directory.
@@ -16,7 +28,7 @@ cp .env.default .env
 ## Deployments
 See the deployment artifacts in `deployments/$CHAIN_ID`.
 
-### Local
+### Local Setup
 For local testing, instantiate your local chain (e.g. `yarn chain`) and run:
 ```bash
 yarn deploy:localhost
@@ -30,6 +42,14 @@ If you want to make sure that you have a completely fresh local deployment, run:
 yarn deploy:localhost:clean
 ```
 
+### Local Manufacturer Simulation
+If you want to simulate adding Arx manufacturer enrollments which is necessary for a full local deployment, you will need to set up enrollments using the `addManufacturerEnrollment` task matching the Arx signers used to date (this data may also be retrieved by looking up a given chip ID in the public Supabase):
+1. `0xeBC369ed2340fd2EB2391Aca09a6274997722aac`
+2. `0xaF98D82397e832A5945424648511886c15A61f36`
+
+See `ManufacturerUsage.md` for more information. The default options provided in the script for auth model and enrollment auth model should match HaLo chips and the Arx Supabase data.
+
+### Local Contract Development
 Note: If you are working with locally modified `ers-contracts` you may need to link those contracts and rebuild in order to correctly redeploy.
 1. `npm link @arx-research/ers-contracts --force`
 2. `yarn clean-artifacts`
@@ -100,7 +120,7 @@ Note: If you are creating `tokenUri` data from a formatted CSV, make sure that y
 See `example/tokenUriExample.csv` for an example of how the CSV should be formatted. Note that in the example the minimum required fields have been completed; other fields will be dynamically added. Notes is for reference purposes and is not included when the `tokenUri` data is generated.
 
 ### transferToken
-This script [claims ownership of a chip](https://docs.ers.to/overview/concepts/chip-claim) that has been enrolled in a project by transfering it to a new owner.
+This script [transfers ownership of a chip](https://docs.ers.to/overview/concepts/chip-transfer) that has been enrolled in a project.
 
 You will be prompted by a QR code scanner to scan the chip to get the `chipId` and to create a `transferToken` signature. Scan the QR code on your smartphone and follow the prompts to capture chip data. You can scan your chip by tapping it to the NFC reader on the back of your smartphone.
 
@@ -109,5 +129,5 @@ Arguments:
 
 Example:
 ```bash
-yarn claimChip --network [network]
+yarn transferToken --network [network]
 ```
