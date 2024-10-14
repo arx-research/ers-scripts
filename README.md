@@ -71,7 +71,7 @@ This script creates a [service](https://docs.ers.to/overview/concepts/services) 
 It will prompt you for several pieces of information:
 1. `service-name`: The name of the service
 2. `content`: URL/URI of the content app; in the case of a simple redirect this would be an `http` resource like `https://app.arx.org` where a chip may be scanned. For IPFS, this would be 
-3. `append-id`: Indicate whether chipId should be appended to the content app URL/URI. This is useful for NFT/PBT applications where every chip might reference unique metadata and required if you are using the output of the `generateTokenUriData` for `tokenUri` data in your project.
+3. `append-id`: Indicate whether chipId should be appended to the content app URL/URI. This is useful for NFT/PBT applications where every chip might reference unique metadata and required if you are using the output of the `generateTokenUriData` for `tokenUri` data in your project. Note this doesn't influence chip parameter data, e.g. `https://app.arx.org?$chipInfo`, which is passed regardless.
 
 Arguments:
 `network`: The network you want to interact with (defaults to `hardhat`)

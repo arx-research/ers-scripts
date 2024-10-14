@@ -489,8 +489,7 @@ task("createProject", "Create a new project")
 
           // If all the chip information is provided, we don't need to scan the chip. Useful for when developer proofs have already been captured.
           let signResponse: any;
-          if (chipData.projectRegistrar && 
-              chipData.developerProof && 
+          if (chipData.developerProof && 
               chipData.chipId && 
               chipData.edition && 
               chipData.name && 
