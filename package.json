@@ -3,6 +3,9 @@
   "version": "2.1.1",
   "description": "Scripts for deploying and interacting with the ERS protocol from the command line",
   "main": "index.js",
+  "engines" : { 
+    "node" : ">=20.5.0"
+  },
   "scripts": {
     "addManufacturer": "npx hardhat addManufacturer",
     "addManufacturer:localhost": "npx hardhat addManufacturer --network localhost",

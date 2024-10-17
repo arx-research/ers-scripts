@@ -14,6 +14,7 @@ The primary ERS deployment lives on Base. See [the ERS docs](https://docs.ers.to
 3. Projects bind chips to Developers and Services. They exist within a developer namespace, for instance `tshirt.arx.ers`. They allow rich content to be tied to chips in conjunction with a Service, and also will set the initial owner of a chip upon creation (by default ERS sets this to the Developer embedding a chip).
 
 ## Setup
+0. `ers-scripts` expects Node 20.5.0+ and the [yarn](https://classic.yarnpkg.com/lang/en/docs/install) package manager.
 1. Install all dependencies by running `yarn install` in the root directory.
 2. Set up a blank `.env` file:
 ```bash
