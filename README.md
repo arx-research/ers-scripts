@@ -21,9 +21,9 @@ yarn build
 ```bash
 cp .env.default .env
 ```
-3. Fill out the `REQUIRED` fields in `.env`. You need: 
+3. Fill out the `REQUIRED` fields in `.env`. You need:
     - A [Supabase](https://supabase.com/) account in order to access Arx manufacturer enrollments, 
-    - A [Filebase](https://filebase.com/) account in order to create project data
+    - A [Filebase](https://filebase.com/) account in order to create tokenUri data for projects and upload content (may not be required in all cases, but highly recommended)
     - An [Alchemy](https://www.alchemy.com/) account to carry out RPC commands (or you can set up a custom RPC in `hardhat.config.ts`).
     - Private keys for the different roles, e.g. Developer and Service Creator. Make sure the associated accounts are funded to cover contract deployment and calling contract functions.
 
