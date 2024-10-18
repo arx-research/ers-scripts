@@ -8,63 +8,41 @@ Developers who wish to enroll chips in order to redirect them -- with or without
 
 The primary ERS deployment lives on Base. See [the ERS docs](https://docs.ers.to/) for more information on ERS. See also [ers-contracts](https://github.com/arx-research/ers-contracts) for the latest ERS contracts.
 
-## Concepts
-1. Developers create a registrar in order to establish their place in the ERS namespace; for instance, Arx Research owns the `arx.ers` namespace and can deploy Projects within that namespace through their developer registrar.
-2. Services are typically a web app or URI; the URI is updatable, however, once a chip is bound to its primary service only a user can change that primary service to another one (and only then after the lock in period expires). Most developers will deploy their own Service, but some may choose to redirect their chips to a pre-existing service managed by another Service Creator.
-3. Projects bind chips to Developers and Services. They exist within a developer namespace, for instance `tshirt.arx.ers`. They allow rich content to be tied to chips in conjunction with a Service, and also will set the initial owner of a chip upon creation (by default ERS sets this to the Developer embedding a chip).
-
 ## Setup
-0. `ers-scripts` expects Node 20.5.0+ and the [yarn](https://classic.yarnpkg.com/lang/en/docs/install) package manager.
-1. Install all dependencies by running `yarn install` in the root directory.
-2. Set up a blank `.env` file:
+1. Clone `ers-scripts` repo, install dependencies and build `artifacts`:
+```bash
+git clone git@github.com:arx-research/ers-scripts.git
+cd ers-scripts
+npm install yarn --global
+yarn
+yarn build
+```
+2. Set up an `.env` file:
 ```bash
 cp .env.default .env
 ```
-3. Fill out the resulting fields in the `.env` file with the appropriate values.
-4. You will need a `SUPABASE_ANON_KEY` in order to access Arx manufacturer enrollments, a Filebase account in order to create project data and an Infura account to carry out RPC commands.
-5. Run `yarn build` to create local `artifacts` that will be necessary for certain tasks like `createProject`
-5. If you are deploying against a non-local blockchain network, add the private keys for the accounts that you wish to use (e.g. `TESTNET_SERVICE_CREATOR_PRIVATE_KEY`).
-6. In order to deploy or run scripts there needs to be a valid node to interact with. If you are testing and planning on running locally you can start the `localhost` network by running `yarn chain`, this opens up a local node at the default port `8545`.
+3. Fill out the `REQUIRED` fields in `.env`. You need: 
+    - A [Supabase](https://supabase.com/) account in order to access Arx manufacturer enrollments, 
+    - A [Filebase](https://filebase.com/) account in order to create project data
+    - An [Alchemy](https://www.alchemy.com/) account to carry out RPC commands (or you can set up a custom RPC in `hardhat.config.ts`).
+    - Private keys for the different roles, e.g. Developer and Service Creator. Make sure the associated accounts are funded to cover contract deployment and calling contract functions.
 
-## Deployments
-See deployment artifacts in `deployments/$CHAIN_ID`. Sepolia is currently the primary testnet deployment and Base the primary production deployment.
+See `Local Setup` below if you are only testing against a local chain rather than Base or a testnet. 
 
-### Local Setup
-For local testing, instantiate your local chain (e.g. `yarn chain`) and run:
-```bash
-yarn deploy:localhost
-```
-
-The deployment script will try to reuse the existing deployment and run any deployments that were not run before. To see
-if there is an existing deployment for your environment you can check the `deployments` folder. If there is a sub-directory with the name of your environment, then there is an existing deployment.
-
-If you want to make sure that you have a completely fresh local deployment, run:
-```bash
-yarn deploy:localhost:clean
-```
-
-### Local Manufacturer Simulation
-If you want to simulate adding Arx manufacturer enrollments which is necessary for a full local deployment, you will need to set up enrollments using the `addManufacturerEnrollment` task matching the Arx signers used to date (this data may also be retrieved by looking up a given chip ID in the public Supabase):
-1. `0xeBC369ed2340fd2EB2391Aca09a6274997722aac`
-2. `0xaF98D82397e832A5945424648511886c15A61f36`
-
-See `ManufacturerUsage.md` for more information. The default options provided in the script for auth model and enrollment auth model should match HaLo chips and the Arx Supabase data.
-
-### Local Contract Development
-Note: If you are working with locally modified `ers-contracts` you may need to link those contracts and rebuild in order to correctly redeploy.
-1. `npm link @arx-research/ers-contracts --force`
-2. `yarn clean-artifacts`
-3. `yarn build`
+Note: `ers-scripts` expects Node 20.5.0+ and the [yarn](https://classic.yarnpkg.com/lang/en/docs/install) package manager.
 
 ## Using Scripts
+ERS Scripts can be used by various participants including Manufacturers, Developers, Service Creators as well as end users. In most cases, Developers are seeking to add chips to the protocol and link them to Services they have created. This will involve creating a service, deploying a developer registrar (if they have not previously done this) and creating projects.
 
-0. If using `ers-scripts` for localhost testing, see `ManufacturerUsage.md` for more details on creating a mock manufacturer and enrollment.
+In order to use scripts, first ensure that there is a valid protocol deployment in the environment you are deploying to, e.g. Base or Sepolia (see `Deployments`). If using `ers-scripts` on localhost, see `ManufacturerUsage.md` for more details on creating a mock manufacturer and enrollment and review the `Local Setup` section below.
+
+### Typical Flow
 1. Create a service: `createService` with the options indicated below. A service is the `contentApp` that you want to redirect a chip to (e.g. a decentralized app hosted on IPFS, a centralized app hosted at a URL).
 2. Create a developer registrar: `createDeveloperRegistrar` claims a name (if available) and deploys an associated developer registrar through which projects can be deployed and chips added.
 3. Create a project: `createProject` maps chips to a `serviceId` and adds associated `tokenUriData` (recommended, but optional).  Once enrolled, the chip should redirect when tapped to the `contentApp` provided. Some content apps may be designed to render the `tokenUriData`.
 4. Claim a chip: `transferToken` allows the end user of a chip to claim ownership of the associated chip [PBT](https://eips.ethereum.org/EIPS/eip-5791), which may or may not be necessary depending on the end use case.
 
-In order to use scripts, first ensure that there are valid deployments in the environment you are deploying to (see `Deployments` above). It is worth noting that these scripts build on each other, each step creating artifacts in `task_outputs` that can be easily selected for use in the subsequent steps. You may wish to backup `task_outputs` periodically as some artifacts, such as those used for building `tokenUri` data, may be difficult to rebuild from scratch if removed.
+Note: scripts build on each other, each step creating artifacts in `task_outputs` that can be easily selected for use in the subsequent steps. You may wish to backup `task_outputs` periodically as some artifacts, such as those used for building `tokenUri` data, may be difficult to rebuild from scratch if removed.
 
 ### createService
 This script creates a [service](https://docs.ers.to/overview/concepts/services) that can be assigned to chips in the project enrollment process.
@@ -133,3 +111,45 @@ Example:
 ```bash
 yarn transferToken --network [network]
 ```
+
+## Deployments
+See deployment artifacts in `deployments/$CHAIN_ID` for live contract addresses. Sepolia is currently the primary testnet deployment and Base the primary production deployment.
+
+## Concepts
+1. Developers create a registrar in order to establish their place in the ERS namespace; for instance, Arx Research owns the `arx.ers` namespace and can deploy Projects within that namespace through their developer registrar.
+2. Services are typically a web app or URI; the URI is updatable, however, once a chip is bound to its primary service only a user can change that primary service to another one (and only then after the lock in period expires). Most developers will deploy their own Service, but some may choose to redirect their chips to a pre-existing service managed by another Service Creator.
+3. Projects bind chips to Developers and Services. They exist within a developer namespace, for instance `tshirt.arx.ers`. They allow rich content to be tied to chips in conjunction with a Service, and also will set the initial owner of a chip upon creation (by default ERS sets this to the Developer embedding a chip).
+
+## Local Setup
+First, instantiate your localhost chain:
+```bash
+`yarn chain`
+```
+
+The `localhost` network should now ve running on the default port, `8545`.
+
+Next, deploy the ERS protocol on the localhost chain:
+```bash
+yarn deploy:localhost
+```
+
+The deployment script will try to reuse the existing deployment and run any deployments that were not run before. To see
+if there is an existing deployment for your environment you can check the `deployments` folder. If there is a sub-directory with the name of your environment, then there is an existing deployment.
+
+If you want to make sure that you have a completely fresh local deployment, run:
+```bash
+yarn deploy:localhost:clean
+```
+
+### Local Manufacturer Simulation
+If you want to simulate adding Arx manufacturer enrollments which is necessary for a full local deployment, you will need to set up enrollments using the `addManufacturerEnrollment` task matching the Arx signers used to date (this data may also be retrieved by looking up a given chip ID in the public Supabase):
+1. `0xeBC369ed2340fd2EB2391Aca09a6274997722aac`
+2. `0xaF98D82397e832A5945424648511886c15A61f36`
+
+See `ManufacturerUsage.md` for more information. The default options provided in the script for auth model and enrollment auth model should match HaLo chips and the Arx Supabase data.
+
+### Local Contract Development
+Note: If you are working with locally modified `ers-contracts` you may need to link those contracts and rebuild in order to correctly redeploy.
+1. `npm link @arx-research/ers-contracts --force`
+2. `yarn clean-artifacts`
+3. `yarn build`

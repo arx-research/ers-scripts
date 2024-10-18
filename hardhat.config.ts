@@ -33,7 +33,7 @@ const config: HardhatUserConfig = {
       blockGasLimit: 12000000,
     },
     sepolia: {
-      url: "https://sepolia.infura.io/v3/" + process.env.INFURA_TOKEN,
+      url: "https://eth-sepolia.g.alchemy.com/v2/" + process.env.ALCHEMY_API_KEY,
       // @ts-ignore
       accounts: [
         `0x${process.env.TESTNET_DEPLOY_PRIVATE_KEY}`,
@@ -48,7 +48,7 @@ const config: HardhatUserConfig = {
       },
     },
     base: {
-      url: "https://developer-access-mainnet.base.org",
+      url: "https://base-mainnet.g.alchemy.com/v2/" + process.env.ALCHEMY_API_KEY,
       // @ts-ignore
       accounts: [
         `0x${process.env.BASE_DEPLOY_PRIVATE_KEY}`,
