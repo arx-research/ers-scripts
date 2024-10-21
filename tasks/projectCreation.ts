@@ -61,7 +61,7 @@ interface ChipData {
 
 // Initialize Supabase client using environment variables
 const supabaseUrl = process.env.SUPABASE_URL!;
-const supabaseAnonKey = process.env.SUPABASE_ANON_API_KEY!;
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 task("createProject", "Create a new project")
