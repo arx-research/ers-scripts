@@ -11,7 +11,7 @@ The primary ERS deployment lives on Base. See [the ERS docs](https://docs.ers.to
 ## Setup
 1. Clone `ers-scripts` repo, install dependencies and build `artifacts`:
 ```bash
-git clone git@github.com:arx-research/ers-scripts.git
+git clone https://github.com/arx-research/ers-scripts.git
 cd ers-scripts
 npm install yarn --global
 yarn
@@ -29,7 +29,7 @@ cp .env.default .env
 
 See `Local Setup` below if you are only testing against a local chain rather than Base or a testnet. 
 
-Note: `ers-scripts` expects Node 20.5.0+ and the [yarn](https://classic.yarnpkg.com/lang/en/docs/install) package manager.
+Note: `ers-scripts` expects `git`,`node` 20.5.0+ and the [yarn](https://classic.yarnpkg.com/lang/en/docs/install) package manager.
 
 ## Using Scripts
 ERS Scripts can be used by various participants including Manufacturers, Developers, Service Creators as well as end users. In most cases, Developers are seeking to add chips to the protocol and link them to Services they have created. This will involve creating a service, deploying a developer registrar (if they have not previously done this) and creating projects.
