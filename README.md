@@ -25,16 +25,14 @@ cp .env.default .env
     - A [Supabase](https://supabase.com/) account in order to access Arx manufacturer enrollments, 
     - A [Filebase](https://filebase.com/) account in order to create tokenUri data for projects and upload content (may not be required in all cases, but highly recommended)
     - An [Alchemy](https://www.alchemy.com/) account to carry out RPC commands (or you can set up a custom RPC in `hardhat.config.ts`).
-    - Private keys for the different roles, e.g. Developer and Service Creator. Make sure the associated accounts are funded to cover contract deployment and calling contract functions.
+    - Private keys for the different roles, e.g. Developer and Service Creator. Make sure the associated accounts are funded to cover contract deployment and calling contract functions (e.g send some ETH on Sepolia or Base depending on where you will deploy to)
 
-See `Local Setup` below if you are only testing against a local chain rather than Base or a testnet. 
-
-Note: `ers-scripts` expects `git`,`node` 20.5.0+ and the [yarn](https://classic.yarnpkg.com/lang/en/docs/install) package manager.
+Note: `ers-scripts` expects you have `git`,`node` and the [yarn](https://classic.yarnpkg.com/lang/en/docs/install) package manager installed.
 
 ## Using Scripts
 ERS Scripts can be used by various participants including Manufacturers, Developers, Service Creators as well as end users. In most cases, Developers are seeking to add chips to the protocol and link them to Services they have created. This will involve creating a service, deploying a developer registrar (if they have not previously done this) and creating projects.
 
-In order to use scripts, first ensure that there is a valid protocol deployment in the environment you are deploying to, e.g. Base or Sepolia (see `Deployments`). If using `ers-scripts` on localhost, see `ManufacturerUsage.md` for more details on creating a mock manufacturer and enrollment and review the `Local Setup` section below.
+In order to use scripts, first ensure that there is a valid protocol deployment in the environment you are deploying to, e.g. Base or Sepolia (see `Deployments`). If using `ers-scripts` on localhost (not usually recommended, typically Sepolia is best for testing), see `ManufacturerUsage.md` for more details on creating a mock manufacturer and enrollment and review the `Local Setup` section below.
 
 ### Typical Flow
 1. Create a service: `createService` with the options indicated below. A service is the `contentApp` that you want to redirect a chip to (e.g. a decentralized app hosted on IPFS, a centralized app hosted at a URL).
