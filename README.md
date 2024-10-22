@@ -6,7 +6,7 @@ ERS scripts can be used by all parties in ERS including Manufactures, Developers
 
 Developers who wish to enroll chips in order to redirect them -- with or without the addition of contents -- should first create a Developer Registrar, then a Service and finally a Project. Depending on the type of Project you wish to create as a Developer, you may need to generate a custom CSV that maps metadata -- like images, names and descriptions -- to chips. If you are simply looking to redirect chips that are already mapped to ERS, you can probably skip this.
 
-The primary ERS deployment lives on Base and you can test ERS on Sepolia (see `deployments` for contract addresses). See [the ERS docs](https://docs.ers.to/) for more information on ERS. See also [ers-contracts](https://github.com/arx-research/ers-contracts) for the latest ERS contracts.
+The primary ERS deployment lives on Base and we recommend testing on Sepolia (see [Deployments](#deployments)). See [the ERS docs](https://docs.ers.to/) for more information on ERS. See also [ers-contracts](https://github.com/arx-research/ers-contracts) for the latest ERS contracts.
 
 ## Setup
 1. Clone `ers-scripts` repo, install dependencies and build `artifacts`:
@@ -109,6 +109,18 @@ Example:
 ```bash
 yarn transferToken --network [network]
 ```
+
+## Troubleshooting
+`ers-scripts` assumes prior knowledge of using a CLI interface as well as installing and managing software packages like `node`. Typically errors will occur in several cases:
+- An incorrect environment varaible (e.g. bad API key, extra or missing character)
+- An incorrect version of `node` (see `package.json` for the version requirements under the `engines` section)
+- You are attempting to deploy to a non-existant network (note network names are case sensitive)
+- You are attempting to run `ers-scripts` from the wrong directory
+- You have insufficient ETH on the account you are trying to use to carry out an action (e.g. `createService`)
+- The name you wish to register as a Developer is already taken
+- The `tokenUri` input file you are using is incorrectly formatted
+
+Visit the [ERS Discord](https://discord.com/invite/B2ReZXnt2v) for further assistance or open an issue.
 
 ## Deployments
 See deployment artifacts in `deployments/$CHAIN_ID` for live contract addresses. Sepolia is currently the primary testnet deployment and Base the primary production deployment.
