@@ -6,7 +6,7 @@ ERS scripts can be used by all parties in ERS including Manufactures, Developers
 
 Developers who wish to enroll chips in order to redirect them -- with or without the addition of contents -- should first create a Developer Registrar, then a Service and finally a Project. Depending on the type of Project you wish to create as a Developer, you may need to generate a custom CSV that maps metadata -- like images, names and descriptions -- to chips. If you are simply looking to redirect chips that are already mapped to ERS, you can probably skip this.
 
-The primary ERS deployment lives on Base. See [the ERS docs](https://docs.ers.to/) for more information on ERS. See also [ers-contracts](https://github.com/arx-research/ers-contracts) for the latest ERS contracts.
+The primary ERS deployment lives on Base and you can test ERS on Sepolia (see `deployments` for contract addresses). See [the ERS docs](https://docs.ers.to/) for more information on ERS. See also [ers-contracts](https://github.com/arx-research/ers-contracts) for the latest ERS contracts.
 
 ## Setup
 1. Clone `ers-scripts` repo, install dependencies and build `artifacts`:
@@ -32,7 +32,7 @@ Note: `ers-scripts` expects you have `git`,`node` and the [yarn](https://classic
 ## Using Scripts
 ERS Scripts can be used by various participants including Manufacturers, Developers, Service Creators as well as end users. In most cases, Developers are seeking to add chips to the protocol and link them to Services they have created. This will involve creating a service, deploying a developer registrar (if they have not previously done this) and creating projects.
 
-In order to use scripts, first ensure that there is a valid protocol deployment in the environment you are deploying to, e.g. Base or Sepolia (see `Deployments`). If using `ers-scripts` on localhost (not usually recommended, typically Sepolia is best for testing), see `ManufacturerUsage.md` for more details on creating a mock manufacturer and enrollment and review the `Local Setup` section below.
+_If using `ers-scripts` on localhost (not usually recommended, typically Sepolia is best for testing), see `ManufacturerUsage.md` for more details on creating a mock manufacturer and enrollment and review the `Local Setup` section below._
 
 ### Typical Flow
 1. Create a service: `createService` with the options indicated below. A service is the `contentApp` that you want to redirect a chip to (e.g. a decentralized app hosted on IPFS, a centralized app hosted at a URL).
@@ -51,7 +51,7 @@ It will prompt you for several pieces of information:
 3. `append-id`: Indicate whether chipId should be appended to the content app URL/URI. This is useful for NFT/PBT applications where every chip might reference unique metadata and required if you are using the output of the `generateTokenUriData` for `tokenUri` data in your project. Note this doesn't influence chip parameter data, e.g. `https://app.arx.org?$chipInfo`, which is passed regardless.
 
 Arguments:
-`network`: The network you want to interact with (defaults to `hardhat`)
+`network`: The network you want to interact with (`sepolia` recommended for testing)
 
 Example:
 ```bash
@@ -66,7 +66,7 @@ This script creates your named developerRegistrar in the `.ers` namespace (e.g. 
 It will prompt you for your desired developer name.
 
 Arguments:
-`network`: The network you want to interact with (defaults to `hardhat`)
+`network`: The network you want to interact with (`sepolia` recommended for testing)
 
 Example:
 ```bash
@@ -86,7 +86,7 @@ It will prompt you for several pieces of information:
 You will be prompted to scan a QR code on your NFC-enabled smartphone; scan the QR code on your smartphone and follow the prompts to capture chip proof data. You can scan your chip by tapping it to the NFC reader on the back of your smartphone. Currently this script *does not* support 2021 Edition HaLo chips (Edition 23+ should work).
 
 Arguments:
-`network`: The network you want to interact with (defaults to `hardhat`)
+`network`: The network you want to interact with (`sepolia` recommended for testing)
 
 Example:
 ```bash
@@ -103,7 +103,7 @@ This script [transfers ownership of a chip](https://docs.ers.to/overview/concept
 You will be prompted by a QR code scanner to scan the chip to get the `chipId` and to create a `transferToken` signature. Scan the QR code on your smartphone and follow the prompts to capture chip data. You can scan your chip by tapping it to the NFC reader on the back of your smartphone.
 
 Arguments:
-`network`: The network you want to interact with (defaults to `hardhat`)
+`network`: The network you want to interact with (`sepolia` recommended for testing)
 
 Example:
 ```bash
