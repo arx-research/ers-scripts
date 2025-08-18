@@ -19,7 +19,7 @@ export const CHIP_REGISTRY_DEPLOY: any = {
     "maxLockinPeriod": BigNumber.from(10)
   },
   "base": {
-    "maxLockinPeriod": BigNumber.from(315360000) // 5 years at 365 days in a year, previously 63072000 or 2 years
+    "maxLockinPeriod": BigNumber.from(315360000) // 10 years at 365 days in a year, previously 63072000 or 2 years
   },
 }
 

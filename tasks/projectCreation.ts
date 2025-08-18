@@ -166,6 +166,7 @@ task("createProject", "Create a new project")
                   console.log(`No tokenURI data was found, not updating baseTokenUri.`);
               }
             } else if (tokenUriDataChoice === "uri") {
+              // TODO: add option to skip setBaseURI
               console.log(`Calling setBaseURI, this might take a moment...`);
               await rawTx({
                 from: developerOwner,
@@ -487,15 +488,10 @@ task("createProject", "Create a new project")
             }
           }
 
-          // If all the chip information is provided, we don't need to scan the chip. Useful for when developer proofs have already been captured.
+          // If a developerProof and chipId are provided, we don't need to scan the chip. Useful for when developer proofs have already been captured.
           let signResponse: any;
           if (chipData.developerProof && 
-              chipData.chipId && 
-              chipData.edition && 
-              chipData.name && 
-              chipData.description && 
-              chipData.media_uri && 
-              chipData.media_mime_type
+              chipData.chipId
             ) {
             signResponse = {
               etherAddress: chipData.chipId,
@@ -542,6 +538,7 @@ task("createProject", "Create a new project")
             
           // Upload chip media to IPFS, if needed
           if (
+            chipData.media_uri &&
             !chipData.media_uri.startsWith('ipfs://') &&
             !chipData.media_uri.startsWith('https://') &&
             !chipData.media_uri.startsWith('http://')

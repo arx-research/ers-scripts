@@ -199,7 +199,7 @@ export async function getProjectSymbol(prompter: readline.ReadLine): Promise<str
 export async function getServiceTimelock(prompter: readline.ReadLine): Promise<BigNumber> {
   let rawTimelock = await queryUser(
     prompter,
-    "How long do you want to lock-in the redirect URL for (in seconds)? (Default is 0): "
+    "How long do you want to lock-in the redirect URL for (in seconds)? (Default is 0, max is 315360000): "
   );
 
   // Default to 0 if nothing is entered
@@ -224,7 +224,7 @@ export async function getServiceTimelock(prompter: readline.ReadLine): Promise<B
     return await getServiceTimelock(prompter);
   }
 
-  if (timelock.gt(31536000)) {
+  if (timelock.gt(315360000)) {
     console.log("Specified time period is too long. Please re-enter a valid time period.");
     return await getServiceTimelock(prompter);
   }
@@ -266,11 +266,12 @@ export async function getServiceId(prompter: readline.ReadLine, chainId: string,
   return serviceId;
 }
 
+// TODO: Split this into several questions -- (1) check for chip proof data from an independent file and (2) ask if we should update the tokenUri (if project already exists)
 // Ask if the users wants to (1) generate tokenURI data from a CSV as they scan or (2) paste and existing tokrenURI they already generated
 export async function getTokenUriSource(prompter: readline.ReadLine): Promise<string> {
-  console.log("How would you like to add the tokenURI data? (chip metadata like name, image, descriptions, etc.) ");
+  console.log("How would you like to add chip and tokenURI data? (chip metadata like name, image, descriptions, etc.) ");
   console.log("1: Skip (tokenUri can be updated after project deployment). ");
-  console.log("2: Input a CSV file with tokenUri data and generate tokenUri data as you scan chips ");
+  console.log("2: Input a CSV file with chip or tokenUri data and generate tokenUri data as you scan chips ");
   console.log("3: Input a tokenUri that you have already generated ");
 
 

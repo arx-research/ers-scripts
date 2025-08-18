@@ -112,9 +112,9 @@ yarn transferToken --network [network]
 
 ## Troubleshooting
 `ers-scripts` assumes prior knowledge of using a CLI interface as well as installing and managing software packages like `node`. Typically errors will occur in several cases:
-- An incorrect environment varaible (e.g. bad API key, extra or missing character)
+- An incorrect environment varaible (e.g. bad API key, extra or missing character; for instance you might receive an `ProviderError: Unspecified origin not on whitelist.` if your Alchemy key is incorrect)
 - An incorrect version of `node` (see `package.json` for the version requirements under the `engines` section)
-- You are attempting to deploy to a non-existant network (note network names are case sensitive)
+- You are attempting to deploy to a non-existant network (note network names are case sensitive, e.g. `base`)
 - You are attempting to run `ers-scripts` from the wrong directory
 - You have insufficient ETH on the account you are trying to use to carry out an action (e.g. `createService`)
 - The name you wish to register as a Developer is already taken

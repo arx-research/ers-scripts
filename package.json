@@ -32,6 +32,7 @@
     "createProject": "npx hardhat createProject",
     "createProject:localhost": "npx hardhat createProject --network localhost",
     "createProject:sepolia": "npx hardhat createProject --network sepolia",
+    "addProjectToRegistrar": "npx hardhat addProjectToRegistrar",
     "createService": "npx hardhat createService",
     "createService:localhost": "npx hardhat createService --network localhost",
     "createService:sepolia": "npx hardhat createService --network sepolia",
