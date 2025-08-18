@@ -96,11 +96,27 @@ export async function promptProjectRegistrar(
 
       const projectChoice = await queryUser(prompter, "Select a project or enter a custom address (default is option 1): ");
 
-      if (!projectChoice || parseInt(projectChoice) <= 0 || parseInt(projectChoice) > projectRegistrars.length) {
+      if (!projectChoice) {
         return { id: projectRegistrars[0].id, isNew: false, artifactFound: true };
       }
 
-      return { id: projectRegistrars[parseInt(projectChoice) - 1].id, isNew: false, artifactFound: true };
+      const choiceNum = parseInt(projectChoice);
+      
+      // If it's not a valid number or is an address, treat as custom address
+      if (isNaN(choiceNum) || projectChoice.startsWith('0x')) {
+        return { id: projectChoice, isNew: false, artifactFound: false };
+      }
+
+      if (choiceNum <= 0 || choiceNum > projectRegistrars.length + 1) {
+        return { id: projectRegistrars[0].id, isNew: false, artifactFound: true };
+      }
+
+      if (choiceNum === projectRegistrars.length + 1) {
+        const customAddress = await queryUser(prompter, "Enter project address: ");
+        return { id: customAddress, isNew: false, artifactFound: false };
+      }
+
+      return { id: projectRegistrars[choiceNum - 1].id, isNew: false, artifactFound: true };
     }
     const projectChoice = await queryUser(prompter, "Enter existing project address: ");
     return { id: projectChoice, isNew: false, artifactFound: false };
@@ -142,11 +158,26 @@ export async function getUserDeveloperRegistrar(prompter: readline.ReadLine, cha
 
     const choice = await queryUser(prompter, "Select a DeveloperRegistrar or enter a custom address (default is option 1): ");
 
-    if (!choice || parseInt(choice) <= 0 || parseInt(choice) > taskOutputs.length) {
+    if (!choice) {
       return taskOutputs[0].id;
     }
 
-    return taskOutputs[parseInt(choice) - 1].id;
+    const choiceNum = parseInt(choice);
+    
+    // If it's not a valid number or is an address, treat as custom address
+    if (isNaN(choiceNum) || choice.startsWith('0x')) {
+      return choice;
+    }
+
+    if (choiceNum <= 0 || choiceNum > taskOutputs.length + 1) {
+      return taskOutputs[0].id;
+    }
+
+    if (choiceNum === taskOutputs.length + 1) {
+      return await queryUser(prompter, "Enter DeveloperRegistrar address: ");
+    }
+
+    return taskOutputs[choiceNum - 1].id;
   }
 
   return queryUser(prompter, "What is the address of your DeveloperRegistrar? ");
@@ -248,11 +279,26 @@ export async function getServiceId(prompter: readline.ReadLine, chainId: string,
 
     const choice = await queryUser(prompter, "Select a Service ID or enter a custom ID (default is option 1): ");
 
-    if (!choice || parseInt(choice) <= 0 || parseInt(choice) > taskOutputs.length) {
+    if (!choice) {
       return taskOutputs[0].id;
     }
 
-    return taskOutputs[parseInt(choice) - 1].id;
+    const choiceNum = parseInt(choice);
+    
+    // If it's not a valid number or is an address, treat as custom ID
+    if (isNaN(choiceNum) || choice.startsWith('0x')) {
+      return choice;
+    }
+
+    if (choiceNum <= 0 || choiceNum > taskOutputs.length + 1) {
+      return taskOutputs[0].id;
+    }
+
+    if (choiceNum === taskOutputs.length + 1) {
+      return await queryUser(prompter, "Enter Service ID: ");
+    }
+
+    return taskOutputs[choiceNum - 1].id;
   }
 
   const serviceId = await queryUser(prompter, `Which service ID would you like to set as primary service for your project enrollment? `);
@@ -383,11 +429,26 @@ export async function getEnrollmentId(prompter: readline.ReadLine, chainId: stri
 
     const choice = await queryUser(prompter, "Select an Enrollment ID or enter a custom ID (default is option 1): ");
 
-    if (!choice || parseInt(choice) <= 0 || parseInt(choice) > taskOutputs.length) {
+    if (!choice) {
       return taskOutputs[0].id;
     }
 
-    return taskOutputs[parseInt(choice) - 1].id;
+    const choiceNum = parseInt(choice);
+    
+    // If it's not a valid number or is an address, treat as custom ID
+    if (isNaN(choiceNum) || choice.startsWith('0x')) {
+      return choice;
+    }
+
+    if (choiceNum <= 0 || choiceNum > taskOutputs.length + 1) {
+      return taskOutputs[0].id;
+    }
+
+    if (choiceNum === taskOutputs.length + 1) {
+      return await queryUser(prompter, "Enter Enrollment ID: ");
+    }
+
+    return taskOutputs[choiceNum - 1].id;
   }
 
   const enrollmentId = await queryUser(prompter, `What is the enrollmentId for these chips (only required for localhost deployments)? `);

@@ -166,7 +166,6 @@ task("createProject", "Create a new project")
                   console.log(`No tokenURI data was found, not updating baseTokenUri.`);
               }
             } else if (tokenUriDataChoice === "uri") {
-              // TODO: add option to skip setBaseURI
               console.log(`Calling setBaseURI, this might take a moment...`);
               await rawTx({
                 from: developerOwner,
@@ -221,8 +220,44 @@ task("createProject", "Create a new project")
         ],
       });
     
-      console.log(`New ProjectRegistrar deployed at ${projectRegistrarDeploy.address}, adding project to the DeveloperRegistrar, this might take a moment...`);
-    
+      
+      console.log(`New ProjectRegistrar deployed at ${projectRegistrarDeploy.address}`);
+      
+      // Wait for deployment transaction to be confirmed before proceeding
+      if (projectRegistrarDeploy.transactionHash) {
+        const receipt = await hre.ethers.provider.waitForTransaction(projectRegistrarDeploy.transactionHash);
+        console.log(`Deployment confirmed. Block: ${receipt.blockNumber}`);
+      }
+      
+      // Verify that the contract deployment has propagated by checking if code exists at the address
+      const maxRetries = 10;
+      let retries = 0;
+      let contractDeployed = false;
+      
+      while (!contractDeployed && retries < maxRetries) {
+        try {
+          const code = await hre.ethers.provider.getCode(projectRegistrarDeploy.address);
+          contractDeployed = code !== "0x";
+          
+          if (!contractDeployed) {
+            console.log(`Waiting for contract deployment to propagate... (${retries + 1}/${maxRetries})`);
+            await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
+            retries++;
+          }
+        } catch (error) {
+          console.log(`Error checking deployment status, retrying... (${retries + 1}/${maxRetries})`);
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          retries++;
+        }
+      }
+      
+      if (!contractDeployed) {
+        throw new Error(`Failed to verify contract deployment after ${maxRetries} attempts. The deployment may not have propagated properly.`);
+      }
+      
+      console.log(`Contract deployment verified successfully.`);
+      console.log(`Adding project to the DeveloperRegistrar, this might take a moment...`);
+
       // Add the new project to the DeveloperRegistrar
       const developerRegistrar = new DeveloperRegistrar__factory(await hre.ethers.getSigner(developerOwner)).attach(params.developerRegistrar);
       await hre.deployments.rawTx({

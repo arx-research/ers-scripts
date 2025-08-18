@@ -1,5 +1,5 @@
 import * as readline from 'readline';
-import { Address } from "@arx-research/ers-contracts/";
+import { Address, calculateLabelHash } from "@arx-research/ers-contracts/";
 
 import { queryUser } from "../scriptHelpers";
 import axios from 'axios';
@@ -15,6 +15,17 @@ export async function getDeveloperNameApproval(prompter: readline.ReadLine, deve
 
   if (name.length == 0) {
     throw Error(`Must define a project name`);
+  }
+
+  const isManuallyApproved = await queryUser(
+    prompter,
+    "Has this name been manually approved? (y/n, default: n) "
+  );
+
+  if (isManuallyApproved.toLowerCase() === 'y' || isManuallyApproved.toLowerCase() === 'yes') {
+    // Return empty values for approval proof and timestamp since name is already approved
+    const nameHash = calculateLabelHash(name);
+    return ["", "0", nameHash, name];
   }
 
   let res;

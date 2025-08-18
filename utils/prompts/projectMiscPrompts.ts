@@ -148,15 +148,26 @@ export async function promptServiceIdForManualAdd(
 
     const choice = await queryUser(prompter, "Select a Service ID or enter a custom ID (default is option 1): ");
 
-    if (!choice || parseInt(choice) <= 0 || parseInt(choice) > taskOutputs.length) {
+    if (!choice) {
       return taskOutputs[0].id;
     }
 
-    if (parseInt(choice) === taskOutputs.length + 1) {
+    const choiceNum = parseInt(choice);
+    
+    // If it's not a valid number or is an address, treat as custom ID
+    if (isNaN(choiceNum) || choice.startsWith('0x')) {
+      return choice;
+    }
+
+    if (choiceNum <= 0 || choiceNum > taskOutputs.length + 1) {
+      return taskOutputs[0].id;
+    }
+
+    if (choiceNum === taskOutputs.length + 1) {
       return await queryUser(prompter, "Enter Service ID: ");
     }
 
-    return taskOutputs[parseInt(choice) - 1].id;
+    return taskOutputs[choiceNum - 1].id;
   }
 
   const serviceId = await queryUser(prompter, "Enter the Service ID for this project: ");
